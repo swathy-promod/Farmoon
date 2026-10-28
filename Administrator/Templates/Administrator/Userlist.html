@@ -1,0 +1,490 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Farmoon – User List</title>
+  <link rel="shortcut icon" type="image/png" href="{% static 'Main/img/icon-1.png' %}" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&family=Lora:wght@600;700&display=swap" rel="stylesheet">
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --fm-green:      #4caf50;
+      --fm-green-dark: #388e3c;
+      --fm-orange:     #ff9800;
+      --fm-sidebar-bg: #1b2b1e;
+      --fm-sidebar-w:  255px;
+      --fm-topbar-h:   36px;
+      --fm-header-h:   64px;
+      --fm-font-head:  'Lora', serif;
+      --fm-font-body:  'Open Sans', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: var(--fm-font-body); background: #f5f7f5; color: #333; margin: 0; }
+
+    /* ── TOP BAR ── */
+    .fm-topbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1060;
+      height: var(--fm-topbar-h);
+      background: var(--fm-sidebar-bg);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; font-size: 0.76rem; color: #aaa;
+    }
+    .fm-topbar a { color: #aaa; text-decoration: none; margin-left: 10px; transition: color .2s; }
+    .fm-topbar a:hover { color: var(--fm-orange); }
+
+    /* ── NAVBAR ── */
+    .fm-navbar {
+      position: fixed;
+      top: var(--fm-topbar-h); left: 0; right: 0; z-index: 1050;
+      height: var(--fm-header-h);
+      background: #fff;
+      box-shadow: 0 2px 10px rgba(0,0,0,.08);
+      display: flex; align-items: center; padding: 0 24px; gap: 12px;
+    }
+    .fm-brand {
+      font-family: var(--fm-font-head); font-size: 1.55rem; font-weight: 700;
+      color: var(--fm-green); text-decoration: none; white-space: nowrap;
+    }
+    .fm-brand span { color: var(--fm-orange); }
+    .fm-admin-pill {
+      font-size: 0.68rem; background: #e8f5e9; color: var(--fm-green-dark);
+      padding: 2px 10px; border-radius: 50px; font-weight: 700; letter-spacing: .04em;
+    }
+    .fm-nav-links { display: flex; align-items: center; gap: 2px; margin-left: auto; }
+    .fm-nav-links a {
+      font-size: 0.84rem; color: #555; padding: 6px 13px;
+      border-radius: 50px; text-decoration: none; transition: all .2s;
+    }
+    .fm-nav-links a:hover, .fm-nav-links a.active { background: var(--fm-green); color: #fff; }
+
+    /* ── SIDEBAR ── */
+    .fm-sidebar {
+      position: fixed;
+      top: calc(var(--fm-topbar-h) + var(--fm-header-h));
+      left: 0; width: var(--fm-sidebar-w); bottom: 0;
+      background: var(--fm-sidebar-bg);
+      overflow-y: auto; z-index: 1040;
+      padding: 12px 0 40px;
+      transition: transform .3s;
+    }
+    .fm-sidebar::-webkit-scrollbar { width: 3px; }
+    .fm-sidebar::-webkit-scrollbar-thumb { background: #3a5e3d; border-radius: 4px; }
+    .fm-sidebar-cap {
+      font-size: 0.66rem; font-weight: 700; letter-spacing: .09em;
+      text-transform: uppercase; color: #5a7a5d;
+      padding: 18px 18px 5px;
+    }
+    .fm-sidebar a {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 18px; color: #b0c8b2;
+      text-decoration: none; font-size: 0.855rem;
+      border-left: 3px solid transparent; transition: all .2s;
+    }
+    .fm-sidebar a:hover   { color: #fff; background: rgba(76,175,80,.13); border-left-color: var(--fm-green); }
+    .fm-sidebar a.active  { color: #fff; background: rgba(76,175,80,.2);  border-left-color: var(--fm-green); font-weight: 600; }
+    .fm-sidebar a i       { width: 18px; text-align: center; }
+    .fm-sidebar-divider   { height: 1px; background: #2a3e2d; margin: 6px 0; }
+
+    /* ── MAIN ── */
+    .fm-main {
+      margin-left: var(--fm-sidebar-w);
+      padding-top: calc(var(--fm-topbar-h) + var(--fm-header-h) + 24px);
+      padding-left: 24px; padding-right: 24px; padding-bottom: 40px;
+      min-height: 100vh;
+    }
+
+    /* ── PAGE HEADER ── */
+    .fm-page-title {
+      font-family: var(--fm-font-head); font-size: 1.55rem;
+      font-weight: 700; color: #222; margin: 0;
+    }
+    .fm-page-sub { font-size: 0.8rem; color: #999; margin-top: 3px; }
+
+    /* ── CARD ── */
+    .fm-card {
+      background: #fff; border-radius: 12px;
+      border: 2px solid #e8f5e9;
+      box-shadow: 0 2px 8px rgba(0,0,0,.05); overflow: hidden;
+    }
+    .fm-card-hdr {
+      padding: 16px 20px 14px;
+      border-bottom: 1px solid #f0f4f0;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+    }
+    .fm-card-title { font-family: var(--fm-font-head); font-size: 1rem; font-weight: 700; color: #222; margin: 0; }
+    .fm-card-sub   { font-size: 0.76rem; color: #aaa; margin-top: 1px; }
+
+    /* ── SEARCH BAR ── */
+    .fm-search {
+      position: relative; max-width: 260px; width: 100%;
+    }
+    .fm-search input {
+      width: 100%; padding: 7px 14px 7px 34px;
+      border: 1.5px solid #e0e8e0; border-radius: 50px;
+      font-size: 0.82rem; font-family: var(--fm-font-body);
+      background: #f7faf7; outline: none; color: #333; transition: border-color .2s;
+    }
+    .fm-search input:focus { border-color: var(--fm-green); background: #fff; }
+    .fm-search i {
+      position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+      color: #aaa; font-size: 0.8rem;
+    }
+
+    /* ── TABLE ── */
+    .fm-tbl { font-size: 0.82rem; margin: 0; width: 100%; }
+    .fm-tbl thead th {
+      font-size: 0.72rem; font-weight: 700; letter-spacing: .05em;
+      text-transform: uppercase; color: #aaa;
+      border: none; padding: 11px 14px; background: #fafcfa;
+      white-space: nowrap;
+    }
+    .fm-tbl tbody td { padding: 12px 14px; vertical-align: middle; border-color: #f0f4f0; }
+    .fm-tbl tbody tr:hover { background: #f5fbf5; }
+
+    /* ── USER AVATAR ── */
+    .fm-avatar {
+      width: 52px; height: 52px; border-radius: 10px;
+      object-fit: cover; border: 2px solid #e8f5e9;
+      display: block;
+    }
+
+    /* ── USER INFO CELL ── */
+    .fm-user-name  { font-weight: 600; color: #222; font-size: 0.85rem; }
+    .fm-user-email { font-size: 0.75rem; color: #999; margin-top: 1px; }
+
+    /* ── BADGES ── */
+    .fm-pill {
+      display: inline-block; padding: 3px 11px;
+      border-radius: 50px; font-size: 0.7rem; font-weight: 700;
+    }
+    .pill-pending  { background: rgba(255,152,0,.12);  color: #e65100; }
+    .pill-accepted { background: rgba(76,175,80,.12);  color: #2e7d32; }
+    .pill-rejected { background: rgba(244,67,54,.12);  color: #b71c1c; }
+
+    /* ── GENDER BADGE ── */
+    .fm-gender {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 0.72rem; font-weight: 600;
+      padding: 2px 9px; border-radius: 50px;
+    }
+    .gender-m { background: rgba(33,150,243,.1); color: #1565c0; }
+    .gender-f { background: rgba(233,30,99,.1);  color: #880e4f; }
+    .gender-o { background: rgba(156,39,176,.1); color: #6a1b9a; }
+
+    /* ── ACTION BUTTONS ── */
+    .btn-accept {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 11px; border-radius: 50px; font-size: 0.72rem; font-weight: 600;
+      background: rgba(76,175,80,.1); color: var(--fm-green-dark);
+      text-decoration: none; transition: all .2s; white-space: nowrap;
+    }
+    .btn-accept:hover { background: var(--fm-green); color: #fff; }
+    .btn-reject {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 11px; border-radius: 50px; font-size: 0.72rem; font-weight: 600;
+      background: rgba(244,67,54,.1); color: #b71c1c;
+      text-decoration: none; transition: all .2s; white-space: nowrap;
+    }
+    .btn-reject:hover { background: #f44336; color: #fff; }
+
+    /* ── SUMMARY PILLS ROW ── */
+    .fm-summary {
+      display: flex; gap: 10px; flex-wrap: wrap;
+    }
+    .fm-summary-pill {
+      display: flex; align-items: center; gap: 6px;
+      padding: 5px 14px; border-radius: 50px;
+      font-size: 0.76rem; font-weight: 600;
+      border: 1.5px solid #e8f5e9; background: #fff;
+    }
+    .fm-summary-pill .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+    }
+    .dot-total    { background: #4caf50; }
+    .dot-pending  { background: #ff9800; }
+    .dot-accepted { background: #30aa40; }
+    .dot-rejected { background: #f44336; }
+
+    /* ── EMPTY STATE ── */
+    .fm-empty {
+      padding: 60px 20px; text-align: center; color: #bbb;
+    }
+    .fm-empty i { font-size: 2.5rem; display: block; margin-bottom: 10px; color: #d0e8d0; }
+    .fm-empty p { font-size: 0.85rem; margin: 0; }
+
+    /* ── FOOTER ── */
+    .fm-footer {
+      text-align: center; font-size: 0.76rem; color: #bbb;
+      padding: 20px; border-top: 1px solid #e8f5e9; margin-top: 8px;
+    }
+    .fm-footer a { color: var(--fm-green); text-decoration: none; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 991px) {
+      .fm-sidebar { transform: translateX(-100%); }
+      .fm-sidebar.open { transform: translateX(0); }
+      .fm-main { margin-left: 0; }
+      .fm-nav-links { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- TOP BAR -->
+  <div class="fm-topbar">
+    <span><i class="fa fa-map-marker-alt me-2"></i>Farmoon Admin Panel</span>
+    <span>
+      Follow us:
+      <a href="#"><i class="fab fa-facebook-f"></i></a>
+      <a href="#"><i class="fab fa-twitter"></i></a>
+      <a href="#"><i class="fab fa-linkedin-in"></i></a>
+      <a href="#"><i class="fab fa-instagram"></i></a>
+    </span>
+  </div>
+
+  <!-- NAVBAR -->
+  <div class="fm-navbar">
+    <button class="btn btn-sm d-xl-none me-1" id="sidebarToggle"
+            style="background:none;border:none;font-size:1.3rem;color:#555;">
+      <i class="bi bi-list"></i>
+    </button>
+    <a href="{% url 'Administrator:HomePage' %}" class="fm-brand">Farm<span>oo</span>n</a>
+    <span class="fm-admin-pill">ADMIN</span>
+    <nav class="fm-nav-links">
+      <a href="{% url 'Guest:index' %}"><i class="fa fa-globe me-1"></i>Guest Site</a>
+      <a href="{% url 'Administrator:HomePage' %}"><i class="fa fa-tachometer-alt me-1"></i>Dashboard</a>
+      <a href="{% url 'Administrator:Userlist' %}" class="active"><i class="fa fa-users me-1"></i>Users</a>
+      <a href="{% url 'Administrator:Farmerlist' %}"><i class="fa fa-leaf me-1"></i>Farmers</a>
+      <a href="{% url 'Administrator:ViewComplaint' %}"><i class="fa fa-exclamation-circle me-1"></i>Complaints</a>
+      <a href="{% url 'Administrator:ViewFeedback' %}"><i class="fa fa-comment-dots me-1"></i>Feedback</a>
+    </nav>
+  </div>
+
+  <!-- SIDEBAR -->
+  <aside class="fm-sidebar" id="fmSidebar">
+    <div class="fm-sidebar-cap">Main</div>
+    <a href="{% url 'Administrator:HomePage' %}"><i class="fa fa-tachometer-alt"></i>Dashboard</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <div class="fm-sidebar-cap">User Management</div>
+    <a href="{% url 'Administrator:Userlist' %}" class="active"><i class="fa fa-users"></i>User List</a>
+    <a href="{% url 'Administrator:Farmerlist' %}"><i class="fa fa-leaf"></i>Farmer List</a>
+    <a href="{% url 'Administrator:AdminRegistration' %}"><i class="fa fa-user-shield"></i>Admin Accounts</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <div class="fm-sidebar-cap">Location</div>
+    <a href="{% url 'Administrator:District' %}"><i class="fa fa-map"></i>Districts</a>
+    <a href="{% url 'Administrator:Place' %}"><i class="fa fa-map-marker-alt"></i>Places</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <div class="fm-sidebar-cap">Catalogue</div>
+    <a href="{% url 'Administrator:Category' %}"><i class="fa fa-tags"></i>Categories</a>
+    <a href="{% url 'Administrator:Subcategory' %}"><i class="fa fa-list-ul"></i>Subcategories</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <div class="fm-sidebar-cap">Orders & Payments</div>
+    <a href="{% url 'Administrator:OrderList' %}"><i class="fa fa-shopping-bag"></i>Orders
+      {% if pending_orders %}
+        <span class="fm-pill pill-pending ms-auto">{{ pending_orders }}</span>
+      {% endif %}
+    </a>
+    <a href="{% url 'Administrator:TransactionList' %}"><i class="fa fa-credit-card"></i>Transactions</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <div class="fm-sidebar-cap">Support</div>
+    <a href="{% url 'Administrator:ViewComplaint' %}"><i class="fa fa-exclamation-circle"></i>Complaints</a>
+    <a href="{% url 'Administrator:ViewFeedback' %}"><i class="fa fa-comment-dots"></i>Feedback</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <a href="{% url 'Guest:Login' %}"><i class="fa fa-sign-out-alt"></i>Logout</a>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="fm-main">
+
+    <!-- Page Header -->
+    <div class="d-flex align-items-start justify-content-between mb-3 flex-wrap gap-2">
+      <div>
+        <h1 class="fm-page-title">
+          <i class="fa fa-users me-2" style="color:var(--fm-green);font-size:1.2rem;"></i>User List
+        </h1>
+        <p class="fm-page-sub">Manage and review all registered users on the platform.</p>
+      </div>
+      <!-- Summary counts -->
+      <div class="fm-summary">
+        <div class="fm-summary-pill"><span class="dot dot-total"></span>{{ data|length }} Total</div>
+        <div class="fm-summary-pill"><span class="dot dot-pending"></span>{{ pending_count }} Pending</div>
+        <div class="fm-summary-pill"><span class="dot dot-accepted"></span>{{accepted_count}} Accepted</div>
+        <div class="fm-summary-pill"><span class="dot dot-rejected"></span>{{rejected_count}} Rejected</div>
+      </div>
+    </div>
+
+    <!-- Table Card -->
+    <div class="fm-card">
+      <div class="fm-card-hdr">
+        <div>
+          <div class="fm-card-title">All Registered Users</div>
+          <div class="fm-card-sub">Review profiles and approve or reject pending accounts</div>
+        </div>
+        <!-- Search (client-side) -->
+        <div class="fm-search">
+          <i class="fa fa-search"></i>
+          <input type="text" id="userSearch" placeholder="Search by name, email…">
+        </div>
+      </div>
+
+      <form enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="table-responsive">
+          <table class="table fm-tbl mb-0" id="userTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>User</th>
+                <th>Contact</th>
+                <th>Location</th>
+                <th>Gender</th>
+                <th>DOB</th>
+                <th>Photo</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for i in data %}
+              <tr>
+                <td style="color:#bbb;font-size:0.78rem;">{{ forloop.counter }}</td>
+
+                <!-- Name + Email -->
+                <td>
+                  <div class="fm-user-name">{{ i.userregistration_name }}</div>
+                  <div class="fm-user-email">{{ i.userregistration_email }}</div>
+                </td>
+
+                <!-- Contact + Address -->
+                <td>
+                  <div style="font-size:0.82rem;color:#444;">{{ i.userregistration_contact }}</div>
+                  <div style="font-size:0.74rem;color:#bbb;margin-top:2px;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"
+                       title="{{ i.userregistration_address }}">
+                    {{ i.userregistration_address }}
+                  </div>
+                </td>
+
+                <!-- District + Place -->
+                <td>
+                  <div style="font-size:0.82rem;color:#444;">{{ i.userregistration_place.district.district_name }}</div>
+                  <div style="font-size:0.74rem;color:#bbb;margin-top:2px;">{{ i.userregistration_place.place_name }}</div>
+                </td>
+
+                <!-- Gender -->
+                <td>
+                  {% with g=i.userregistration_gender|lower %}
+                    {% if g == "male" %}
+                      <span class="fm-gender gender-m"><i class="fa fa-mars"></i>Male</span>
+                    {% elif g == "female" %}
+                      <span class="fm-gender gender-f"><i class="fa fa-venus"></i>Female</span>
+                    {% else %}
+                      <span class="fm-gender gender-o"><i class="fa fa-genderless"></i>{{ i.userregistration_gender }}</span>
+                    {% endif %}
+                  {% endwith %}
+                </td>
+
+                <!-- DOB -->
+                <td style="font-size:0.8rem;color:#666;white-space:nowrap;">{{ i.userregistration_dateofbirth }}</td>
+
+                <!-- Photo -->
+                <td>
+                  <img src="{{ i.userregistration_photo.url }}" class="fm-avatar"
+                       alt="{{ i.userregistration_name }}" />
+                </td>
+
+                <!-- Status -->
+                <td>
+                  {% if i.user_status == 0 %}
+                    <span class="fm-pill pill-pending">Pending</span>
+                  {% elif i.user_status == 1 %}
+                    <span class="fm-pill pill-accepted">Accepted</span>
+                  {% else %}
+                    <span class="fm-pill pill-rejected">Rejected</span>
+                  {% endif %}
+                </td>
+
+                <!-- Action -->
+                <td>
+                  {% if i.user_status == 0 %}
+                    <div class="d-flex gap-1 flex-wrap">
+                      <a href="{% url 'Administrator:accuser' i.id %}" class="btn-accept">
+                        <i class="fa fa-check"></i>Accept
+                      </a>
+                      <a href="{% url 'Administrator:rejuser' i.id %}" class="btn-reject">
+                        <i class="fa fa-times"></i>Reject
+                      </a>
+                    </div>
+                  {% else %}
+                    <span style="font-size:0.75rem;color:#ccc;">—</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="9">
+                  <div class="fm-empty">
+                    <i class="fa fa-user-slash"></i>
+                    <p>No users registered yet.</p>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </form>
+    </div><!-- /.fm-card -->
+
+    <!-- Footer -->
+    <div class="fm-footer">
+      &copy; <a href="#">Farmoon</a> Admin Panel &nbsp;·&nbsp;
+      
+    </div>
+
+  </main>
+
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Mobile sidebar toggle
+    document.getElementById('sidebarToggle').addEventListener('click', function () {
+      document.getElementById('fmSidebar').classList.toggle('open');
+    });
+
+    // Live client-side search
+    document.getElementById('userSearch').addEventListener('input', function () {
+      const q = this.value.toLowerCase();
+      document.querySelectorAll('#userTable tbody tr').forEach(function (row) {
+        row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+      });
+    });
+  </script>
+
+  {% if Msg %}
+  <script>
+    alert("{{ Msg }}");
+    window.location = "{% url 'Administrator:Userlist' %}";
+  </script>
+  {% endif %}
+
+</body>
+</html>

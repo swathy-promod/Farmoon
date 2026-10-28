@@ -1,0 +1,342 @@
+{% extends 'Farmer/Head.html' %}
+{% block content %}
+
+<style>
+    /* ── Page background ── */
+    .page-wrapper {
+        padding: 110px 0 60px;
+        min-height: 100vh;
+        background: #f8faf6;
+    }
+
+    /* ── Section heading ── */
+    .section-title {
+        font-family: 'Lora', serif;
+        font-size: 1.7rem;
+        font-weight: 700;
+        color: #333;
+        position: relative;
+        padding-bottom: 10px;
+        margin-bottom: 28px;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 48px;
+        height: 3px;
+        background: var(--bs-primary, #5cb85c);
+        border-radius: 2px;
+    }
+
+    .section-title-left::after {
+        left: 0;
+        transform: none;
+    }
+
+    /* ── Form Card ── */
+    .form-card {
+        background: #fff;
+        border-top: 4px solid var(--bs-primary, #5cb85c);
+        box-shadow: 0 6px 32px rgba(0,0,0,0.09);
+        border-radius: 0;
+        padding: 38px 40px;
+    }
+
+    /* ── Intro badge ── */
+    .intro-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #eaf5ea;
+        color: var(--bs-primary, #5cb85c);
+        font-family: 'Open Sans', sans-serif;
+        font-size: 0.78rem;
+        font-weight: 600;
+        padding: 4px 14px;
+        border-radius: 50px;
+        margin-bottom: 20px;
+    }
+
+    /* ── Form elements ── */
+    .form-label {
+        font-family: 'Open Sans', sans-serif;
+        font-weight: 600;
+        color: #555;
+        font-size: 0.88rem;
+        margin-bottom: 5px;
+    }
+
+    .form-control {
+        border-radius: 0;
+        border: 1px solid #ddd;
+        padding: 11px 15px;
+        font-family: 'Open Sans', sans-serif;
+        font-size: 0.88rem;
+        transition: border-color 0.3s;
+    }
+
+    .form-control:focus {
+        border-color: var(--bs-primary, #5cb85c);
+        box-shadow: 0 0 0 0.2rem rgba(92,184,92,0.15);
+    }
+
+    .input-group-text {
+        border-radius: 0;
+        background: #f8f9fa;
+        border: 1px solid #ddd;
+        color: var(--bs-primary, #5cb85c);
+        min-width: 42px;
+        justify-content: center;
+    }
+
+    .btn-submit {
+        border-radius: 50px;
+        padding: 11px 40px;
+        font-family: 'Open Sans', sans-serif;
+        font-weight: 500;
+        font-size: 0.92rem;
+        letter-spacing: 0.4px;
+    }
+
+    /* ── Table Card ── */
+    .table-card {
+        background: #fff;
+        box-shadow: 0 6px 32px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+
+    .complaint-table {
+        font-family: 'Open Sans', sans-serif;
+        font-size: 0.875rem;
+        margin-bottom: 0;
+    }
+
+    .complaint-table thead th {
+        background: var(--bs-primary, #5cb85c);
+        color: #fff;
+        font-family: 'Lora', serif;
+        font-weight: 600;
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        border: none;
+        padding: 14px 16px;
+        white-space: nowrap;
+    }
+
+    .complaint-table tbody tr {
+        border-bottom: 1px solid #f0f0f0;
+        transition: background 0.2s;
+    }
+
+    .complaint-table tbody tr:hover {
+        background: #f5fbf3;
+    }
+
+    .complaint-table tbody td {
+        padding: 14px 16px;
+        vertical-align: middle;
+        color: #444;
+        border: none;
+    }
+
+    /* Serial badge */
+    .sl-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        background: #eaf5ea;
+        color: var(--bs-primary, #5cb85c);
+        border-radius: 50%;
+        font-weight: 600;
+        font-size: 0.78rem;
+    }
+
+    /* Status badges */
+    .status-badge {
+        display: inline-block;
+        font-family: 'Open Sans', sans-serif;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 4px 12px;
+        border-radius: 50px;
+        letter-spacing: 0.3px;
+    }
+
+    .status-pending  { background: #fff3cd; color: #856404; }
+    .status-replied  { background: #d1e7dd; color: #0a3622; }
+
+    /* Reply text */
+    .reply-text {
+        font-style: italic;
+        color: #666;
+        font-size: 0.85rem;
+    }
+
+    .reply-nil {
+        color: #ccc;
+        font-size: 0.82rem;
+    }
+
+    /* Date text */
+    .date-text {
+        font-size: 0.8rem;
+        color: #aaa;
+        white-space: nowrap;
+    }
+
+    /* Action button */
+    .btn-action {
+        border-radius: 50px;
+        font-size: 0.76rem;
+        font-family: 'Open Sans', sans-serif;
+        padding: 4px 14px;
+        font-weight: 500;
+        border-width: 1.5px;
+        white-space: nowrap;
+    }
+
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        padding: 56px 20px;
+        color: #bbb;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .empty-state i {
+        font-size: 2.8rem;
+        margin-bottom: 14px;
+        display: block;
+        color: #ddd;
+    }
+</style>
+
+<div class="page-wrapper">
+    <div class="container">
+
+        <!-- ── Complaint Form ── -->
+        <div class="row justify-content-center mb-5 wow fadeInUp" data-wow-delay="0.1s">
+            <div class="col-lg-7 col-md-9">
+
+                <h2 class="section-title text-center">Submit a Complaint</h2>
+
+                <div class="form-card">
+                    <div class="intro-badge">
+                        <i class="fa fa-comment-alt"></i>
+                        We'll review your complaint and respond promptly
+                    </div>
+
+                    <form method="POST">
+                        {% csrf_token %}
+
+                        <div class="row g-3">
+
+                            <!-- Title -->
+                            <div class="col-12">
+                                <label class="form-label">Complaint Title</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa fa-heading"></i></span>
+                                    <input type="text" class="form-control" name="txt_title"
+                                           placeholder="Enter a short title" required>
+                                </div>
+                            </div>
+
+                            <!-- Content -->
+                            <div class="col-12">
+                                <label class="form-label">Content</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa fa-align-left"></i></span>
+                                    <textarea class="form-control" name="txt_content" rows="4"
+                                              placeholder="Describe your complaint in detail" required></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Submit -->
+                            <div class="col-12 mt-2">
+                                <button type="submit" name="btn_submit"
+                                        class="btn btn-primary btn-submit w-100">
+                                    <i class="fa fa-paper-plane me-2"></i>Submit Complaint
+                                </button>
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ── Complaint Details Table ── -->
+        <div class="wow fadeInUp" data-wow-delay="0.2s">
+            <h2 class="section-title section-title-left">Complaint History</h2>
+
+            <div class="table-card">
+                <div class="table-responsive">
+                    <table class="table complaint-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Title</th>
+                                <th>Content</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Reply</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for i in complaint %}
+                            <tr>
+                                <td><span class="sl-badge">{{ forloop.counter }}</span></td>
+                                <td><strong>{{ i.complaint_title }}</strong></td>
+                                <td>{{ i.complaint_content }}</td>
+                                <td><span class="date-text">{{ i.complaint_date }}</span></td>
+                                <td>
+                                    {% if i.complaint_status == 0 %}
+                                        <span class="status-badge status-pending">Pending</span>
+                                    {% else %}
+                                        <span class="status-badge status-replied">Replied</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if i.complaint_status == 0 %}
+                                        <span class="reply-nil">—</span>
+                                    {% else %}
+                                        <span class="reply-text">{{ i.complaint_reply }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'User:delcomplaint' i.id %}"
+                                       class="btn btn-outline-danger btn-action"
+                                       onclick="return confirm('Delete this complaint?')">
+                                        <i class="fa fa-trash me-1"></i>Delete
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7">
+                                    <div class="empty-state">
+                                        <i class="fa fa-comment-slash"></i>
+                                        No complaints submitted yet.
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock content %}

@@ -1,0 +1,421 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Feedback - Farmoon</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <link href="{% static 'Main/img/icon-1.png' %}" rel="icon">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500&family=Lora:wght@600;700&display=swap" rel="stylesheet">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <link href="{% static 'Main/lib/animate/animate.min.css' %}" rel="stylesheet">
+    <link href="{% static 'Main/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'Main/css/style.css' %}" rel="stylesheet">
+
+    <style>
+        .page-wrapper {
+            padding: 110px 0 60px;
+            min-height: 100vh;
+            background: #f8faf6;
+        }
+
+        /* ── Feedback Card ── */
+        .feedback-card {
+            background: #fff;
+            border-top: 4px solid var(--bs-primary, #5cb85c);
+            box-shadow: 0 6px 32px rgba(0,0,0,0.09);
+            border-radius: 0;
+            padding: 52px 40px 48px;
+        }
+
+        .card-icon-circle {
+            width: 84px;
+            height: 84px;
+            background: #eaf5ea;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 22px;
+            border: 3px solid #d4ecd4;
+        }
+
+        .card-icon-circle i {
+            font-size: 2.2rem;
+            color: var(--bs-primary, #5cb85c);
+        }
+
+        .card-title {
+            font-family: 'Lora', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .card-subtitle {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.92rem;
+            color: #999;
+            margin-bottom: 36px;
+            text-align: center;
+        }
+
+        /* ── Form Fields ── */
+        .form-label-custom {
+            font-family: 'Lora', serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #333;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-control-custom {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.88rem;
+            border: 1.5px solid #e0eedc;
+            border-radius: 0;
+            padding: 12px 16px;
+            color: #333;
+            background: #f8faf6;
+            width: 100%;
+            transition: border-color 0.2s;
+            resize: vertical;
+        }
+
+        .form-control-custom:focus {
+            outline: none;
+            border-color: var(--bs-primary, #5cb85c);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(92,184,92,0.1);
+        }
+
+        .form-control-custom::placeholder {
+            color: #bbb;
+        }
+
+        /* ── Star Rating ── */
+        .rating-section {
+            background: #f8faf6;
+            border: 1.5px solid #e0eedc;
+            padding: 28px 24px;
+            margin-bottom: 24px;
+        }
+
+        .rating-label {
+            font-family: 'Lora', serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #333;
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .rating-desc {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.8rem;
+            color: #aaa;
+            margin-top: 10px;
+            min-height: 1.2em;
+            transition: color 0.2s;
+        }
+
+        /* Star Rating — CSS-only reverse trick */
+        .stars {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+            gap: 6px;
+        }
+
+        .stars input[type="radio"] {
+            display: none;
+        }
+
+        .stars label {
+            font-size: 2rem;
+            color: #ddd;
+            cursor: pointer;
+            transition: color 0.15s, transform 0.15s;
+            line-height: 1;
+        }
+
+        /* Highlight: hovered star and all before it (which are "after" in reversed flex) */
+        .stars label:hover,
+        .stars label:hover ~ label,
+        .stars input[type="radio"]:checked ~ label {
+            color: #f5a623;
+        }
+
+        .stars label:hover {
+            transform: scale(1.2);
+        }
+
+        /* ── Submit Button ── */
+        .btn-submit {
+            font-family: 'Open Sans', sans-serif;
+            font-weight: 500;
+            font-size: 0.92rem;
+            background: var(--bs-primary, #5cb85c);
+            color: #fff;
+            border: none;
+            padding: 13px 40px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-submit:hover {
+            background: #4cae4c;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 22px rgba(92,184,92,0.25);
+        }
+
+        .btn-submit i {
+            font-size: 0.85rem;
+        }
+
+        /* ── Divider ── */
+        .form-divider {
+            border: none;
+            border-top: 1.5px solid #e0eedc;
+            margin: 28px 0;
+        }
+
+        @media (max-width: 640px) {
+            .feedback-card { padding: 36px 20px 32px; }
+            .stars label { font-size: 1.7rem; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Spinner Start -->
+    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-border text-primary" role="status"></div>
+    </div>
+    <!-- Spinner End -->
+
+    <!-- Navbar Start -->
+    <div class="container-fluid fixed-top px-0 wow fadeIn" data-wow-delay="0.1s">
+        <div class="top-bar row gx-0 align-items-center d-none d-lg-flex">
+            <div class="col-lg-6 px-5 text-start">
+                <small><i class="fa fa-map-marker-alt me-2"></i>Idukki,Kerala</small>
+                <small class="ms-4"><i class="fa fa-envelope me-2"></i>farmoon@gmail.com</small>
+            </div>
+            <div class="col-lg-6 px-5 text-end">
+                <small>Follow us:</small>
+                <a class="text-body ms-3" href=""><i class="fab fa-facebook-f"></i></a>
+                <a class="text-body ms-3" href=""><i class="fab fa-twitter"></i></a>
+                <a class="text-body ms-3" href=""><i class="fab fa-linkedin-in"></i></a>
+                <a class="text-body ms-3" href=""><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
+
+        <nav class="navbar navbar-expand-lg navbar-light py-lg-0 px-lg-5 wow fadeIn" data-wow-delay="0.1s">
+            <a href="{% url 'Guest:index' %}" class="navbar-brand ms-4 ms-lg-0">
+                <h1 class="fw-bold text-primary m-0">Farm<span class="text-secondary">oo</span>n</h1>
+            </a>
+            <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <div class="navbar-nav ms-auto p-4 p-lg-0">
+                    <a href="{% url 'Guest:Product' %}" class="nav-item nav-link">Products</a>
+                    <a href="{% url 'Guest:Login' %}" class="nav-item nav-link">Logout</a>
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
+                        <div class="dropdown-menu m-0">
+                            <a href="blog.html" class="dropdown-item">Blog Grid</a>
+                            <a href="feature.html" class="dropdown-item">Our Features</a>
+                            <a href="testimonial.html" class="dropdown-item">Testimonial</a>
+                            <a href="Main/404.html" class="dropdown-item">404 Page</a>
+                        </div>
+                    </div>
+                    <a href="{% url 'Guest:ContactUs' %}" class="nav-item nav-link">Contact Us</a>
+                </div>
+                <div class="d-none d-lg-flex ms-2">
+                    <a class="btn-sm-square bg-white rounded-circle ms-3" href="{% url 'User:MyProfile' %}">
+                        <small class="fa fa-user text-body"></small>
+                    </a>
+                    <a class="btn-sm-square bg-white rounded-circle ms-3" href="{% url 'Guest:Product' %}">
+                        <small class="fa fa-shopping-bag text-body"></small>
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <!-- Navbar End -->
+
+    <!-- Page Content -->
+    <div class="page-wrapper">
+        <div class="container">
+
+            <div class="row justify-content-center wow fadeInUp" data-wow-delay="0.1s">
+                <div class="col-lg-7">
+
+                    <div class="feedback-card">
+
+                        <!-- Icon -->
+                        <div class="card-icon-circle">
+                            <i class="fa fa-star"></i>
+                        </div>
+
+                        <div class="card-title">Share Your Feedback</div>
+                        <div class="card-subtitle">We'd love to hear how your experience was. Your thoughts help us improve.</div>
+
+                        <form method="POST">
+                            {% csrf_token %}
+
+                            <!-- Star Rating -->
+                            <div class="rating-section">
+                                <span class="rating-label"><i class="fa fa-star me-2 text-warning"></i>Rate Your Experience</span>
+
+                                <div class="stars">
+                                    <input type="radio" id="star5" name="txt_rating" value="5">
+                                    <label for="star5" title="Excellent">&#9733;</label>
+
+                                    <input type="radio" id="star4" name="txt_rating" value="4">
+                                    <label for="star4" title="Good">&#9733;</label>
+
+                                    <input type="radio" id="star3" name="txt_rating" value="3">
+                                    <label for="star3" title="Average">&#9733;</label>
+
+                                    <input type="radio" id="star2" name="txt_rating" value="2">
+                                    <label for="star2" title="Poor">&#9733;</label>
+
+                                    <input type="radio" id="star1" name="txt_rating" value="1">
+                                    <label for="star1" title="Terrible">&#9733;</label>
+                                </div>
+
+                                <div class="rating-desc" id="ratingText">Click a star to rate</div>
+                            </div>
+
+                            <hr class="form-divider">
+
+                            <!-- Feedback Text -->
+                            <div class="mb-4">
+                                <label class="form-label-custom" for="feedbackContent">
+                                    <i class="fa fa-comment-alt me-2 text-primary"></i>Your Feedback
+                                </label>
+                                <textarea
+                                    class="form-control-custom"
+                                    id="feedbackContent"
+                                    name="txt_feedback"
+                                    rows="5"
+                                    placeholder="Tell us about your experience — what went well, what could be better..."
+                                    required
+                                ></textarea>
+                            </div>
+
+                            <!-- Submit -->
+                            <div class="text-center">
+                                <button type="submit" name="btn_submit" class="btn-submit">
+                                    <i class="fa fa-paper-plane"></i> Submit Feedback
+                                </button>
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- Page Content End -->
+
+    <!-- Footer Start -->
+    <div class="container-fluid bg-dark footer mt-5 pt-5 wow fadeIn" data-wow-delay="0.1s">
+        <div class="container py-5">
+            <div class="row g-5">
+                <div class="col-lg-3 col-md-6">
+                    <h1 class="fw-bold text-primary mb-4">Farm<span class="text-secondary">oo</span>n</h1>
+                    <div class="d-flex pt-2">
+                        <a class="btn btn-square btn-outline-light rounded-circle me-1" href=""><i class="fab fa-twitter"></i></a>
+                        <a class="btn btn-square btn-outline-light rounded-circle me-1" href=""><i class="fab fa-facebook-f"></i></a>
+                        <a class="btn btn-square btn-outline-light rounded-circle me-1" href=""><i class="fab fa-youtube"></i></a>
+                        <a class="btn btn-square btn-outline-light rounded-circle me-0" href=""><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h4 class="text-light mb-4">Address</h4>
+                    <p><i class="fa fa-map-marker-alt me-3"></i>Idukki,Kerala</p>
+                    <p><i class="fa fa-phone-alt me-3"></i>+012 345 67890</p>
+                    <p><i class="fa fa-envelope me-3"></i>farmoon@gmail.com</p>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h4 class="text-light mb-4">Quick Links</h4>
+                    <a class="btn btn-link" href="{% url 'Guest:AboutUs' %}">About Us</a>
+                    <a class="btn btn-link" href="{% url 'Guest:ContactUs' %}">Contact Us</a>
+                    <a class="btn btn-link" href="">Our Services</a>
+                    <a class="btn btn-link" href="">Terms & Condition</a>
+                    <a class="btn btn-link" href="">Support</a>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h4 class="text-light mb-4">Newsletter</h4>
+                    <div class="position-relative mx-auto" style="max-width: 400px;">
+                        <input class="form-control bg-transparent w-100 py-3 ps-4 pe-5" type="text" placeholder="Your email">
+                        <button type="button" class="btn btn-primary py-2 position-absolute top-0 end-0 mt-2 me-2">SignUp</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid copyright">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                        &copy; <a href="#">Farmoon</a>, All Right Reserved.
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Footer End -->
+
+    <a href="#" class="btn btn-lg btn-primary btn-lg-square rounded-circle back-to-top"><i class="bi bi-arrow-up"></i></a>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'Main/lib/wow/wow.min.js' %}"></script>
+    <script src="{% static 'Main/lib/easing/easing.min.js' %}"></script>
+    <script src="{% static 'Main/lib/waypoints/waypoints.min.js' %}"></script>
+    <script src="{% static 'Main/js/main.js' %}"></script>
+
+    <script>
+        // Star rating description text
+        const labels = {
+            '1': 'Terrible — Very disappointed',
+            '2': 'Poor — Needs a lot of improvement',
+            '3': 'Average — It was okay',
+            '4': 'Good — Pretty happy with it',
+            '5': 'Excellent — Absolutely loved it!'
+        };
+
+        document.querySelectorAll('.stars input[type="radio"]').forEach(function(radio) {
+            radio.addEventListener('change', function() {
+                document.getElementById('ratingText').textContent = labels[this.value];
+                document.getElementById('ratingText').style.color = '#f5a623';
+            });
+        });
+    </script>
+
+</body>
+</html>

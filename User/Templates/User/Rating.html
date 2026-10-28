@@ -1,0 +1,666 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Farmer Rating - Farmoon</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <link href="{% static 'Main/img/icon-1.png' %}" rel="icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500&family=Lora:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="{% static 'Main/lib/animate/animate.min.css' %}" rel="stylesheet">
+    <link href="{% static 'Main/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'Main/css/style.css' %}" rel="stylesheet">
+
+    <style>
+        /* ── Page ── */
+        .page-wrapper {
+            padding: 110px 0 60px;
+            min-height: 100vh;
+            background: #f8faf6;
+        }
+
+        /* ── Section heading ── */
+        .section-title {
+            font-family: 'Lora', serif;
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: #333;
+            position: relative;
+            padding-bottom: 10px;
+            margin-bottom: 36px;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 48px;
+            height: 3px;
+            background: var(--bs-primary, #5cb85c);
+            border-radius: 2px;
+        }
+
+        /* ── Cards ── */
+        .rating-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+            border-bottom: 3px solid transparent;
+            transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+            overflow: hidden;
+            margin-bottom: 28px;
+        }
+
+        .rating-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 14px 40px rgba(0,0,0,0.13);
+            border-bottom-color: var(--bs-primary, #5cb85c);
+        }
+
+        .rating-card-body { padding: 32px; }
+
+        /* ── Big average score ── */
+        .avg-score {
+            font-family: 'Lora', serif;
+            font-size: 4rem;
+            font-weight: 700;
+            color: #f5a623;
+            line-height: 1;
+        }
+
+        .avg-denom {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 1rem;
+            color: #aaa;
+            font-weight: 500;
+        }
+
+        .avg-stars { font-size: 1.3rem; letter-spacing: 2px; }
+        .avg-stars .fa-star.filled { color: #f5a623; }
+        .avg-stars .fa-star.empty  { color: #e0e0e0; }
+
+        .review-count {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.8rem;
+            color: #aaa;
+            font-weight: 600;
+            margin-top: 6px;
+        }
+
+        /* ── Progress bars ── */
+        .bar-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .bar-label {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #555;
+            white-space: nowrap;
+            width: 28px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .bar-label i { color: #f5a623; font-size: 0.7rem; }
+
+        .bar-track {
+            flex: 1;
+            height: 8px;
+            background: #f0f0f0;
+            border-radius: 50px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f5a623, #f5c842);
+            border-radius: 50px;
+            width: 0%;
+            transition: width 0.6s ease;
+        }
+
+        .bar-count {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.72rem;
+            color: #aaa;
+            width: 24px;
+            text-align: left;
+            flex-shrink: 0;
+        }
+
+        /* ── Write Review button ── */
+        .btn-write-review {
+            border-radius: 50px;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 700;
+            padding: 10px 28px;
+            background: var(--bs-primary, #5cb85c);
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.25s, transform 0.2s, box-shadow 0.2s;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-write-review:hover {
+            background: #4aa84a;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(92,184,92,0.25);
+            color: #fff;
+        }
+
+        /* ── Divider between summary and write review ── */
+        .col-divider {
+            border-left: 1px solid #f0f0f0;
+        }
+
+        /* ── Review items ── */
+        .review-item {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--bs-primary, #5cb85c);
+            padding: 20px 22px;
+            margin-bottom: 16px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .review-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.09);
+        }
+
+        .reviewer-avatar-img {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid #dff3e4;
+    flex-shrink: 0;
+}
+
+.reviewer-avatar-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+        .reviewer-name {
+            font-family: 'Lora', serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .review-stars { font-size: 0.8rem; letter-spacing: 1px; }
+        .review-stars .fa-star.filled { color: #f5a623; }
+        .review-stars .fa-star.empty  { color: #e0e0e0; }
+
+        .review-date {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.72rem;
+            color: #bbb;
+        }
+
+        .review-text {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.85rem;
+            color: #555;
+            line-height: 1.6;
+            margin-top: 10px;
+        }
+
+        /* ── Modal ── */
+        .modal-content {
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            background: #f5fbf3;
+            border-bottom: 1px solid #e8f3ea;
+            padding: 20px 28px;
+        }
+
+        .modal-title {
+            font-family: 'Lora', serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .modal-body { padding: 28px; }
+
+        /* Interactive stars in modal */
+        .submit-stars { font-size: 2rem; letter-spacing: 4px; cursor: pointer; }
+        .submit-stars .fa-star { color: #e0e0e0; transition: color 0.15s; }
+        .submit-stars .fa-star.hovered,
+        .submit-stars .fa-star.selected { color: #f5a623; }
+
+        .modal-textarea {
+            border-radius: 12px;
+            border: 1px solid #c8ecd0;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.88rem;
+            padding: 14px 16px;
+            resize: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .modal-textarea:focus {
+            border-color: var(--bs-primary, #5cb85c);
+            box-shadow: 0 0 0 3px rgba(92,184,92,0.12);
+            outline: none;
+        }
+
+        .btn-submit-review {
+            border-radius: 50px;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            padding: 10px 32px;
+            background: var(--bs-primary, #5cb85c);
+            border: none;
+            color: #fff;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .btn-submit-review:hover {
+            background: #4aa84a;
+            transform: translateY(-1px);
+            color: #fff;
+        }
+
+        /* ── Empty state ── */
+        .empty-reviews {
+            text-align: center;
+            padding: 40px 20px;
+            color: #bbb;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        .empty-reviews i {
+            font-size: 2.5rem;
+            color: #ddd;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .empty-reviews p { font-size: 0.85rem; }
+    </style>
+</head>
+
+<body>
+    <!-- Spinner -->
+    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-border text-primary" role="status"></div>
+    </div>
+
+    <!-- Navbar Start -->
+    <div class="container-fluid fixed-top px-0 wow fadeIn" data-wow-delay="0.1s">
+        <div class="top-bar row gx-0 align-items-center d-none d-lg-flex">
+            <div class="col-lg-6 px-5 text-start">
+                <small><i class="fa fa-map-marker-alt me-2"></i>Idukki,Kerala</small>
+                <small class="ms-4"><i class="fa fa-envelope me-2"></i>farmoon@gmail.com</small>
+            </div>
+            <div class="col-lg-6 px-5 text-end">
+                <small>Follow us:</small>
+                <a class="text-body ms-3" href=""><i class="fab fa-facebook-f"></i></a>
+                <a class="text-body ms-3" href=""><i class="fab fa-twitter"></i></a>
+                <a class="text-body ms-3" href=""><i class="fab fa-linkedin-in"></i></a>
+                <a class="text-body ms-3" href=""><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
+        <nav class="navbar navbar-expand-lg navbar-light py-lg-0 px-lg-5 wow fadeIn" data-wow-delay="0.1s">
+            <a href="{% url 'Guest:index' %}" class="navbar-brand ms-4 ms-lg-0">
+                <h1 class="fw-bold text-primary m-0">Farm<span class="text-secondary">oo</span>n</h1>
+            </a>
+            <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <div class="navbar-nav ms-auto p-4 p-lg-0">
+                    <a href="{% url 'Guest:Product' %}" class="nav-item nav-link">Products</a>
+                    <a href="{% url 'Guest:Login' %}" class="nav-item nav-link">Logout</a>
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
+                        <div class="dropdown-menu m-0">
+                            <a href="{% url 'User:Mycart' %}" class="dropdown-item">My Cart</a>
+                            <a href="{% url 'User:Mybooking' %}" class="dropdown-item">My Bookings</a>
+                        </div>
+                    </div>
+                    <a href="{% url 'Guest:ContactUs' %}" class="nav-item nav-link">Contact Us</a>
+                </div>
+                <div class="d-none d-lg-flex ms-2">
+                    <a class="btn-sm-square bg-white rounded-circle ms-3" href="{% url 'User:MyProfile' %}">
+                        <small class="fa fa-user text-body"></small>
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <!-- Navbar End -->
+
+    <div class="page-wrapper">
+        <div class="container">
+
+            <!-- Page Title -->
+            <h2 class="section-title text-center wow fadeInUp" data-wow-delay="0.1s">
+                Farmer Rating
+            </h2>
+
+            <!-- ── Summary Card ── -->
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+
+                    <div class="rating-card wow fadeInUp" data-wow-delay="0.15s">
+                        <div class="rating-card-body">
+                            <div class="row align-items-center g-4">
+
+                                <!-- Average Score -->
+                                <div class="col-md-4 text-center">
+                                    <div class="avg-score">
+                                        <span id="average_rating">{% if avg %}{{ avg }}{% else %}0{% endif %}</span>
+                                    </div>
+                                    <div class="avg-denom">out of 5</div>
+                                    <div class="avg-stars mt-2" id="avg-star-display">
+                                        {% for n in "12345" %}
+                                            {% if avg and forloop.counter <= avg %}
+                                                <i class="fas fa-star filled"></i>
+                                            {% else %}
+                                                <i class="fas fa-star empty"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    <div class="review-count mt-2">
+                                        <i class="fa fa-comments me-1" style="color:var(--bs-primary,#5cb85c);"></i>
+                                        <span id="total_review">{{ count }}</span> review{{ count|pluralize }}
+                                    </div>
+                                </div>
+
+                                <!-- Progress Bars -->
+                                <div class="col-md-4 col-divider">
+                                    {% for star in "54321" %}
+                                    <div class="bar-row">
+                                        <div class="bar-label">
+                                            {{ star }} <i class="fas fa-star"></i>
+                                        </div>
+                                        <div class="bar-track">
+                                            <div class="bar-fill" id="{{ star }}_star_progress"></div>
+                                        </div>
+                                        <div class="bar-count" id="total_{{ star }}_star_review">0</div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+
+                                <!-- Write Review -->
+                                <div class="col-md-4 text-center col-divider">
+                                    <i class="fa fa-pen-alt mb-3" style="font-size:2rem; color:var(--bs-primary,#5cb85c);"></i>
+                                    <p style="font-family:'Open Sans',sans-serif; font-size:0.85rem; color:#aaa; margin-bottom:16px;">
+                                        Enjoyed shopping from this farmer? Share your experience!
+                                    </p>
+                                    <button class="btn-write-review" id="add_review">
+                                        <i class="fa fa-star me-2"></i>Write a Review
+                                    </button>
+                                    <input type="hidden" id="txt_lid" value="{{ mid }}">
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── Reviews List ── -->
+                    <div id="review_content" class="wow fadeInUp" data-wow-delay="0.2s">
+                        {% if data %}
+                            {% for i in data %}
+                            <div class="review-item">
+                                <div class="d-flex align-items-center gap-3 mb-1">
+                                    <div class="reviewer-avatar-img">
+                                        <img src="{{ i.user.userregistration_photo.url }}" 
+                                            alt="{{ i.user.userregistration_name }}">
+                                    </div>
+                                    <div>
+                                        <div class="reviewer-name">{{ i.user.userregistration_name }}</div>
+                                        <div class="review-stars">
+                                            {% for n in "12345" %}
+                                                {% if forloop.counter <= i.rating_data %}
+                                                    <i class="fas fa-star filled"></i>
+                                                {% else %}
+                                                    <i class="fas fa-star empty"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="review-text">{{ i.user_review }}</div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                        <div class="empty-reviews">
+                            <i class="fa fa-star"></i>
+                            <p>No reviews yet. Be the first to rate this farmer!</p>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ── Review Modal ── -->
+    <div id="review_modal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fa fa-star me-2" style="color:#f5a623;"></i>Submit Your Review</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+
+                    <!-- Star picker -->
+                    <div class="text-center mb-4">
+                        <p style="font-family:'Open Sans',sans-serif; font-size:0.8rem; color:#aaa; margin-bottom:8px;">
+                            Tap a star to rate
+                        </p>
+                        <div class="submit-stars">
+                            <i class="fas fa-star submit_star" id="submit_star_1" data-rating="1"></i>
+                            <i class="fas fa-star submit_star" id="submit_star_2" data-rating="2"></i>
+                            <i class="fas fa-star submit_star" id="submit_star_3" data-rating="3"></i>
+                            <i class="fas fa-star submit_star" id="submit_star_4" data-rating="4"></i>
+                            <i class="fas fa-star submit_star" id="submit_star_5" data-rating="5"></i>
+                        </div>
+                    </div>
+
+                    <textarea name="user_review"
+                              id="user_review"
+                              class="form-control modal-textarea"
+                              rows="4"
+                              placeholder="Share your experience with this farmer…"></textarea>
+
+                    <div class="text-center mt-4">
+                        <button type="button" class="btn-submit-review" id="save_review">
+                            <i class="fa fa-paper-plane me-2"></i>Submit Review
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Start -->
+    <div class="container-fluid bg-dark footer mt-5 pt-5 wow fadeIn" data-wow-delay="0.1s">
+        <div class="container py-5">
+            <div class="row g-5">
+                <div class="col-lg-3 col-md-6">
+                    <h1 class="fw-bold text-primary mb-4">Farm<span class="text-secondary">oo</span>n</h1>
+                    <div class="d-flex pt-2">
+                        <a class="btn btn-square btn-outline-light rounded-circle me-1" href=""><i class="fab fa-twitter"></i></a>
+                        <a class="btn btn-square btn-outline-light rounded-circle me-1" href=""><i class="fab fa-facebook-f"></i></a>
+                        <a class="btn btn-square btn-outline-light rounded-circle me-1" href=""><i class="fab fa-youtube"></i></a>
+                        <a class="btn btn-square btn-outline-light rounded-circle me-0" href=""><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h4 class="text-light mb-4">Address</h4>
+                    <p><i class="fa fa-map-marker-alt me-3"></i>Idukki,Kerala</p>
+                    <p><i class="fa fa-phone-alt me-3"></i>+012 345 67890</p>
+                    <p><i class="fa fa-envelope me-3"></i>farmoon@gmail.com</p>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h4 class="text-light mb-4">Quick Links</h4>
+                    <a class="btn btn-link" href="{% url 'Guest:AboutUs' %}">About Us</a>
+                    <a class="btn btn-link" href="{% url 'Guest:ContactUs' %}">Contact Us</a>
+                    <a class="btn btn-link" href="">Our Services</a>
+                    <a class="btn btn-link" href="">Terms & Condition</a>
+                    <a class="btn btn-link" href="">Support</a>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h4 class="text-light mb-4">Newsletter</h4>
+                    <div class="position-relative mx-auto" style="max-width: 400px;">
+                        <input class="form-control bg-transparent w-100 py-3 ps-4 pe-5" type="text" placeholder="Your email">
+                        <button type="button" class="btn btn-primary py-2 position-absolute top-0 end-0 mt-2 me-2">SignUp</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid copyright">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                        &copy; <a href="#">Farmoon</a>, All Right Reserved.
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Footer End -->
+
+    <a href="#" class="btn btn-lg btn-primary btn-lg-square rounded-circle back-to-top"><i class="bi bi-arrow-up"></i></a>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'Main/lib/wow/wow.min.js' %}"></script>
+    <script src="{% static 'Main/lib/easing/easing.min.js' %}"></script>
+    <script src="{% static 'Main/lib/waypoints/waypoints.min.js' %}"></script>
+    <script src="{% static 'Main/js/main.js' %}"></script>
+
+    <script>
+        var rating_data = 0;
+
+        // Open modal
+        $('#add_review').click(function () {
+            $('#review_modal').modal('show');
+        });
+
+        // Star hover/click
+        $(document).on('mouseenter', '.submit_star', function () {
+            var r = $(this).data('rating');
+            resetStars();
+            for (var i = 1; i <= r; i++) $('#submit_star_' + i).addClass('hovered');
+        });
+
+        $(document).on('mouseleave', '.submit_star', function () {
+            resetStars();
+            for (var i = 1; i <= rating_data; i++) $('#submit_star_' + i).addClass('selected');
+        });
+
+        $(document).on('click', '.submit_star', function () {
+            rating_data = $(this).data('rating');
+            resetStars();
+            for (var i = 1; i <= rating_data; i++) $('#submit_star_' + i).addClass('selected');
+        });
+
+        function resetStars() {
+            for (var i = 1; i <= 5; i++) {
+                $('#submit_star_' + i).removeClass('hovered selected');
+            }
+        }
+
+        // Submit review
+        $('#save_review').click(function () {
+            var user_review = $('#user_review').val();
+            var product_id  = $('#txt_lid').val();
+            if (user_review === '') {
+                alert('Please write a review before submitting.');
+                return false;
+            }
+            if (rating_data === 0) {
+                alert('Please select a star rating.');
+                return false;
+            }
+            $.ajax({
+                url: "{% url 'User:ajaxstar' %}",
+                data: { rating_data: rating_data, user_review: user_review, pid: product_id },
+                success: function (data) {
+                    $('#review_modal').modal('hide');
+                    window.location.reload();
+                }
+            });
+        });
+
+        // Load star breakdown on page load
+        $(window).on('load', function () {
+            var pdt = $('#txt_lid').val();
+            $.ajax({
+                url: "{% url 'User:starrating' %}",
+                data: { pdt: pdt },
+                success: function (data) {
+                    var stars = { '5': data.five, '4': data.four, '3': data.three, '2': data.two, '1': data.one };
+                    var total = data.total_review || 1;
+
+                    $.each(stars, function (key, val) {
+                        var id_map = { '5':'five','4':'four','3':'three','2':'two','1':'one' };
+                        $('#total_' + key + '_star_review').text(val);
+                        $('#' + key + '_star_progress').css('width', (val / total * 100) + '%');
+                    });
+
+                    if (data.total_review > 0) {
+                        var html = '';
+                        for (var c = 0; c < data.total_review; c++) {
+                            var r = data.review_data[c];
+                            var initials = r.user_name.charAt(0).toUpperCase();
+                            var stars_html = '';
+                            for (var s = 1; s <= 5; s++) {
+                                stars_html += '<i class="fas fa-star ' + (r.rating >= s ? 'filled' : 'empty') + '"></i> ';
+                            }
+                            html += '<div class="review-item">';
+                            html += '  <div class="d-flex align-items-center gap-3 mb-1">';
+                            html += '    <div class="reviewer-avatar">' + initials + '</div>';
+                            html += '    <div>';
+                            html += '      <div class="reviewer-name">' + r.user_name + '</div>';
+                            html += '      <div class="review-stars">' + stars_html + '</div>';
+                            html += '    </div>';
+                            html += '  </div>';
+                            html += '  <div class="review-text">' + r.user_review + '</div>';
+                            if (r.datetime) {
+                                html += '  <div class="review-date mt-2"><i class="fa fa-clock me-1"></i>' + r.datetime + '</div>';
+                            }
+                            html += '</div>';
+                        }
+                        $('#review_content').html(html);
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

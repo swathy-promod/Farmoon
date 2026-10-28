@@ -1,0 +1,542 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Farmoon – Admin Accounts</title>
+  <link rel="shortcut icon" type="image/png" href="{% static 'Main/img/icon-1.png' %}" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&family=Lora:wght@600;700&display=swap" rel="stylesheet">
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --fm-green:      #4caf50;
+      --fm-green-dark: #388e3c;
+      --fm-orange:     #ff9800;
+      --fm-sidebar-bg: #1b2b1e;
+      --fm-sidebar-w:  255px;
+      --fm-topbar-h:   36px;
+      --fm-header-h:   64px;
+      --fm-font-head:  'Lora', serif;
+      --fm-font-body:  'Open Sans', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: var(--fm-font-body); background: #f5f7f5; color: #333; margin: 0; }
+
+    /* ── TOP BAR ── */
+    .fm-topbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1060;
+      height: var(--fm-topbar-h);
+      background: var(--fm-sidebar-bg);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; font-size: 0.76rem; color: #aaa;
+    }
+    .fm-topbar a { color: #aaa; text-decoration: none; margin-left: 10px; transition: color .2s; }
+    .fm-topbar a:hover { color: var(--fm-orange); }
+
+    /* ── NAVBAR ── */
+    .fm-navbar {
+      position: fixed;
+      top: var(--fm-topbar-h); left: 0; right: 0; z-index: 1050;
+      height: var(--fm-header-h);
+      background: #fff;
+      box-shadow: 0 2px 10px rgba(0,0,0,.08);
+      display: flex; align-items: center; padding: 0 24px; gap: 12px;
+    }
+    .fm-brand {
+      font-family: var(--fm-font-head); font-size: 1.55rem; font-weight: 700;
+      color: var(--fm-green); text-decoration: none; white-space: nowrap;
+    }
+    .fm-brand span { color: var(--fm-orange); }
+    .fm-admin-pill {
+      font-size: 0.68rem; background: #e8f5e9; color: var(--fm-green-dark);
+      padding: 2px 10px; border-radius: 50px; font-weight: 700; letter-spacing: .04em;
+    }
+    .fm-nav-links { display: flex; align-items: center; gap: 2px; margin-left: auto; }
+    .fm-nav-links a {
+      font-size: 0.84rem; color: #555; padding: 6px 13px;
+      border-radius: 50px; text-decoration: none; transition: all .2s;
+    }
+    .fm-nav-links a:hover, .fm-nav-links a.active { background: var(--fm-green); color: #fff; }
+
+    /* ── SIDEBAR ── */
+    .fm-sidebar {
+      position: fixed;
+      top: calc(var(--fm-topbar-h) + var(--fm-header-h));
+      left: 0; width: var(--fm-sidebar-w); bottom: 0;
+      background: var(--fm-sidebar-bg);
+      overflow-y: auto; z-index: 1040;
+      padding: 12px 0 40px;
+      transition: transform .3s;
+    }
+    .fm-sidebar::-webkit-scrollbar { width: 3px; }
+    .fm-sidebar::-webkit-scrollbar-thumb { background: #3a5e3d; border-radius: 4px; }
+    .fm-sidebar-cap {
+      font-size: 0.66rem; font-weight: 700; letter-spacing: .09em;
+      text-transform: uppercase; color: #5a7a5d;
+      padding: 18px 18px 5px;
+    }
+    .fm-sidebar a {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 18px; color: #b0c8b2;
+      text-decoration: none; font-size: 0.855rem;
+      border-left: 3px solid transparent; transition: all .2s;
+    }
+    .fm-sidebar a:hover  { color: #fff; background: rgba(76,175,80,.13); border-left-color: var(--fm-green); }
+    .fm-sidebar a.active { color: #fff; background: rgba(76,175,80,.2);  border-left-color: var(--fm-green); font-weight: 600; }
+    .fm-sidebar a i      { width: 18px; text-align: center; }
+    .fm-sidebar-divider  { height: 1px; background: #2a3e2d; margin: 6px 0; }
+
+    /* ── MAIN ── */
+    .fm-main {
+      margin-left: var(--fm-sidebar-w);
+      padding-top: calc(var(--fm-topbar-h) + var(--fm-header-h) + 24px);
+      padding-left: 24px; padding-right: 24px; padding-bottom: 40px;
+      min-height: 100vh;
+    }
+
+    /* ── PAGE HEADER ── */
+    .fm-page-title {
+      font-family: var(--fm-font-head); font-size: 1.55rem;
+      font-weight: 700; color: #222; margin: 0;
+    }
+    .fm-page-sub { font-size: 0.8rem; color: #999; margin-top: 3px; }
+
+    /* ── CARD ── */
+    .fm-card {
+      background: #fff; border-radius: 12px;
+      border: 2px solid #e8f5e9;
+      box-shadow: 0 2px 8px rgba(0,0,0,.05); overflow: hidden;
+    }
+    .fm-card-hdr {
+      padding: 16px 20px 14px;
+      border-bottom: 1px solid #f0f4f0;
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    }
+    .fm-card-title { font-family: var(--fm-font-head); font-size: 1rem; font-weight: 700; color: #222; margin: 0; }
+    .fm-card-sub   { font-size: 0.76rem; color: #aaa; margin-top: 1px; }
+
+    /* ── FORM ── */
+    .fm-form-body { padding: 24px 28px; }
+
+    .fm-field { margin-bottom: 18px; }
+    .fm-label {
+      display: block; font-size: 0.78rem; font-weight: 700;
+      color: #555; margin-bottom: 6px; letter-spacing: .02em;
+    }
+    .fm-label span { color: #f44336; margin-left: 2px; }
+
+    .fm-input-wrap { position: relative; }
+    .fm-input-wrap i {
+      position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+      color: #bbb; font-size: 0.85rem; pointer-events: none;
+    }
+    .fm-input {
+      width: 100%; padding: 9px 14px 9px 36px;
+      border: 1.5px solid #e0e8e0; border-radius: 8px;
+      font-size: 0.84rem; font-family: var(--fm-font-body);
+      background: #fafcfa; color: #333; outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .fm-input:focus {
+      border-color: var(--fm-green);
+      box-shadow: 0 0 0 3px rgba(76,175,80,.1);
+      background: #fff;
+    }
+    .fm-input::placeholder { color: #c5c5c5; }
+
+    /* password toggle */
+    .fm-pw-toggle {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer;
+      color: #bbb; font-size: 0.85rem; padding: 0;
+      transition: color .2s;
+    }
+    .fm-pw-toggle:hover { color: var(--fm-green); }
+
+    /* password hint */
+    .fm-hint {
+      font-size: 0.72rem; color: #bbb; margin-top: 4px;
+    }
+
+    /* submit button */
+    .fm-btn-submit {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 28px; border-radius: 50px;
+      background: var(--fm-green); color: #fff;
+      font-family: var(--fm-font-body); font-size: 0.85rem; font-weight: 700;
+      border: none; cursor: pointer; transition: background .2s, box-shadow .2s;
+      box-shadow: 0 3px 10px rgba(76,175,80,.25);
+    }
+    .fm-btn-submit:hover { background: var(--fm-green-dark); box-shadow: 0 6px 18px rgba(76,175,80,.3); }
+
+    /* form divider */
+    .fm-form-divider {
+      border: none; border-top: 1px solid #f0f4f0; margin: 0 0 18px;
+    }
+
+    /* ── TABLE ── */
+    .fm-tbl { font-size: 0.82rem; margin: 0; width: 100%; }
+    .fm-tbl thead th {
+      font-size: 0.72rem; font-weight: 700; letter-spacing: .05em;
+      text-transform: uppercase; color: #aaa;
+      border: none; padding: 11px 14px; background: #fafcfa; white-space: nowrap;
+    }
+    .fm-tbl tbody td { padding: 12px 14px; vertical-align: middle; border-color: #f0f4f0; }
+    .fm-tbl tbody tr:hover { background: #f5fbf5; }
+
+    /* ── PASSWORD MASK ── */
+    .fm-pw-mask {
+      font-family: monospace; letter-spacing: 2px; color: #bbb; font-size: 0.9rem;
+    }
+
+    /* ── ACTION BUTTONS ── */
+    .btn-edit {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 11px; border-radius: 50px; font-size: 0.72rem; font-weight: 600;
+      background: rgba(33,150,243,.1); color: #1565c0;
+      text-decoration: none; transition: all .2s; white-space: nowrap;
+    }
+    .btn-edit:hover { background: #2196f3; color: #fff; }
+
+    .btn-delete {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 11px; border-radius: 50px; font-size: 0.72rem; font-weight: 600;
+      background: rgba(244,67,54,.1); color: #b71c1c;
+      text-decoration: none; transition: all .2s; white-space: nowrap;
+    }
+    .btn-delete:hover { background: #f44336; color: #fff; }
+
+    /* ── SEARCH ── */
+    .fm-search { position: relative; max-width: 240px; width: 100%; }
+    .fm-search input {
+      width: 100%; padding: 7px 14px 7px 34px;
+      border: 1.5px solid #e0e8e0; border-radius: 50px;
+      font-size: 0.82rem; font-family: var(--fm-font-body);
+      background: #f7faf7; outline: none; color: #333; transition: border-color .2s;
+    }
+    .fm-search input:focus { border-color: var(--fm-green); background: #fff; }
+    .fm-search i { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: #aaa; font-size: 0.8rem; }
+
+    /* ── EMPTY STATE ── */
+    .fm-empty { padding: 50px 20px; text-align: center; color: #bbb; }
+    .fm-empty i { font-size: 2.5rem; display: block; margin-bottom: 10px; color: #d0e8d0; }
+    .fm-empty p { font-size: 0.85rem; margin: 0; }
+
+    /* ── FOOTER ── */
+    .fm-footer {
+      text-align: center; font-size: 0.76rem; color: #bbb;
+      padding: 20px; border-top: 1px solid #e8f5e9; margin-top: 8px;
+    }
+    .fm-footer a { color: var(--fm-green); text-decoration: none; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 991px) {
+      .fm-sidebar { transform: translateX(-100%); }
+      .fm-sidebar.open { transform: translateX(0); }
+      .fm-main { margin-left: 0; }
+      .fm-nav-links { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- TOP BAR -->
+  <div class="fm-topbar">
+    <span><i class="fa fa-map-marker-alt me-2"></i>Farmoon Admin Panel</span>
+    <span>
+      Follow us:
+      <a href="#"><i class="fab fa-facebook-f"></i></a>
+      <a href="#"><i class="fab fa-twitter"></i></a>
+      <a href="#"><i class="fab fa-linkedin-in"></i></a>
+      <a href="#"><i class="fab fa-instagram"></i></a>
+    </span>
+  </div>
+
+  <!-- NAVBAR -->
+  <div class="fm-navbar">
+    <button class="btn btn-sm d-xl-none me-1" id="sidebarToggle"
+            style="background:none;border:none;font-size:1.3rem;color:#555;">
+      <i class="bi bi-list"></i>
+    </button>
+    <a href="{% url 'Administrator:HomePage' %}" class="fm-brand">Farm<span>oo</span>n</a>
+    <span class="fm-admin-pill">ADMIN</span>
+    <nav class="fm-nav-links">
+      <a href="{% url 'Guest:index' %}"><i class="fa fa-globe me-1"></i>Guest Site</a>
+      <a href="{% url 'Administrator:HomePage' %}"><i class="fa fa-tachometer-alt me-1"></i>Dashboard</a>
+      <a href="{% url 'Administrator:Userlist' %}"><i class="fa fa-users me-1"></i>Users</a>
+      <a href="{% url 'Administrator:Farmerlist' %}"><i class="fa fa-leaf me-1"></i>Farmers</a>
+      <a href="{% url 'Administrator:ViewComplaint' %}"><i class="fa fa-exclamation-circle me-1"></i>Complaints</a>
+      <a href="{% url 'Administrator:ViewFeedback' %}"><i class="fa fa-comment-dots me-1"></i>Feedback</a>
+    </nav>
+  </div>
+
+  <!-- SIDEBAR -->
+  <aside class="fm-sidebar" id="fmSidebar">
+    <div class="fm-sidebar-cap">Main</div>
+    <a href="{% url 'Administrator:HomePage' %}"><i class="fa fa-tachometer-alt"></i>Dashboard</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <div class="fm-sidebar-cap">User Management</div>
+    <a href="{% url 'Administrator:Userlist' %}"><i class="fa fa-users"></i>User List</a>
+    <a href="{% url 'Administrator:Farmerlist' %}"><i class="fa fa-leaf"></i>Farmer List</a>
+    <a href="{% url 'Administrator:AdminRegistration' %}" class="active"><i class="fa fa-user-shield"></i>Admin Accounts</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <div class="fm-sidebar-cap">Location</div>
+    <a href="{% url 'Administrator:District' %}"><i class="fa fa-map"></i>Districts</a>
+    <a href="{% url 'Administrator:Place' %}"><i class="fa fa-map-marker-alt"></i>Places</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <div class="fm-sidebar-cap">Catalogue</div>
+    <a href="{% url 'Administrator:Category' %}"><i class="fa fa-tags"></i>Categories</a>
+    <a href="{% url 'Administrator:Subcategory' %}"><i class="fa fa-list-ul"></i>Subcategories</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <div class="fm-sidebar-cap">Orders & Payments</div>
+    <a href="{% url 'Administrator:OrderList' %}"><i class="fa fa-shopping-bag"></i>Orders
+      {% if pending_orders %}
+        <span class="fm-pill pill-pending ms-auto">{{ pending_orders }}</span>
+      {% endif %}
+    </a>
+    <a href="{% url 'Administrator:TransactionList' %}"><i class="fa fa-credit-card"></i>Transactions</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <div class="fm-sidebar-cap">Support</div>
+    <a href="{% url 'Administrator:ViewComplaint' %}"><i class="fa fa-exclamation-circle"></i>Complaints</a>
+    <a href="{% url 'Administrator:ViewFeedback' %}"><i class="fa fa-comment-dots"></i>Feedback</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <a href="{% url 'Guest:Login' %}"><i class="fa fa-sign-out-alt"></i>Logout</a>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="fm-main">
+
+    <!-- Page Header -->
+    <div class="mb-4">
+      <h1 class="fm-page-title">
+        <i class="fa fa-user-shield me-2" style="color:var(--fm-green);font-size:1.2rem;"></i>Admin Accounts
+      </h1>
+      <p class="fm-page-sub">Create new admin accounts and manage existing ones.</p>
+    </div>
+
+    <div class="row g-4">
+
+      <!-- ── LEFT: Registration Form ── -->
+      <div class="col-xl-4 col-lg-5">
+        <div class="fm-card">
+          <div class="fm-card-hdr">
+            <div>
+              <div class="fm-card-title">
+                <i class="fa fa-user-plus me-2" style="color:var(--fm-green);"></i>
+                {% if data %}Edit Admin{% else %}New Admin{% endif %}
+              </div>
+              <div class="fm-card-sub">
+                {% if data %}Update the admin account details below{% else %}Fill in the details to create an admin account{% endif %}
+              </div>
+            </div>
+          </div>
+
+          <form method="post">
+            {% csrf_token %}
+            <div class="fm-form-body">
+
+              <!-- Name -->
+              <div class="fm-field">
+                <label class="fm-label" for="txt_name">Full Name <span>*</span></label>
+                <div class="fm-input-wrap">
+                  <i class="fa fa-user"></i>
+                  <input
+                    class="fm-input" id="txt_name" type="text" name="txt_name"
+                    placeholder="e.g. Arjun Menon"
+                    required
+                    pattern="^[A-Z]+[a-zA-Z ]*$"
+                    title="First letter must be capital; only letters and spaces allowed"
+                    value="{{ data.adminregistration_name }}"
+                  />
+                </div>
+              </div>
+
+              <!-- Email -->
+              <div class="fm-field">
+                <label class="fm-label" for="txt_email">Email Address <span>*</span></label>
+                <div class="fm-input-wrap">
+                  <i class="fa fa-envelope"></i>
+                  <input
+                    class="fm-input" id="txt_email" type="email" name="txt_email"
+                    placeholder="admin@farmoon.com"
+                    required
+                    value="{{ data.adminregistration_email }}"
+                  />
+                </div>
+              </div>
+
+              <!-- Password -->
+              <div class="fm-field">
+                <label class="fm-label" for="pswd_password">Password <span>*</span></label>
+                <div class="fm-input-wrap">
+                  <i class="fa fa-lock"></i>
+                  <input
+                    class="fm-input" id="pswd_password" type="password" name="pswd_password"
+                    placeholder="Enter a strong password"
+                    required
+                    pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                    title="At least 8 characters, one uppercase, one lowercase, one number"
+                    value="{{ data.adminregistration_password }}"
+                    style="padding-right: 40px;"
+                  />
+                  <button type="button" class="fm-pw-toggle" id="pwToggle" tabindex="-1">
+                    <i class="fa fa-eye" id="pwToggleIcon"></i>
+                  </button>
+                </div>
+                <div class="fm-hint">
+                  <i class="fa fa-info-circle me-1"></i>Min. 8 chars · uppercase · lowercase · number
+                </div>
+              </div>
+
+              <hr class="fm-form-divider">
+
+              <div class="d-flex justify-content-end">
+                <button type="submit" name="btn_Login" class="fm-btn-submit">
+                  <i class="fa {% if data %}fa-save{% else %}fa-plus{% endif %}"></i>
+                  {% if data %}Save Changes{% else %}Create Admin{% endif %}
+                </button>
+              </div>
+
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- ── RIGHT: Admin List Table ── -->
+      <div class="col-xl-8 col-lg-7">
+        <div class="fm-card">
+          <div class="fm-card-hdr">
+            <div>
+              <div class="fm-card-title">All Admin Accounts</div>
+              <div class="fm-card-sub">Manage existing administrator accounts</div>
+            </div>
+            <div class="fm-search">
+              <i class="fa fa-search"></i>
+              <input type="text" id="adminSearch" placeholder="Search admins…">
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table fm-tbl mb-0" id="adminTable">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Password</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for i in admin %}
+                <tr>
+                  <td style="color:#bbb;font-size:0.78rem;">{{ forloop.counter }}</td>
+
+                  <!-- Name with avatar initial -->
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <div style="
+                        width:34px;height:34px;border-radius:50%;flex-shrink:0;
+                        background:linear-gradient(135deg,var(--fm-green),var(--fm-green-dark));
+                        display:flex;align-items:center;justify-content:center;
+                        color:#fff;font-weight:700;font-size:0.85rem;font-family:var(--fm-font-head);">
+                        {{ i.adminregistration_name|first|upper }}
+                      </div>
+                      <span style="font-weight:600;font-size:0.84rem;">{{ i.adminregistration_name }}</span>
+                    </div>
+                  </td>
+
+                  <!-- Email -->
+                  <td style="color:#777;font-size:0.82rem;">{{ i.adminregistration_email }}</td>
+
+                  <!-- Masked password -->
+                  <td>
+                    <span class="fm-pw-mask">••••••••</span>
+                  </td>
+
+                  <!-- Actions -->
+                  <td>
+                    <div class="d-flex gap-1 flex-wrap">
+                      <a href="{% url 'Administrator:editadmin' i.id %}" class="btn-edit">
+                        <i class="fa fa-pen"></i>Edit
+                      </a>
+                      <a href="{% url 'Administrator:admindelete' i.id %}" class="btn-delete"
+                         onclick="return confirm('Delete {{ i.adminregistration_name }}? This cannot be undone.')">
+                        <i class="fa fa-trash"></i>Delete
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="5">
+                    <div class="fm-empty">
+                      <i class="fa fa-user-shield"></i>
+                      <p>No admin accounts yet. Create the first one using the form.</p>
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /.row -->
+
+    <!-- Footer -->
+    <div class="fm-footer mt-4">
+      &copy; <a href="#">Farmoon</a> Admin Panel &nbsp;·&nbsp;
+      
+    </div>
+
+  </main>
+
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Sidebar toggle
+    document.getElementById('sidebarToggle').addEventListener('click', function () {
+      document.getElementById('fmSidebar').classList.toggle('open');
+    });
+
+    // Password show/hide
+    const pwInput = document.getElementById('pswd_password');
+    const pwIcon  = document.getElementById('pwToggleIcon');
+    document.getElementById('pwToggle').addEventListener('click', function () {
+      const show = pwInput.type === 'password';
+      pwInput.type = show ? 'text' : 'password';
+      pwIcon.classList.toggle('fa-eye', !show);
+      pwIcon.classList.toggle('fa-eye-slash', show);
+    });
+
+    // Live search
+    document.getElementById('adminSearch').addEventListener('input', function () {
+      const q = this.value.toLowerCase();
+      document.querySelectorAll('#adminTable tbody tr').forEach(function (row) {
+        row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+      });
+    });
+  </script>
+
+</body>
+</html>

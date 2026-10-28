@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery</title>
+</head>
+<body>
+    <h2 align="center"> Gallery </h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+    <table align="center" border="2">
+        <tr>
+            <td>Photo</td>
+            <td><input type="file" name="file_photo"/></td>
+        </tr>
+        <tr>
+			<td colspan="2" align="center">
+			<input type="submit" name="btn_add" value="Submit"/>
+			</td>
+		</tr>
+    </table>
+        <table align="center" border="2">
+        <tr>
+            <td>SL NO</td>
+            <td>Photo</td>
+            <td>Action</td>
+        </tr>
+        {% for i in photo %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+			<td colspan="2"><img src="{{data.gallery_photo.url}}" width="170px" height="170px"/></td>
+            <td>Delete</td>
+        </tr>
+        {% endfor %}
+	</table>
+    </form>
+</body>
+</html>

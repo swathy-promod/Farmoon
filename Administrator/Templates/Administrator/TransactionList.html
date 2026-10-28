@@ -1,0 +1,797 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Farmoon – Transaction List</title>
+  <link rel="shortcut icon" type="image/png" href="{% static 'Main/img/icon-1.png' %}" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&family=Lora:wght@600;700&display=swap" rel="stylesheet">
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --fm-green:      #4caf50;
+      --fm-green-dark: #388e3c;
+      --fm-orange:     #ff9800;
+      --fm-sidebar-bg: #1b2b1e;
+      --fm-sidebar-w:  255px;
+      --fm-topbar-h:   36px;
+      --fm-header-h:   64px;
+      --fm-font-head:  'Lora', serif;
+      --fm-font-body:  'Open Sans', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: var(--fm-font-body); background: #f5f7f5; color: #333; margin: 0; }
+
+    /* TOP BAR */
+    .fm-topbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1060;
+      height: var(--fm-topbar-h);
+      background: var(--fm-sidebar-bg);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; font-size: 0.76rem; color: #aaa;
+    }
+    .fm-topbar a { color: #aaa; text-decoration: none; margin-left: 10px; transition: color .2s; }
+    .fm-topbar a:hover { color: var(--fm-orange); }
+
+    /* NAVBAR */
+    .fm-navbar {
+      position: fixed;
+      top: var(--fm-topbar-h); left: 0; right: 0; z-index: 1050;
+      height: var(--fm-header-h);
+      background: #fff;
+      box-shadow: 0 2px 10px rgba(0,0,0,.08);
+      display: flex; align-items: center; padding: 0 24px; gap: 12px;
+    }
+    .fm-brand {
+      font-family: var(--fm-font-head); font-size: 1.55rem; font-weight: 700;
+      color: var(--fm-green); text-decoration: none; white-space: nowrap;
+    }
+    .fm-brand span { color: var(--fm-orange); }
+    .fm-admin-pill {
+      font-size: 0.68rem; background: #e8f5e9; color: var(--fm-green-dark);
+      padding: 2px 10px; border-radius: 50px; font-weight: 700; letter-spacing: .04em;
+    }
+    .fm-nav-links { display: flex; align-items: center; gap: 2px; margin-left: auto; }
+    .fm-nav-links a {
+      font-size: 0.84rem; color: #555; padding: 6px 13px;
+      border-radius: 50px; text-decoration: none; transition: all .2s;
+    }
+    .fm-nav-links a:hover, .fm-nav-links a.active { background: var(--fm-green); color: #fff; }
+
+    /* SIDEBAR */
+    .fm-sidebar {
+      position: fixed;
+      top: calc(var(--fm-topbar-h) + var(--fm-header-h));
+      left: 0; width: var(--fm-sidebar-w); bottom: 0;
+      background: var(--fm-sidebar-bg);
+      overflow-y: auto; z-index: 1040;
+      padding: 12px 0 40px;
+      transition: transform .3s;
+    }
+    .fm-sidebar::-webkit-scrollbar { width: 3px; }
+    .fm-sidebar::-webkit-scrollbar-thumb { background: #3a5e3d; border-radius: 4px; }
+    .fm-sidebar-cap {
+      font-size: 0.66rem; font-weight: 700; letter-spacing: .09em;
+      text-transform: uppercase; color: #5a7a5d;
+      padding: 18px 18px 5px;
+    }
+    .fm-sidebar a {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 18px; color: #b0c8b2;
+      text-decoration: none; font-size: 0.855rem;
+      border-left: 3px solid transparent; transition: all .2s;
+    }
+    .fm-sidebar a:hover  { color: #fff; background: rgba(76,175,80,.13); border-left-color: var(--fm-green); }
+    .fm-sidebar a.active { color: #fff; background: rgba(76,175,80,.2);  border-left-color: var(--fm-green); font-weight: 600; }
+    .fm-sidebar a i      { width: 18px; text-align: center; }
+    .fm-sidebar-divider  { height: 1px; background: #2a3e2d; margin: 6px 0; }
+
+    /* MAIN */
+    .fm-main {
+      margin-left: var(--fm-sidebar-w);
+      padding-top: calc(var(--fm-topbar-h) + var(--fm-header-h) + 24px);
+      padding-left: 24px; padding-right: 24px; padding-bottom: 40px;
+      min-height: 100vh;
+    }
+
+    /* PAGE HEADER */
+    .fm-page-title {
+      font-family: var(--fm-font-head); font-size: 1.55rem;
+      font-weight: 700; color: #222; margin: 0;
+    }
+    .fm-page-sub { font-size: 0.8rem; color: #999; margin-top: 3px; }
+
+    /* BREADCRUMB */
+    .fm-breadcrumb {
+      font-size: 0.78rem; color: #bbb; margin-bottom: 20px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .fm-breadcrumb a { color: var(--fm-green); text-decoration: none; }
+    .fm-breadcrumb a:hover { text-decoration: underline; }
+    .fm-breadcrumb i { font-size: 0.6rem; color: #ddd; }
+
+    /* STAT MINI CARDS */
+    .fm-stat-mini {
+      background: #fff; border-radius: 10px;
+      border: 2px solid transparent;
+      padding: 14px 16px;
+      display: flex; align-items: center; gap: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,.05);
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .fm-stat-mini:hover { border-color: var(--fm-green); box-shadow: 0 4px 14px rgba(76,175,80,.12); }
+    .fm-stat-mini-ico {
+      width: 42px; height: 42px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; flex-shrink: 0;
+    }
+    .ico-green  { background: rgba(76,175,80,.12);  color: var(--fm-green); }
+    .ico-orange { background: rgba(255,152,0,.12);  color: var(--fm-orange); }
+    .ico-blue   { background: rgba(33,150,243,.12); color: #2196f3; }
+    .ico-red    { background: rgba(244,67,54,.12);  color: #f44336; }
+    .ico-purple { background: rgba(156,39,176,.12); color: #9c27b0; }
+    .ico-teal   { background: rgba(0,150,136,.12);  color: #009688; }
+    .ico-amber  { background: rgba(255,193,7,.15);  color: #f57f17; }
+    .ico-indigo { background: rgba(63,81,181,.12);  color: #3f51b5; }
+
+    .fm-stat-mini-val { font-family: var(--fm-font-head); font-size: 1.3rem; font-weight: 700; color: #1a1a1a; line-height: 1; }
+    .fm-stat-mini-lbl { font-size: 0.74rem; color: #999; margin-top: 2px; }
+    .fm-stat-mini-sub { font-size: 0.7rem;  color: #bbb; margin-top: 1px; }
+
+    /* REVENUE HIGHLIGHT CARD */
+    .fm-revenue-card {
+      background: linear-gradient(135deg, var(--fm-green-dark) 0%, #2e7d32 100%);
+      border-radius: 10px; padding: 18px 20px;
+      display: flex; align-items: center; gap: 14px;
+      box-shadow: 0 4px 16px rgba(56,142,60,.25);
+      height: 100%;
+    }
+    .fm-revenue-card .ico { width: 46px; height: 46px; border-radius: 50%; background: rgba(255,255,255,.15); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: #fff; flex-shrink: 0; }
+    .fm-revenue-card .val { font-family: var(--fm-font-head); font-size: 1.5rem; font-weight: 700; color: #fff; line-height: 1; }
+    .fm-revenue-card .lbl { font-size: 0.76rem; color: rgba(255,255,255,.75); margin-top: 3px; }
+    .fm-revenue-card .sub { font-size: 0.7rem;  color: rgba(255,255,255,.5);  margin-top: 2px; }
+
+    /* MAIN CARD */
+    .fm-card {
+      background: #fff; border-radius: 12px;
+      border: 2px solid #e8f5e9;
+      box-shadow: 0 2px 8px rgba(0,0,0,.05); overflow: hidden;
+    }
+    .fm-card-hdr {
+      padding: 14px 18px 12px;
+      border-bottom: 1px solid #f0f4f0;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 10px;
+    }
+    .fm-card-title { font-family: var(--fm-font-head); font-size: 0.98rem; font-weight: 700; color: #222; margin: 0; }
+    .fm-card-sub   { font-size: 0.76rem; color: #aaa; margin-top: 1px; }
+
+    /* FILTER BAR */
+    .fm-filter-bar {
+      padding: 12px 18px;
+      background: #fafcfa;
+      border-bottom: 1px solid #f0f4f0;
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+    .fm-search-wrap { position: relative; flex: 1; min-width: 200px; }
+    .fm-search-wrap i { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: #bbb; font-size: 0.82rem; }
+    .fm-search-wrap input {
+      width: 100%; padding: 7px 12px 7px 32px;
+      border: 1px solid #e0e0e0; border-radius: 50px;
+      font-size: 0.82rem; font-family: var(--fm-font-body);
+      color: #333; outline: none; transition: border-color .2s; background: #fff;
+    }
+    .fm-search-wrap input:focus { border-color: var(--fm-green); }
+    .fm-filter-select {
+      padding: 7px 28px 7px 12px;
+      border: 1px solid #e0e0e0; border-radius: 50px;
+      font-size: 0.82rem; font-family: var(--fm-font-body);
+      color: #555; outline: none;
+      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23aaa'/%3E%3C/svg%3E") no-repeat right 10px center;
+      appearance: none; cursor: pointer; transition: border-color .2s;
+    }
+    .fm-filter-select:focus { border-color: var(--fm-green); }
+    .fm-btn-export {
+      padding: 7px 16px; border-radius: 50px;
+      background: var(--fm-green); color: #fff;
+      font-size: 0.8rem; font-family: var(--fm-font-body);
+      border: none; cursor: pointer; transition: background .2s; white-space: nowrap;
+      text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .fm-btn-export:hover { background: var(--fm-green-dark); color: #fff; }
+
+    /* DATE RANGE */
+    .fm-date-input {
+      padding: 7px 12px;
+      border: 1px solid #e0e0e0; border-radius: 50px;
+      font-size: 0.8rem; font-family: var(--fm-font-body);
+      color: #555; outline: none; transition: border-color .2s;
+      background: #fff; cursor: pointer;
+    }
+    .fm-date-input:focus { border-color: var(--fm-green); }
+
+    /* TABLE */
+    .fm-tbl { font-size: 0.82rem; margin: 0; width: 100%; }
+    .fm-tbl thead th {
+      font-size: 0.71rem; font-weight: 700; letter-spacing: .05em;
+      text-transform: uppercase; color: #aaa;
+      border: none; padding: 10px 14px; background: #fafcfa; white-space: nowrap;
+    }
+    .fm-tbl thead th.sortable { cursor: pointer; user-select: none; }
+    .fm-tbl thead th.sortable:hover { color: var(--fm-green); }
+    .fm-tbl tbody td { padding: 12px 14px; vertical-align: middle; border-color: #f0f4f0; }
+    .fm-tbl tbody tr:hover { background: #f5fbf5; }
+    .fm-tbl tbody tr:last-child td { border-bottom: none; }
+
+    /* TXN ID CHIP */
+    .fm-txn-id {
+      font-family: monospace; font-size: 0.78rem; font-weight: 700;
+      color: #3f51b5; background: rgba(63,81,181,.08);
+      padding: 3px 9px; border-radius: 6px; white-space: nowrap;
+      display: inline-block; max-width: 140px;
+      overflow: hidden; text-overflow: ellipsis;
+    }
+
+    /* ORDER CHIP */
+    .fm-order-chip {
+      font-family: monospace; font-size: 0.78rem; font-weight: 700;
+      color: var(--fm-green-dark); background: #e8f5e9;
+      padding: 2px 8px; border-radius: 6px; white-space: nowrap;
+      text-decoration: none; display: inline-block;
+    }
+    .fm-order-chip:hover { background: var(--fm-green); color: #fff; }
+
+    /* USER AVATAR */
+    .fm-avatar {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: rgba(76,175,80,.15); color: var(--fm-green-dark);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; font-weight: 700; flex-shrink: 0; text-transform: uppercase;
+    }
+
+    /* AMOUNT */
+    .fm-amount-pos { font-weight: 700; color: var(--fm-green-dark); }
+    .fm-amount-neg { font-weight: 700; color: #c62828; }
+
+    /* PILLS */
+    .fm-pill {
+      display: inline-block; padding: 3px 11px;
+      border-radius: 50px; font-size: 0.7rem; font-weight: 700; white-space: nowrap;
+    }
+    .pill-paid     { background: rgba(76,175,80,.12);  color: #2e7d32; }
+    .pill-pending  { background: rgba(255,152,0,.12);  color: #e65100; }
+    .pill-failed   { background: rgba(244,67,54,.12);  color: #b71c1c; }
+    .pill-refunded { background: rgba(63,81,181,.12);  color: #283593; }
+    .pill-cod      { background: rgba(255,152,0,.10);  color: #bf360c; }
+    .pill-online   { background: rgba(63,81,181,.10);  color: #283593; }
+    .pill-razorpay { background: rgba(0,139,236,.10);  color: #014f86; }
+    .pill-upi      { background: rgba(0,150,136,.10);  color: #004d40; }
+    .pill-wallet   { background: rgba(156,39,176,.10); color: #6a1b9a; }
+
+    /* ACTION BUTTONS */
+    .fm-action-btn {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 10px; border-radius: 50px;
+      font-size: 0.72rem; font-family: var(--fm-font-body);
+      font-weight: 600; text-decoration: none;
+      border: none; cursor: pointer; transition: all .18s; white-space: nowrap;
+    }
+    .btn-view    { background: rgba(76,175,80,.1);  color: var(--fm-green-dark); }
+    .btn-view:hover { background: var(--fm-green); color: #fff; }
+    .btn-refund  { background: rgba(63,81,181,.1);  color: #283593; }
+    .btn-refund:hover { background: #3f51b5; color: #fff; }
+
+    /* EMPTY STATE */
+    .fm-empty {
+      text-align: center; padding: 60px 20px; color: #bbb;
+    }
+    .fm-empty i { font-size: 3rem; margin-bottom: 14px; display: block; opacity: .35; color: var(--fm-green); }
+    .fm-empty p { font-size: 0.88rem; margin: 0; }
+
+    /* PAGINATION */
+    .fm-pagination {
+      padding: 14px 18px;
+      border-top: 1px solid #f0f4f0;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 8px;
+    }
+    .fm-pagination-info { font-size: 0.78rem; color: #aaa; }
+    .fm-page-btns { display: flex; gap: 4px; }
+    .fm-page-btn {
+      width: 30px; height: 30px; border-radius: 6px;
+      border: 1px solid #e0e0e0; background: #fff;
+      font-size: 0.78rem; color: #555;
+      display: flex; align-items: center; justify-content: center;
+      text-decoration: none; cursor: pointer; transition: all .18s;
+    }
+    .fm-page-btn:hover, .fm-page-btn.active { background: var(--fm-green); color: #fff; border-color: var(--fm-green); }
+    .fm-page-btn.disabled { opacity: .4; pointer-events: none; }
+
+    /* FOOTER */
+    .fm-footer {
+      text-align: center; font-size: 0.76rem; color: #bbb;
+      padding: 20px; border-top: 1px solid #e8f5e9; margin-top: 8px;
+    }
+    .fm-footer a { color: var(--fm-green); text-decoration: none; }
+
+    /* RESPONSIVE */
+    @media (max-width: 991px) {
+      .fm-sidebar { transform: translateX(-100%); }
+      .fm-sidebar.open { transform: translateX(0); }
+      .fm-main { margin-left: 0; }
+      .fm-nav-links { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- TOP BAR -->
+  <div class="fm-topbar">
+    <span><i class="fa fa-map-marker-alt me-2"></i>Farmoon Admin Panel</span>
+    <span>
+      Follow us:
+      <a href="#"><i class="fab fa-facebook-f"></i></a>
+      <a href="#"><i class="fab fa-twitter"></i></a>
+      <a href="#"><i class="fab fa-linkedin-in"></i></a>
+      <a href="#"><i class="fab fa-instagram"></i></a>
+    </span>
+  </div>
+
+  <!-- NAVBAR -->
+  <div class="fm-navbar">
+    <button class="btn btn-sm d-xl-none me-1" id="sidebarToggle"
+            style="background:none;border:none;font-size:1.3rem;color:#555;">
+      <i class="bi bi-list"></i>
+    </button>
+    <a href="{% url 'Administrator:HomePage' %}" class="fm-brand">Farm<span>oo</span>n</a>
+    <span class="fm-admin-pill">ADMIN</span>
+    <nav class="fm-nav-links">
+      <a href="{% url 'Guest:index' %}"><i class="fa fa-globe me-1"></i>Guest Site</a>
+      <a href="{% url 'Administrator:HomePage' %}"><i class="fa fa-tachometer-alt me-1"></i>Dashboard</a>
+      <a href="{% url 'Administrator:Userlist' %}"><i class="fa fa-users me-1"></i>Users</a>
+      <a href="{% url 'Administrator:OrderList' %}"><i class="fa fa-shopping-bag me-1"></i>Orders</a>
+      <a href="{% url 'Administrator:TransactionList' %}" class="active"><i class="fa fa-credit-card me-1"></i>Transactions</a>
+    </nav>
+  </div>
+
+  <!-- SIDEBAR -->
+  <aside class="fm-sidebar" id="fmSidebar">
+
+    <div class="fm-sidebar-cap">Main</div>
+    <a href="{% url 'Administrator:HomePage' %}"><i class="fa fa-tachometer-alt"></i>Dashboard</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <div class="fm-sidebar-cap">User Management</div>
+    <a href="{% url 'Administrator:Userlist' %}"><i class="fa fa-users"></i>User List</a>
+    <a href="{% url 'Administrator:Farmerlist' %}"><i class="fa fa-leaf"></i>Farmer List</a>
+    <a href="{% url 'Administrator:AdminRegistration' %}"><i class="fa fa-user-shield"></i>Admin Accounts</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <div class="fm-sidebar-cap">Location</div>
+    <a href="{% url 'Administrator:District' %}"><i class="fa fa-map"></i>Districts</a>
+    <a href="{% url 'Administrator:Place' %}"><i class="fa fa-map-marker-alt"></i>Places</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <div class="fm-sidebar-cap">Catalogue</div>
+    <a href="{% url 'Administrator:Category' %}"><i class="fa fa-tags"></i>Categories</a>
+    <a href="{% url 'Administrator:Subcategory' %}"><i class="fa fa-list-ul"></i>Subcategories</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <div class="fm-sidebar-cap">Orders & Payments</div>
+    <a href="{% url 'Administrator:OrderList' %}"><i class="fa fa-shopping-bag"></i>Orders
+      {% if pending_orders %}
+        <span class="fm-pill pill-pending ms-auto">{{ pending_orders }}</span>
+      {% endif %}
+    </a>
+    <a href="{% url 'Administrator:TransactionList' %}" class="active"><i class="fa fa-credit-card"></i>Transactions</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <div class="fm-sidebar-cap">Support</div>
+    <a href="{% url 'Administrator:ViewComplaint' %}"><i class="fa fa-exclamation-circle"></i>Complaints
+      {% if pending_complaints %}
+        <span class="fm-pill pill-pending ms-auto">{{ pending_complaints }}</span>
+      {% endif %}
+    </a>
+    <a href="{% url 'Administrator:ViewFeedback' %}"><i class="fa fa-comment-dots"></i>Feedback</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <a href="{% url 'Guest:Login' %}"><i class="fa fa-sign-out-alt"></i>Logout</a>
+
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="fm-main">
+
+    <!-- Breadcrumb -->
+    <div class="fm-breadcrumb">
+      <a href="{% url 'Administrator:HomePage' %}"><i class="fa fa-home"></i> Dashboard</a>
+      <i class="fa fa-chevron-right"></i>
+      <a href="{% url 'Administrator:OrderList' %}">Orders</a>
+      <i class="fa fa-chevron-right"></i>
+      <span>Transactions</span>
+    </div>
+
+    <!-- Page Header -->
+    <div class="d-flex align-items-start justify-content-between mb-4 flex-wrap gap-3">
+      <div>
+        <h1 class="fm-page-title">
+          <i class="fa fa-credit-card me-2" style="color:var(--fm-green);font-size:1.2rem;"></i>Payment Transactions
+        </h1>
+        <p class="fm-page-sub">Complete record of all payment activity across the Farmoon platform.</p>
+      </div>
+    </div>
+
+    <!-- STAT CARDS ROW -->
+    <div class="row g-3 mb-4">
+
+      <!-- Revenue highlight -->
+      <div class="col-xl-3 col-md-6">
+        <div class="fm-revenue-card">
+          <div class="ico"><i class="fa fa-rupee-sign"></i></div>
+          <div>
+            <div class="val">₹{{ total_revenue }}</div>
+            <div class="lbl">Total Revenue</div>
+            <div class="sub">From all paid transactions</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl col-md-6 col-6">
+        <div class="fm-stat-mini h-100">
+          <div class="fm-stat-mini-ico ico-green"><i class="fa fa-check-circle"></i></div>
+          <div>
+            <div class="fm-stat-mini-val">{{ paid_count }}</div>
+            <div class="fm-stat-mini-lbl">Paid</div>
+            <div class="fm-stat-mini-sub">₹{{ paid_revenue }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl col-md-6 col-6">
+        <div class="fm-stat-mini h-100">
+          <div class="fm-stat-mini-ico ico-amber"><i class="fa fa-hourglass-half"></i></div>
+          <div>
+            <div class="fm-stat-mini-val">{{ pending_count }}</div>
+            <div class="fm-stat-mini-lbl">Pending</div>
+            <div class="fm-stat-mini-sub">Awaiting confirmation</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl col-md-6 col-6">
+        <div class="fm-stat-mini h-100">
+          <div class="fm-stat-mini-ico ico-red"><i class="fa fa-times-circle"></i></div>
+          <div>
+            <div class="fm-stat-mini-val">{{ failed_count }}</div>
+            <div class="fm-stat-mini-lbl">Failed</div>
+            <div class="fm-stat-mini-sub">Needs review</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl col-md-6 col-6">
+        <div class="fm-stat-mini h-100">
+          <div class="fm-stat-mini-ico ico-indigo"><i class="fa fa-undo-alt"></i></div>
+          <div>
+            <div class="fm-stat-mini-val">{{ refunded_count }}</div>
+            <div class="fm-stat-mini-lbl">Refunded</div>
+            <div class="fm-stat-mini-sub">₹{{ refunded_amount }}</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TRANSACTIONS TABLE CARD -->
+    <div class="fm-card mb-4">
+
+      <!-- Card header -->
+      <div class="fm-card-hdr">
+        <div>
+          <div class="fm-card-title">All Transactions</div>
+          <div class="fm-card-sub">{{ total_transactions }} transaction{{ total_transactions|pluralize }} recorded</div>
+        </div>
+        <a href="{% url 'Administrator:ExportTransactions' %}" class="fm-btn-export">
+          <i class="fa fa-download"></i> Export CSV
+        </a>
+      </div>
+
+      <!-- Filter bar -->
+      <div class="fm-filter-bar">
+        <div class="fm-search-wrap">
+          <i class="fa fa-search"></i>
+          <input type="text" id="txnSearch" placeholder="Search by Txn ID, order ID, or user name…">
+        </div>
+        <select class="fm-filter-select" id="statusFilter">
+          <option value="">All Statuses</option>
+          <option value="Paid">Paid</option>
+          <option value="Pending">Pending</option>
+          <option value="Failed">Failed</option>
+          <option value="Refunded">Refunded</option>
+        </select>
+        <select class="fm-filter-select" id="methodFilter">
+          <option value="">All Methods</option>
+          <option value="COD">Cash on Delivery</option>
+          <option value="Online">Online</option>
+          <option value="Razorpay">Razorpay</option>
+          <option value="UPI">UPI</option>
+          <option value="Wallet">Wallet</option>
+        </select>
+        <input type="date" class="fm-date-input" id="dateFrom" title="From date">
+        <input type="date" class="fm-date-input" id="dateTo"   title="To date">
+        <button class="fm-btn-export" id="clearFilters" style="background:#888;">
+          <i class="fa fa-times"></i> Clear
+        </button>
+      </div>
+
+      <!-- Table -->
+      <div class="table-responsive">
+        <table class="table fm-tbl mb-0" id="txnTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Txn ID</th>
+              <th>User</th>
+              <th class="sortable" data-col="4">
+                Amount <i class="fa fa-sort ms-1" style="font-size:0.65rem;color:#ccc;"></i>
+              </th>
+              <th>Method</th>
+              <th>Status</th>
+              <th class="sortable" data-col="7">
+                Date <i class="fa fa-sort ms-1" style="font-size:0.65rem;color:#ccc;"></i>
+              </th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="txnTableBody">
+            {% for txn in transactions %}
+            <tr class="txn-row"
+                data-status="{{ txn.payment_status }}"
+                data-method="{{ txn.payment_method }}"
+                data-date="{{ txn.transaction_date|date:'Y-m-d' }}">
+
+              <td style="color:#bbb;">{{ forloop.counter }}</td>
+
+              <td>
+                <span class="fm-txn-id" title="{{ txn.id }}">
+                  #T{{ txn.id|truncatechars:12 }}
+                </span>
+              </td>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <div class="fm-avatar">{{ txn.bookingid.userid.userregistration_name|slice:":2" }}</div>
+                  <div>
+                    <div style="font-weight:600;font-size:0.82rem;">{{ txn.bookingid.userid.userregistration_name }}</div>
+                    <div style="font-size:0.72rem;color:#aaa;">{{ txn.bookingid.userid.userregistration_email }}</div>
+                  </div>
+                </div>
+              </td>
+
+              <td>
+                {% if txn.payment_status == 'Refunded' %}
+                  <span class="fm-amount-neg">− ₹{{ txn.payment_amount }}</span>
+                {% else %}
+                  <span class="fm-amount-pos">₹{{ txn.payment_amount }}</span>
+                {% endif %}
+              </td>
+
+              <td>
+                {% if txn.payment_method == 'COD' %}
+                  <span class="fm-pill pill-cod">COD</span>
+                {% elif txn.payment_method == 'Online' %}
+                  <span class="fm-pill pill-online">Online</span>
+                {% elif txn.payment_method == 'Razorpay' %}
+                  <span class="fm-pill pill-razorpay">Razorpay</span>
+                {% elif txn.payment_method == 'UPI' %}
+                  <span class="fm-pill pill-upi">UPI</span>
+                {% elif txn.payment_method == 'Wallet' %}
+                  <span class="fm-pill pill-wallet">Wallet</span>
+                {% else %}
+                  <span style="color:#bbb;font-size:0.78rem;">{{ txn.payment_method|default:"—" }}</span>
+                {% endif %}
+              </td>
+
+              <td>
+                {% if txn.payment_status == 'Paid' %}
+                  <span class="fm-pill pill-paid">
+                    <i class="fa fa-check me-1" style="font-size:0.6rem;"></i>Paid
+                  </span>
+                {% elif txn.payment_status == 'Pending' %}
+                  <span class="fm-pill pill-pending">
+                    <i class="fa fa-clock me-1" style="font-size:0.6rem;"></i>Pending
+                  </span>
+                {% elif txn.payment_status == 'Failed' %}
+                  <span class="fm-pill pill-failed">
+                    <i class="fa fa-times me-1" style="font-size:0.6rem;"></i>Failed
+                  </span>
+                {% elif txn.payment_status == 'Refunded' %}
+                  <span class="fm-pill pill-refunded">
+                    <i class="fa fa-undo me-1" style="font-size:0.6rem;"></i>Refunded
+                  </span>
+                {% else %}
+                  <span class="fm-pill pill-pending">{{ txn.payment_status }}</span>
+                {% endif %}
+              </td>
+
+              <td style="font-size:0.78rem;color:#999;white-space:nowrap;">
+                {{ txn.payment_date|date:"d M Y" }}<br>
+                <span style="font-size:0.7rem;color:#bbb;">{{ txn.payment_date|date:"h:i A" }}</span>
+              </td>
+
+              <td>
+                <div class="d-flex gap-1 flex-wrap">
+                  <a href="{% url 'Administrator:TransactionDetails' txn.id %}" class="fm-action-btn btn-view">
+                    <i class="fa fa-eye"></i> View
+                  </a>
+                </div>
+              </td>
+
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="9">
+                <div class="fm-empty">
+                  <i class="fa fa-credit-card"></i>
+                  <p>No transactions recorded yet. Payment activity will appear here once users start placing orders.</p>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- No results state -->
+      <div id="noResults" style="display:none;">
+        <div class="fm-empty">
+          <i class="fa fa-search"></i>
+          <p>No transactions match your search or filters. Try adjusting the criteria.</p>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      {% if transactions.has_other_pages %}
+      <div class="fm-pagination">
+        <span class="fm-pagination-info">
+          Showing {{ transactions.start_index }}–{{ transactions.end_index }} of {{ transactions.paginator.count }} transactions
+        </span>
+        <div class="fm-page-btns">
+          {% if transactions.has_previous %}
+            <a href="?page={{ transactions.previous_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" class="fm-page-btn">
+              <i class="fa fa-chevron-left"></i>
+            </a>
+          {% else %}
+            <span class="fm-page-btn disabled"><i class="fa fa-chevron-left"></i></span>
+          {% endif %}
+
+          {% for num in transactions.paginator.page_range %}
+            {% if transactions.number == num %}
+              <span class="fm-page-btn active">{{ num }}</span>
+            {% elif num > transactions.number|add:'-3' and num < transactions.number|add:'3' %}
+              <a href="?page={{ num }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" class="fm-page-btn">{{ num }}</a>
+            {% endif %}
+          {% endfor %}
+
+          {% if transactions.has_next %}
+            <a href="?page={{ transactions.next_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" class="fm-page-btn">
+              <i class="fa fa-chevron-right"></i>
+            </a>
+          {% else %}
+            <span class="fm-page-btn disabled"><i class="fa fa-chevron-right"></i></span>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+
+    </div><!-- /.fm-card -->
+
+    <!-- FOOTER -->
+    <div class="fm-footer">
+      &copy; <a href="#">Farmoon</a> Admin Panel &nbsp;·&nbsp;
+      
+    </div>
+
+  </main>
+
+  <!-- JS -->
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Sidebar toggle
+    document.getElementById('sidebarToggle').addEventListener('click', function () {
+      document.getElementById('fmSidebar').classList.toggle('open');
+    });
+
+    // ── Live filter ──────────────────────────────────────────────
+    function applyFilters() {
+      const search  = document.getElementById('txnSearch').value.toLowerCase();
+      const status  = document.getElementById('statusFilter').value;
+      const method  = document.getElementById('methodFilter').value;
+      const from    = document.getElementById('dateFrom').value;
+      const to      = document.getElementById('dateTo').value;
+
+      const rows = document.querySelectorAll('#txnTableBody .txn-row');
+      let visible = 0;
+
+      rows.forEach(function (row) {
+        const text      = row.innerText.toLowerCase();
+        const rStatus   = row.dataset.status  || '';
+        const rMethod   = row.dataset.method  || '';
+        const rDate     = row.dataset.date    || '';
+
+        const matchSearch  = !search  || text.includes(search);
+        const matchStatus  = !status  || rStatus  === status;
+        const matchMethod  = !method  || rMethod  === method;
+        const matchFrom    = !from    || rDate >= from;
+        const matchTo      = !to      || rDate <= to;
+
+        if (matchSearch && matchStatus && matchMethod && matchFrom && matchTo) {
+          row.style.display = '';
+          visible++;
+        } else {
+          row.style.display = 'none';
+        }
+      });
+
+      document.getElementById('noResults').style.display = visible === 0 ? 'block' : 'none';
+    }
+
+    document.getElementById('txnSearch').addEventListener('input',   applyFilters);
+    document.getElementById('statusFilter').addEventListener('change', applyFilters);
+    document.getElementById('methodFilter').addEventListener('change', applyFilters);
+    document.getElementById('dateFrom').addEventListener('change',    applyFilters);
+    document.getElementById('dateTo').addEventListener('change',      applyFilters);
+
+    // Clear all filters
+    document.getElementById('clearFilters').addEventListener('click', function () {
+      document.getElementById('txnSearch').value   = '';
+      document.getElementById('statusFilter').value = '';
+      document.getElementById('methodFilter').value = '';
+      document.getElementById('dateFrom').value     = '';
+      document.getElementById('dateTo').value       = '';
+      applyFilters();
+    });
+
+    // ── Column sort (Amount & Date) ──────────────────────────────
+    document.querySelectorAll('th.sortable').forEach(function (th) {
+      let asc = true;
+      th.addEventListener('click', function () {
+        const col    = parseInt(th.dataset.col);
+        const tbody  = document.getElementById('txnTableBody');
+        const rows   = Array.from(tbody.querySelectorAll('.txn-row'));
+
+        rows.sort(function (a, b) {
+          const aVal = a.querySelectorAll('td')[col].innerText.replace(/[₹,+−\s]/g, '');
+          const bVal = b.querySelectorAll('td')[col].innerText.replace(/[₹,+−\s]/g, '');
+          const aNum = parseFloat(aVal) || aVal;
+          const bNum = parseFloat(bVal) || bVal;
+          return asc ? (aNum > bNum ? 1 : -1) : (aNum < bNum ? 1 : -1);
+        });
+
+        rows.forEach(function (r) { tbody.appendChild(r); });
+        asc = !asc;
+
+        // Update icon
+        document.querySelectorAll('th.sortable i').forEach(function (i) {
+          i.className = 'fa fa-sort ms-1';
+          i.style.color = '#ccc';
+        });
+        th.querySelector('i').className = asc ? 'fa fa-sort-up ms-1' : 'fa fa-sort-down ms-1';
+        th.querySelector('i').style.color = 'var(--fm-green)';
+      });
+    });
+  </script>
+
+</body>
+</html>

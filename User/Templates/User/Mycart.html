@@ -1,0 +1,382 @@
+{% extends 'User/Head.html' %}
+{% block content %}
+{% load mathfilters %}
+
+<style>
+    /* ── Page background ── */
+    .page-wrapper {
+        padding: 110px 0 60px;
+        min-height: 100vh;
+        background: #f8faf6;
+    }
+
+    /* ── Section heading ── */
+    .section-title {
+        font-family: 'Lora', serif;
+        font-size: 1.7rem;
+        font-weight: 700;
+        color: #333;
+        position: relative;
+        padding-bottom: 10px;
+        margin-bottom: 36px;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 48px;
+        height: 3px;
+        background: var(--bs-primary, #5cb85c);
+        border-radius: 2px;
+    }
+
+    /* ── Cart Card ── */
+    .cart-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+        border-bottom: 3px solid transparent;
+        transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+        overflow: hidden;
+        margin-bottom: 32px;
+    }
+
+    .cart-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 14px 40px rgba(0,0,0,0.13);
+        border-bottom-color: var(--bs-primary, #5cb85c);
+    }
+
+    .cart-card-body {
+        padding: 32px;
+    }
+
+    /* ── Table ── */
+    .cart-table thead {
+        background: #f5fbf3;
+    }
+
+    .cart-table thead th {
+        font-family: 'Open Sans', sans-serif;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #aaa;
+        border: none;
+        padding: 14px 16px;
+    }
+
+    .cart-table tbody td {
+        font-family: 'Open Sans', sans-serif;
+        font-size: 0.88rem;
+        color: #333;
+        vertical-align: middle;
+        padding: 14px 16px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .cart-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* ── Product image ── */
+    .product-img {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 10px;
+        border: 2px solid #dff3e4;
+        transition: transform 0.25s;
+    }
+
+    .product-img:hover {
+        transform: scale(1.08);
+    }
+
+    /* ── Product name ── */
+    .product-name-cell {
+        font-family: 'Lora', serif;
+        font-weight: 700;
+        color: #333;
+        font-size: 0.92rem;
+    }
+
+    /* ── Price ── */
+    .price-cell {
+        font-family: 'Lora', serif;
+        font-weight: 600;
+        color: var(--bs-primary, #5cb85c);
+    }
+
+    .line-total {
+        font-family: 'Lora', serif;
+        font-weight: 700;
+        color: #333;
+        font-size: 0.95rem;
+    }
+
+    /* ── Qty input ── */
+    .qty-box {
+        width: 75px;
+        border-radius: 50px !important;
+        border: 1px solid #c8ecd0;
+        background: #f5fbf3;
+        color: #333;
+        text-align: center;
+        padding: 6px 10px;
+        font-family: 'Open Sans', sans-serif;
+        font-size: 0.85rem;
+        font-weight: 600;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+
+    .qty-box:focus {
+        border-color: var(--bs-primary, #5cb85c);
+        box-shadow: 0 0 0 3px rgba(92,184,92,0.12);
+    }
+
+    /* ── Delete button ── */
+    .btn-delete {
+        border-radius: 50px;
+        font-family: 'Open Sans', sans-serif;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 6px 16px;
+    }
+
+    /* ── Grand Total box ── */
+    .total-box {
+        background: #f5fbf3;
+        border-radius: 14px;
+        border: 1px solid #c8ecd0;
+        padding: 20px 28px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .total-label {
+        font-family: 'Open Sans', sans-serif;
+        font-size: 0.82rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #aaa;
+    }
+
+    .total-amount {
+        font-family: 'Lora', serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--bs-primary, #5cb85c);
+    }
+
+    /* ── Checkout button ── */
+    .btn-checkout {
+        border-radius: 50px;
+        font-family: 'Open Sans', sans-serif;
+        font-size: 0.85rem;
+        font-weight: 700;
+        padding: 12px 36px;
+        background: var(--bs-primary, #5cb85c);
+        border: none;
+        color: #fff;
+        cursor: pointer;
+        transition: background 0.25s, transform 0.2s, box-shadow 0.2s;
+        letter-spacing: 0.3px;
+    }
+
+    .btn-checkout:hover {
+        background: #4aa84a;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(92,184,92,0.25);
+    }
+
+    /* ── Empty state ── */
+    .empty-state {
+        text-align: center;
+        padding: 70px 20px;
+        color: #bbb;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 14px;
+        display: block;
+        color: #ddd;
+    }
+
+    .empty-state p {
+        font-size: 0.9rem;
+    }
+
+</style>
+
+<div class="page-wrapper">
+    <div class="container">
+
+        <!-- Page Title -->
+        <h2 class="section-title text-center wow fadeInUp" data-wow-delay="0.1s">
+            My Cart
+        </h2>
+        <a href="{% url 'User:ViewFarmers' %}" class="back-link">
+            <i class="fa fa-arrow-left"></i> Browse products
+        </a>
+
+        <div class="row justify-content-center">
+            <div class="col-xl-11">
+
+                <div class="cart-card wow fadeInUp" data-wow-delay="0.15s">
+                    <div class="cart-card-body">
+
+                        <form action="" method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+
+                            {% if cart %}
+                            <div class="table-responsive">
+                                <table class="table cart-table align-middle text-center">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Product</th>
+                                            <th>Photo</th>
+                                            <th>Price</th>
+                                            <th>Quantity</th>
+                                            <th>Total</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for i in cart %}
+                                        <tr class="product"
+                                            data-id="{{ i.id }}"
+                                            data-price="{{ i.productid.product_price }}">
+
+                                            <td style="color:#aaa; font-size:0.8rem;">
+                                                {{ forloop.counter }}
+                                            </td>
+
+                                            <td class="product-name-cell">
+                                                {{ i.productid.product_name }}
+                                            </td>
+
+                                            <td>
+                                                <img src="{{ i.productid.product_photo.url }}"
+                                                     class="product-img"
+                                                     alt="{{ i.productid.product_name }}">
+                                            </td>
+
+                                            <td class="price-cell">
+                                                ₹{{ i.productid.product_price }}
+                                            </td>
+
+                                            <td>
+                                                <input type="number"
+                                                       min="1"
+                                                       max="{{ i.total_stock }}"
+                                                       name="txt_qty"
+                                                       value="{{ i.cart_quantity }}"
+                                                       class="qty-box"
+                                                       onchange="ajaxqty(this.value,'{{ i.id }}')">
+                                            </td>
+
+                                            <td class="line-total product-line-price">
+                                                ₹{{ i.cart_quantity|mul:i.productid.product_price }}
+                                            </td>
+
+                                            <td>
+                                                <a href="{% url 'User:delcart' i.id %}"
+                                                   class="btn btn-danger btn-sm btn-delete">
+                                                    <i class="fa fa-trash me-1"></i>Remove
+                                                </a>
+                                            </td>
+
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Grand Total -->
+                            <div class="row mt-4 wow fadeInUp" data-wow-delay="0.2s">
+                                <div class="col-md-5 offset-md-7">
+                                    <div class="total-box">
+                                        <span class="total-label">Grand Total</span>
+                                        <span class="total-amount">
+                                            ₹ <span id="cart-total">0</span>
+                                        </span>
+                                        <input type="hidden"
+                                               name="carttotalamt"
+                                               id="cart-totalamt">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Delivery Address -->
+                    <div class="row mt-4 wow fadeInUp" data-wow-delay="0.25s">
+                        <div class="col-md-8 offset-md-2">
+                            <label class="form-label fw-bold">
+                                Delivery Address
+                            </label>
+                            <textarea
+                                name="delivery_address"
+                                class="form-control"
+                                rows="4"
+                                placeholder="Enter your complete delivery address..."
+                                required></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Checkout -->
+                    <div class="text-center mt-4 wow fadeInUp" data-wow-delay="0.3s">
+                        <input type="submit"
+                            value="Proceed to Checkout →"
+                            class="btn-checkout">
+                    </div>
+                                                {% endif %}
+
+                                            </form>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+function recalculateCart() {
+    let total = 0;
+    $(".product").each(function () {
+        total += parseFloat(
+            $(this).find(".product-line-price").text().replace("₹", "").trim()
+        );
+    });
+    $("#cart-total").text(total.toFixed(2));
+    $("#cart-totalamt").val(total.toFixed(2));
+}
+
+window.onload = recalculateCart;
+
+function ajaxqty(qty, cid) {
+    $.ajax({
+        url: "{% url 'User:CartQty' %}",
+        data: { qty: qty, cid: cid },
+        success: function (data) {
+            window.location = "{% url 'User:Mycart' %}";
+        },
+    });
+}
+</script>
+
+{% endblock content %}

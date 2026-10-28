@@ -1,0 +1,949 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Farmoon – Export Transactions</title>
+  <link rel="shortcut icon" type="image/png" href="{% static 'Main/img/icon-1.png' %}" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&family=Lora:wght@600;700&display=swap" rel="stylesheet">
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --fm-green:      #4caf50;
+      --fm-green-dark: #388e3c;
+      --fm-orange:     #ff9800;
+      --fm-sidebar-bg: #1b2b1e;
+      --fm-sidebar-w:  255px;
+      --fm-topbar-h:   36px;
+      --fm-header-h:   64px;
+      --fm-font-head:  'Lora', serif;
+      --fm-font-body:  'Open Sans', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: var(--fm-font-body); background: #f5f7f5; color: #333; margin: 0; }
+
+    /* TOP BAR */
+    .fm-topbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1060;
+      height: var(--fm-topbar-h);
+      background: var(--fm-sidebar-bg);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; font-size: 0.76rem; color: #aaa;
+    }
+    .fm-topbar a { color: #aaa; text-decoration: none; margin-left: 10px; transition: color .2s; }
+    .fm-topbar a:hover { color: var(--fm-orange); }
+
+    /* NAVBAR */
+    .fm-navbar {
+      position: fixed;
+      top: var(--fm-topbar-h); left: 0; right: 0; z-index: 1050;
+      height: var(--fm-header-h);
+      background: #fff;
+      box-shadow: 0 2px 10px rgba(0,0,0,.08);
+      display: flex; align-items: center; padding: 0 24px; gap: 12px;
+    }
+    .fm-brand {
+      font-family: var(--fm-font-head); font-size: 1.55rem; font-weight: 700;
+      color: var(--fm-green); text-decoration: none; white-space: nowrap;
+    }
+    .fm-brand span { color: var(--fm-orange); }
+    .fm-admin-pill {
+      font-size: 0.68rem; background: #e8f5e9; color: var(--fm-green-dark);
+      padding: 2px 10px; border-radius: 50px; font-weight: 700; letter-spacing: .04em;
+    }
+    .fm-nav-links { display: flex; align-items: center; gap: 2px; margin-left: auto; }
+    .fm-nav-links a {
+      font-size: 0.84rem; color: #555; padding: 6px 13px;
+      border-radius: 50px; text-decoration: none; transition: all .2s;
+    }
+    .fm-nav-links a:hover, .fm-nav-links a.active { background: var(--fm-green); color: #fff; }
+
+    /* SIDEBAR */
+    .fm-sidebar {
+      position: fixed;
+      top: calc(var(--fm-topbar-h) + var(--fm-header-h));
+      left: 0; width: var(--fm-sidebar-w); bottom: 0;
+      background: var(--fm-sidebar-bg);
+      overflow-y: auto; z-index: 1040;
+      padding: 12px 0 40px;
+      transition: transform .3s;
+    }
+    .fm-sidebar::-webkit-scrollbar { width: 3px; }
+    .fm-sidebar::-webkit-scrollbar-thumb { background: #3a5e3d; border-radius: 4px; }
+    .fm-sidebar-cap {
+      font-size: 0.66rem; font-weight: 700; letter-spacing: .09em;
+      text-transform: uppercase; color: #5a7a5d;
+      padding: 18px 18px 5px;
+    }
+    .fm-sidebar a {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 18px; color: #b0c8b2;
+      text-decoration: none; font-size: 0.855rem;
+      border-left: 3px solid transparent; transition: all .2s;
+    }
+    .fm-sidebar a:hover  { color: #fff; background: rgba(76,175,80,.13); border-left-color: var(--fm-green); }
+    .fm-sidebar a.active { color: #fff; background: rgba(76,175,80,.2);  border-left-color: var(--fm-green); font-weight: 600; }
+    .fm-sidebar a i      { width: 18px; text-align: center; }
+    .fm-sidebar-divider  { height: 1px; background: #2a3e2d; margin: 6px 0; }
+
+    /* MAIN */
+    .fm-main {
+      margin-left: var(--fm-sidebar-w);
+      padding-top: calc(var(--fm-topbar-h) + var(--fm-header-h) + 24px);
+      padding-left: 24px; padding-right: 24px; padding-bottom: 40px;
+      min-height: 100vh;
+    }
+
+    /* PAGE HEADER */
+    .fm-page-title {
+      font-family: var(--fm-font-head); font-size: 1.55rem;
+      font-weight: 700; color: #222; margin: 0;
+    }
+    .fm-page-sub { font-size: 0.8rem; color: #999; margin-top: 3px; }
+
+    /* BREADCRUMB */
+    .fm-breadcrumb {
+      font-size: 0.78rem; color: #bbb; margin-bottom: 20px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .fm-breadcrumb a { color: var(--fm-green); text-decoration: none; }
+    .fm-breadcrumb a:hover { text-decoration: underline; }
+    .fm-breadcrumb i { font-size: 0.6rem; color: #ddd; }
+
+    /* CARD */
+    .fm-card {
+      background: #fff; border-radius: 12px;
+      border: 2px solid #e8f5e9;
+      box-shadow: 0 2px 8px rgba(0,0,0,.05); overflow: hidden;
+    }
+    .fm-card-hdr {
+      padding: 16px 22px 14px;
+      border-bottom: 1px solid #f0f4f0;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .fm-card-hdr-ico {
+      width: 38px; height: 38px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; flex-shrink: 0;
+    }
+    .fm-card-title { font-family: var(--fm-font-head); font-size: 1rem; font-weight: 700; color: #222; margin: 0; }
+    .fm-card-sub   { font-size: 0.76rem; color: #aaa; margin-top: 2px; }
+    .fm-card-body  { padding: 22px; }
+
+    /* FORM ELEMENTS */
+    .fm-label {
+      font-size: 0.8rem; font-weight: 600; color: #444;
+      margin-bottom: 7px; display: block;
+    }
+    .fm-label span { color: #bbb; font-weight: 400; margin-left: 4px; }
+
+    .fm-input, .fm-select {
+      width: 100%;
+      padding: 9px 14px;
+      border: 1.5px solid #e0e0e0; border-radius: 8px;
+      font-size: 0.84rem; font-family: var(--fm-font-body);
+      color: #333; outline: none;
+      background: #fff;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .fm-input:focus, .fm-select:focus {
+      border-color: var(--fm-green);
+      box-shadow: 0 0 0 3px rgba(76,175,80,.1);
+    }
+    .fm-select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23aaa'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 32px;
+      appearance: none; cursor: pointer;
+    }
+
+    /* SECTION DIVIDER */
+    .fm-section-divider {
+      font-size: 0.72rem; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase; color: #bbb;
+      padding-bottom: 10px; margin-bottom: 18px;
+      border-bottom: 1px solid #f0f4f0;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .fm-section-divider i { color: var(--fm-green); font-size: 0.78rem; }
+
+    /* CHECKBOXES — column grid */
+    .fm-col-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 10px;
+    }
+    .fm-col-check {
+      display: flex; align-items: center; gap: 9px;
+      padding: 9px 12px;
+      border: 1.5px solid #e8f5e9; border-radius: 8px;
+      cursor: pointer; transition: all .18s;
+      user-select: none;
+    }
+    .fm-col-check:hover { border-color: var(--fm-green); background: #f5fbf5; }
+    .fm-col-check input[type="checkbox"] {
+      width: 15px; height: 15px; accent-color: var(--fm-green);
+      cursor: pointer; flex-shrink: 0;
+    }
+    .fm-col-check.checked {
+      border-color: var(--fm-green);
+      background: rgba(76,175,80,.06);
+    }
+    .fm-col-label { font-size: 0.8rem; color: #444; font-weight: 500; }
+    .fm-col-label span { font-size: 0.7rem; color: #aaa; display: block; }
+
+    /* FORMAT TOGGLE */
+    .fm-fmt-group { display: flex; gap: 10px; flex-wrap: wrap; }
+    .fm-fmt-btn {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 18px; border-radius: 10px;
+      border: 2px solid #e0e0e0; cursor: pointer;
+      transition: all .18s; font-family: var(--fm-font-body);
+      background: #fff;
+    }
+    .fm-fmt-btn i { font-size: 1.1rem; }
+    .fm-fmt-btn .fmt-name { font-size: 0.84rem; font-weight: 700; color: #444; }
+    .fm-fmt-btn .fmt-desc { font-size: 0.72rem; color: #aaa; }
+    .fm-fmt-btn:hover { border-color: var(--fm-green); }
+    .fm-fmt-btn.selected { border-color: var(--fm-green); background: rgba(76,175,80,.06); }
+    .fm-fmt-btn.selected .fmt-name { color: var(--fm-green-dark); }
+    .fm-fmt-btn input { display: none; }
+
+    /* PILLS */
+    .fm-pill {
+      display: inline-block; padding: 3px 10px;
+      border-radius: 50px; font-size: 0.7rem; font-weight: 700;
+    }
+    .pill-pending { background: rgba(255,152,0,.12); color: #e65100; }
+
+    /* SUMMARY BOX */
+    .fm-summary-box {
+      background: #f5fbf5; border: 1.5px solid #c8e6c9;
+      border-radius: 10px; padding: 18px 20px;
+    }
+    .fm-summary-row {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.82rem; padding: 5px 0;
+      border-bottom: 1px dashed #dcedc8;
+    }
+    .fm-summary-row:last-child { border-bottom: none; }
+    .fm-summary-row .key { color: #777; }
+    .fm-summary-row .val { font-weight: 600; color: #333; }
+    .fm-summary-row .val.green { color: var(--fm-green-dark); }
+
+    /* EXPORT BUTTONS */
+    .fm-export-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 11px 28px; border-radius: 50px;
+      font-size: 0.88rem; font-weight: 700; font-family: var(--fm-font-body);
+      border: none; cursor: pointer; transition: all .22s;
+      text-decoration: none; white-space: nowrap;
+    }
+    .btn-primary-export {
+      background: var(--fm-green); color: #fff;
+      box-shadow: 0 4px 14px rgba(76,175,80,.3);
+    }
+    .btn-primary-export:hover {
+      background: var(--fm-green-dark); color: #fff;
+      box-shadow: 0 6px 20px rgba(76,175,80,.4);
+      transform: translateY(-1px);
+    }
+    .btn-secondary-export {
+      background: #fff; color: #555;
+      border: 2px solid #e0e0e0;
+    }
+    .btn-secondary-export:hover { border-color: #aaa; color: #333; }
+
+    /* RECENT EXPORTS TABLE */
+    .fm-tbl { font-size: 0.82rem; margin: 0; width: 100%; }
+    .fm-tbl thead th {
+      font-size: 0.71rem; font-weight: 700; letter-spacing: .05em;
+      text-transform: uppercase; color: #aaa;
+      border: none; padding: 10px 14px; background: #fafcfa;
+    }
+    .fm-tbl tbody td { padding: 11px 14px; vertical-align: middle; border-color: #f0f4f0; }
+    .fm-tbl tbody tr:hover { background: #f5fbf5; }
+    .fm-tbl tbody tr:last-child td { border-bottom: none; }
+
+    .fm-dl-btn {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px; border-radius: 50px;
+      font-size: 0.72rem; font-weight: 600;
+      background: rgba(76,175,80,.1); color: var(--fm-green-dark);
+      text-decoration: none; transition: all .18s;
+    }
+    .fm-dl-btn:hover { background: var(--fm-green); color: #fff; }
+
+    /* PROGRESS (shown during export) */
+    .fm-progress-wrap { display: none; }
+    .fm-progress-bar-outer {
+      height: 6px; background: #e8f5e9; border-radius: 50px; overflow: hidden;
+      margin-top: 10px;
+    }
+    .fm-progress-bar-inner {
+      height: 100%; background: var(--fm-green);
+      border-radius: 50px; width: 0%;
+      transition: width .4s ease;
+    }
+
+    /* SUCCESS BANNER */
+    .fm-success-banner {
+      display: none;
+      background: rgba(76,175,80,.08); border: 1.5px solid #c8e6c9;
+      border-radius: 10px; padding: 14px 18px;
+      align-items: center; gap: 12px; margin-top: 16px;
+    }
+    .fm-success-banner i { color: var(--fm-green); font-size: 1.2rem; }
+    .fm-success-banner .msg { font-size: 0.84rem; color: var(--fm-green-dark); font-weight: 600; }
+    .fm-success-banner .sub { font-size: 0.76rem; color: #888; }
+
+    /* FOOTER */
+    .fm-footer {
+      text-align: center; font-size: 0.76rem; color: #bbb;
+      padding: 20px; border-top: 1px solid #e8f5e9; margin-top: 8px;
+    }
+    .fm-footer a { color: var(--fm-green); text-decoration: none; }
+
+    @media (max-width: 991px) {
+      .fm-sidebar { transform: translateX(-100%); }
+      .fm-sidebar.open { transform: translateX(0); }
+      .fm-main { margin-left: 0; }
+      .fm-nav-links { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- TOP BAR -->
+  <div class="fm-topbar">
+    <span><i class="fa fa-map-marker-alt me-2"></i>Farmoon Admin Panel</span>
+    <span>
+      Follow us:
+      <a href="#"><i class="fab fa-facebook-f"></i></a>
+      <a href="#"><i class="fab fa-twitter"></i></a>
+      <a href="#"><i class="fab fa-linkedin-in"></i></a>
+      <a href="#"><i class="fab fa-instagram"></i></a>
+    </span>
+  </div>
+
+  <!-- NAVBAR -->
+  <div class="fm-navbar">
+    <button class="btn btn-sm d-xl-none me-1" id="sidebarToggle"
+            style="background:none;border:none;font-size:1.3rem;color:#555;">
+      <i class="bi bi-list"></i>
+    </button>
+    <a href="{% url 'Administrator:HomePage' %}" class="fm-brand">Farm<span>oo</span>n</a>
+    <span class="fm-admin-pill">ADMIN</span>
+    <nav class="fm-nav-links">
+      <a href="{% url 'Guest:index' %}"><i class="fa fa-globe me-1"></i>Guest Site</a>
+      <a href="{% url 'Administrator:HomePage' %}"><i class="fa fa-tachometer-alt me-1"></i>Dashboard</a>
+      <a href="{% url 'Administrator:OrderList' %}"><i class="fa fa-shopping-bag me-1"></i>Orders</a>
+      <a href="{% url 'Administrator:TransactionList' %}" class="active"><i class="fa fa-credit-card me-1"></i>Transactions</a>
+    </nav>
+  </div>
+
+  <!-- SIDEBAR -->
+  <aside class="fm-sidebar" id="fmSidebar">
+
+    <div class="fm-sidebar-cap">Main</div>
+    <a href="{% url 'Administrator:HomePage' %}"><i class="fa fa-tachometer-alt"></i>Dashboard</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <div class="fm-sidebar-cap">User Management</div>
+    <a href="{% url 'Administrator:Userlist' %}"><i class="fa fa-users"></i>User List</a>
+    <a href="{% url 'Administrator:Farmerlist' %}"><i class="fa fa-leaf"></i>Farmer List</a>
+    <a href="{% url 'Administrator:AdminRegistration' %}"><i class="fa fa-user-shield"></i>Admin Accounts</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <div class="fm-sidebar-cap">Location</div>
+    <a href="{% url 'Administrator:District' %}"><i class="fa fa-map"></i>Districts</a>
+    <a href="{% url 'Administrator:Place' %}"><i class="fa fa-map-marker-alt"></i>Places</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <div class="fm-sidebar-cap">Catalogue</div>
+    <a href="{% url 'Administrator:Category' %}"><i class="fa fa-tags"></i>Categories</a>
+    <a href="{% url 'Administrator:Subcategory' %}"><i class="fa fa-list-ul"></i>Subcategories</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <div class="fm-sidebar-cap">Orders & Payments</div>
+    <a href="{% url 'Administrator:OrderList' %}"><i class="fa fa-shopping-bag"></i>Orders
+      {% if pending_orders %}
+        <span class="fm-pill pill-pending ms-auto">{{ pending_orders }}</span>
+      {% endif %}
+    </a>
+    <a href="{% url 'Administrator:TransactionList' %}" class="active"><i class="fa fa-credit-card"></i>Transactions</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <div class="fm-sidebar-cap">Support</div>
+    <a href="{% url 'Administrator:ViewComplaint' %}"><i class="fa fa-exclamation-circle"></i>Complaints
+      {% if pending_complaints %}
+        <span class="fm-pill pill-pending ms-auto">{{ pending_complaints }}</span>
+      {% endif %}
+    </a>
+    <a href="{% url 'Administrator:ViewFeedback' %}"><i class="fa fa-comment-dots"></i>Feedback</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <a href="{% url 'Guest:Login' %}"><i class="fa fa-sign-out-alt"></i>Logout</a>
+
+  </aside>
+
+  <!-- MAIN -->
+  <main class="fm-main">
+
+    <!-- Breadcrumb -->
+    <div class="fm-breadcrumb">
+      <a href="{% url 'Administrator:HomePage' %}"><i class="fa fa-home"></i> Dashboard</a>
+      <i class="fa fa-chevron-right"></i>
+      <a href="{% url 'Administrator:TransactionList' %}">Transactions</a>
+      <i class="fa fa-chevron-right"></i>
+      <span>Export</span>
+    </div>
+
+    <!-- Page header -->
+    <div class="mb-4">
+      <h1 class="fm-page-title">
+        <i class="fa fa-file-export me-2" style="color:var(--fm-green);font-size:1.2rem;"></i>Export Transactions
+      </h1>
+      <p class="fm-page-sub">Configure filters and columns, then download your transaction report.</p>
+    </div>
+
+    <form method="GET" action="{% url 'Administrator:ExportTransactions' %}" id="exportForm">
+
+      <div class="row g-4">
+
+        <!-- LEFT COLUMN: filters + columns -->
+        <div class="col-lg-8">
+
+          <!-- ── FILTER OPTIONS ── -->
+          <div class="fm-card mb-4">
+            <div class="fm-card-hdr">
+              <div class="fm-card-hdr-ico" style="background:rgba(76,175,80,.1);">
+                <i class="fa fa-filter" style="color:var(--fm-green);"></i>
+              </div>
+              <div>
+                <div class="fm-card-title">Filter Records</div>
+                <div class="fm-card-sub">Narrow down which transactions to include in the export</div>
+              </div>
+            </div>
+            <div class="fm-card-body">
+
+              <!-- Date range -->
+              <div class="fm-section-divider">
+                <i class="fa fa-calendar-alt"></i> Date Range
+              </div>
+              <div class="row g-3 mb-4">
+                <div class="col-sm-6">
+                  <label class="fm-label">From Date <span>(optional)</span></label>
+                  <input type="date" name="date_from" id="date_from" class="fm-input"
+                         value="{{ request.GET.date_from }}">
+                </div>
+                <div class="col-sm-6">
+                  <label class="fm-label">To Date <span>(optional)</span></label>
+                  <input type="date" name="date_to" id="date_to" class="fm-input"
+                         value="{{ request.GET.date_to }}">
+                </div>
+                <div class="col-12">
+                  <div class="d-flex gap-2 flex-wrap" style="margin-top:4px;">
+                    <button type="button" class="btn btn-sm rounded-pill px-3"
+                            style="font-size:0.76rem;border:1px solid #e0e0e0;background:#fff;color:#555;"
+                            onclick="setRange('today')">Today</button>
+                    <button type="button" class="btn btn-sm rounded-pill px-3"
+                            style="font-size:0.76rem;border:1px solid #e0e0e0;background:#fff;color:#555;"
+                            onclick="setRange('week')">This Week</button>
+                    <button type="button" class="btn btn-sm rounded-pill px-3"
+                            style="font-size:0.76rem;border:1px solid #e0e0e0;background:#fff;color:#555;"
+                            onclick="setRange('month')">This Month</button>
+                    <button type="button" class="btn btn-sm rounded-pill px-3"
+                            style="font-size:0.76rem;border:1px solid #e0e0e0;background:#fff;color:#555;"
+                            onclick="setRange('year')">This Year</button>
+                    <button type="button" class="btn btn-sm rounded-pill px-3"
+                            style="font-size:0.76rem;border:1px solid #e0e0e0;background:#fff;color:#555;"
+                            onclick="setRange('all')">All Time</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Payment status -->
+              <div class="fm-section-divider">
+                <i class="fa fa-tag"></i> Payment Status
+              </div>
+              <div class="row g-3 mb-4">
+                <div class="col-sm-6">
+                  <label class="fm-label">Payment Status <span>(leave blank for all)</span></label>
+                  <select name="payment_status" class="fm-select">
+                    <option value="">All Statuses</option>
+                    <option value="Paid"     {% if request.GET.payment_status == 'Paid'     %}selected{% endif %}>Paid</option>
+                    <option value="Pending"  {% if request.GET.payment_status == 'Pending'  %}selected{% endif %}>Pending</option>
+                    <option value="Failed"   {% if request.GET.payment_status == 'Failed'   %}selected{% endif %}>Failed</option>
+                    <option value="Refunded" {% if request.GET.payment_status == 'Refunded' %}selected{% endif %}>Refunded</option>
+                  </select>
+                </div>
+                <div class="col-sm-6">
+                  <label class="fm-label">Payment Method <span>(leave blank for all)</span></label>
+                  <select name="payment_method" class="fm-select">
+                    <option value="">All Methods</option>
+                    <option value="COD"      {% if request.GET.payment_method == 'COD'      %}selected{% endif %}>Cash on Delivery</option>
+                    <option value="Online"   {% if request.GET.payment_method == 'Online'   %}selected{% endif %}>Online</option>
+                    <option value="Razorpay" {% if request.GET.payment_method == 'Razorpay' %}selected{% endif %}>Razorpay</option>
+                    <option value="UPI"      {% if request.GET.payment_method == 'UPI'      %}selected{% endif %}>UPI</option>
+                    <option value="Wallet"   {% if request.GET.payment_method == 'Wallet'   %}selected{% endif %}>Wallet</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Amount range -->
+              <div class="fm-section-divider">
+                <i class="fa fa-rupee-sign"></i> Amount Range
+              </div>
+              <div class="row g-3">
+                <div class="col-sm-6">
+                  <label class="fm-label">Minimum Amount <span>(₹)</span></label>
+                  <input type="number" name="amount_min" class="fm-input" placeholder="e.g. 100"
+                         value="{{ request.GET.amount_min }}" min="0">
+                </div>
+                <div class="col-sm-6">
+                  <label class="fm-label">Maximum Amount <span>(₹)</span></label>
+                  <input type="number" name="amount_max" class="fm-input" placeholder="e.g. 10000"
+                         value="{{ request.GET.amount_max }}" min="0">
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- ── COLUMN SELECTOR ── -->
+          <div class="fm-card mb-4">
+            <div class="fm-card-hdr">
+              <div class="fm-card-hdr-ico" style="background:rgba(63,81,181,.1);">
+                <i class="fa fa-columns" style="color:#3f51b5;"></i>
+              </div>
+              <div>
+                <div class="fm-card-title">Choose Columns</div>
+                <div class="fm-card-sub">Select which fields to include in the exported file</div>
+              </div>
+              <button type="button" id="selectAllBtn"
+                      class="btn btn-sm ms-auto rounded-pill px-3"
+                      style="font-size:0.76rem;border:1px solid #e0e0e0;background:#fff;color:#555;">
+                Select All
+              </button>
+            </div>
+            <div class="fm-card-body">
+              <div class="fm-col-grid" id="colGrid">
+
+                <label class="fm-col-check checked">
+                  <input type="checkbox" name="columns" value="transaction_id" checked>
+                  <div>
+                    <div class="fm-col-label">Transaction ID</div>
+                    <span>Unique payment reference</span>
+                  </div>
+                </label>
+
+                <label class="fm-col-check checked">
+                  <input type="checkbox" name="columns" value="order_id" checked>
+                  <div>
+                    <div class="fm-col-label">Order ID</div>
+                    <span>Linked order number</span>
+                  </div>
+                </label>
+
+                <label class="fm-col-check checked">
+                  <input type="checkbox" name="columns" value="user_name" checked>
+                  <div>
+                    <div class="fm-col-label">User Name</div>
+                    <span>Customer full name</span>
+                  </div>
+                </label>
+
+                <label class="fm-col-check checked">
+                  <input type="checkbox" name="columns" value="user_email" checked>
+                  <div>
+                    <div class="fm-col-label">User Email</div>
+                    <span>Customer email address</span>
+                  </div>
+                </label>
+
+                <label class="fm-col-check checked">
+                  <input type="checkbox" name="columns" value="amount" checked>
+                  <div>
+                    <div class="fm-col-label">Amount (₹)</div>
+                    <span>Transaction value</span>
+                  </div>
+                </label>
+
+                <label class="fm-col-check checked">
+                  <input type="checkbox" name="columns" value="payment_status" checked>
+                  <div>
+                    <div class="fm-col-label">Payment Status</div>
+                    <span>Paid / Pending / Failed / Refunded</span>
+                  </div>
+                </label>
+
+                <label class="fm-col-check checked">
+                  <input type="checkbox" name="columns" value="payment_method" checked>
+                  <div>
+                    <div class="fm-col-label">Payment Method</div>
+                    <span>COD / Online / UPI etc.</span>
+                  </div>
+                </label>
+
+                <label class="fm-col-check checked">
+                  <input type="checkbox" name="columns" value="transaction_date" checked>
+                  <div>
+                    <div class="fm-col-label">Transaction Date</div>
+                    <span>Date & time of payment</span>
+                  </div>
+                </label>
+
+                <label class="fm-col-check">
+                  <input type="checkbox" name="columns" value="user_phone">
+                  <div>
+                    <div class="fm-col-label">User Phone</div>
+                    <span>Customer contact number</span>
+                  </div>
+                </label>
+
+                <label class="fm-col-check">
+                  <input type="checkbox" name="columns" value="order_total">
+                  <div>
+                    <div class="fm-col-label">Order Total</div>
+                    <span>Full order value</span>
+                  </div>
+                </label>
+
+                <label class="fm-col-check">
+                  <input type="checkbox" name="columns" value="order_status">
+                  <div>
+                    <div class="fm-col-label">Order Status</div>
+                    <span>Linked order status</span>
+                  </div>
+                </label>
+
+                <label class="fm-col-check">
+                  <input type="checkbox" name="columns" value="notes">
+                  <div>
+                    <div class="fm-col-label">Notes</div>
+                    <span>Admin / system notes</span>
+                  </div>
+                </label>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- ── FORMAT ── -->
+          <div class="fm-card mb-4">
+            <div class="fm-card-hdr">
+              <div class="fm-card-hdr-ico" style="background:rgba(0,150,136,.1);">
+                <i class="fa fa-file-alt" style="color:#009688;"></i>
+              </div>
+              <div>
+                <div class="fm-card-title">Export Format</div>
+                <div class="fm-card-sub">Choose the file format for the download</div>
+              </div>
+            </div>
+            <div class="fm-card-body">
+              <div class="fm-fmt-group">
+
+                <label class="fm-fmt-btn selected" id="fmt-csv">
+                  <input type="radio" name="format" value="csv" checked>
+                  <i class="fa fa-file-csv" style="color:#388e3c;"></i>
+                  <div>
+                    <div class="fmt-name">CSV</div>
+                    <div class="fmt-desc">Excel / Sheets compatible</div>
+                  </div>
+                </label>
+
+                <label class="fm-fmt-btn" id="fmt-xlsx">
+                  <input type="radio" name="format" value="xlsx">
+                  <i class="fa fa-file-excel" style="color:#1e7e34;"></i>
+                  <div>
+                    <div class="fmt-name">Excel (XLSX)</div>
+                    <div class="fmt-desc">Formatted spreadsheet</div>
+                  </div>
+                </label>
+
+                <label class="fm-fmt-btn" id="fmt-pdf">
+                  <input type="radio" name="format" value="pdf">
+                  <i class="fa fa-file-pdf" style="color:#c62828;"></i>
+                  <div>
+                    <div class="fmt-name">PDF</div>
+                    <div class="fmt-desc">Print-ready report</div>
+                  </div>
+                </label>
+
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN: summary + action -->
+        <div class="col-lg-4">
+
+          <!-- Export Summary -->
+          <div class="fm-card mb-4" style="position:sticky;top:calc(var(--fm-topbar-h) + var(--fm-header-h) + 20px);">
+            <div class="fm-card-hdr">
+              <div class="fm-card-hdr-ico" style="background:rgba(255,152,0,.1);">
+                <i class="fa fa-info-circle" style="color:var(--fm-orange);"></i>
+              </div>
+              <div>
+                <div class="fm-card-title">Export Summary</div>
+                <div class="fm-card-sub">Review before downloading</div>
+              </div>
+            </div>
+            <div class="fm-card-body">
+
+              <div class="fm-summary-box mb-4">
+                <div class="fm-summary-row">
+                  <span class="key"><i class="fa fa-database me-2" style="color:#bbb;"></i>Total Records</span>
+                  <span class="val green">{{ total_transactions }}</span>
+                </div>
+                <div class="fm-summary-row">
+                  <span class="key"><i class="fa fa-rupee-sign me-2" style="color:#bbb;"></i>Total Revenue</span>
+                  <span class="val green">₹{{ total_revenue }}</span>
+                </div>
+                <div class="fm-summary-row">
+                  <span class="key"><i class="fa fa-check-circle me-2" style="color:#bbb;"></i>Paid</span>
+                  <span class="val">{{ paid_count }}</span>
+                </div>
+                <div class="fm-summary-row">
+                  <span class="key"><i class="fa fa-hourglass-half me-2" style="color:#bbb;"></i>Pending</span>
+                  <span class="val">{{ pending_count }}</span>
+                </div>
+                <div class="fm-summary-row">
+                  <span class="key"><i class="fa fa-times-circle me-2" style="color:#bbb;"></i>Failed</span>
+                  <span class="val">{{ failed_count }}</span>
+                </div>
+                <div class="fm-summary-row">
+                  <span class="key"><i class="fa fa-undo me-2" style="color:#bbb;"></i>Refunded</span>
+                  <span class="val">{{ refunded_count }}</span>
+                </div>
+                <div class="fm-summary-row">
+                  <span class="key"><i class="fa fa-columns me-2" style="color:#bbb;"></i>Columns Selected</span>
+                  <span class="val" id="colCount">8</span>
+                </div>
+                <div class="fm-summary-row">
+                  <span class="key"><i class="fa fa-file me-2" style="color:#bbb;"></i>Format</span>
+                  <span class="val" id="fmtDisplay">CSV</span>
+                </div>
+              </div>
+
+              <!-- Progress bar (shown during export) -->
+              <div class="fm-progress-wrap mb-3" id="progressWrap">
+                <div style="font-size:0.8rem;color:#777;">
+                  <i class="fa fa-spinner fa-spin me-2" style="color:var(--fm-green);"></i>
+                  Preparing your export…
+                </div>
+                <div class="fm-progress-bar-outer">
+                  <div class="fm-progress-bar-inner" id="progressBar"></div>
+                </div>
+              </div>
+
+              <!-- Success banner -->
+              <div class="fm-success-banner" id="successBanner">
+                <i class="fa fa-check-circle"></i>
+                <div>
+                  <div class="msg">Export ready!</div>
+                  <div class="sub">Your file is downloading now.</div>
+                </div>
+              </div>
+
+              <!-- Action buttons -->
+              <div class="d-grid gap-2 mt-2">
+                <button type="submit" class="fm-export-btn btn-primary-export" id="exportBtn">
+                  <i class="fa fa-download"></i> Download Export
+                </button>
+                <a href="{% url 'Administrator:TransactionList' %}" class="fm-export-btn btn-secondary-export">
+                  <i class="fa fa-arrow-left"></i> Back to Transactions
+                </a>
+              </div>
+
+              <p style="font-size:0.72rem;color:#bbb;text-align:center;margin-top:14px;margin-bottom:0;">
+                <i class="fa fa-lock me-1"></i>Export is for admin use only and contains sensitive payment data.
+              </p>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </form>
+
+    <!-- ── RECENT EXPORTS ── -->
+    {% if recent_exports %}
+    <div class="fm-card mb-4">
+      <div class="fm-card-hdr">
+        <div class="fm-card-hdr-ico" style="background:rgba(76,175,80,.1);">
+          <i class="fa fa-history" style="color:var(--fm-green);"></i>
+        </div>
+        <div>
+          <div class="fm-card-title">Recent Exports</div>
+          <div class="fm-card-sub">Previously generated transaction reports</div>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table fm-tbl mb-0">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>File Name</th>
+              <th>Format</th>
+              <th>Records</th>
+              <th>Generated By</th>
+              <th>Date</th>
+              <th>Download</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for export in recent_exports %}
+            <tr>
+              <td style="color:#bbb;">{{ forloop.counter }}</td>
+              <td style="font-size:0.8rem;font-weight:600;color:#444;">
+                <i class="fa fa-file-csv me-2" style="color:var(--fm-green);"></i>
+                {{ export.file_name }}
+              </td>
+              <td>
+                <span style="font-size:0.76rem;font-weight:700;color:#777;text-transform:uppercase;">
+                  {{ export.format }}
+                </span>
+              </td>
+              <td style="color:#555;">{{ export.record_count }}</td>
+              <td style="color:#777;">{{ export.generated_by }}</td>
+              <td style="font-size:0.78rem;color:#999;">{{ export.created_at|date:"d M Y, h:i A" }}</td>
+              <td>
+                <a href="{{ export.file_url }}" class="fm-dl-btn">
+                  <i class="fa fa-download"></i> Download
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="fm-footer">
+      &copy; <a href="#">Farmoon</a> Admin Panel &nbsp;·&nbsp;
+      
+    </div>
+
+  </main>
+
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+
+    /* ── Sidebar toggle ── */
+    document.getElementById('sidebarToggle').addEventListener('click', function () {
+      document.getElementById('fmSidebar').classList.toggle('open');
+    });
+
+    /* ── Column checkbox visual toggle ── */
+    document.querySelectorAll('.fm-col-check input[type="checkbox"]').forEach(function (cb) {
+      cb.addEventListener('change', function () {
+        cb.closest('.fm-col-check').classList.toggle('checked', cb.checked);
+        updateColCount();
+      });
+    });
+
+    function updateColCount() {
+      const count = document.querySelectorAll('.fm-col-check input:checked').length;
+      document.getElementById('colCount').textContent = count;
+    }
+
+    /* ── Select All toggle ── */
+    let allSelected = false;
+    document.getElementById('selectAllBtn').addEventListener('click', function () {
+      allSelected = !allSelected;
+      document.querySelectorAll('.fm-col-check input[type="checkbox"]').forEach(function (cb) {
+        cb.checked = allSelected;
+        cb.closest('.fm-col-check').classList.toggle('checked', allSelected);
+      });
+      this.textContent = allSelected ? 'Deselect All' : 'Select All';
+      updateColCount();
+    });
+
+    /* ── Format toggle ── */
+    document.querySelectorAll('.fm-fmt-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        document.querySelectorAll('.fm-fmt-btn').forEach(function (b) { b.classList.remove('selected'); });
+        btn.classList.add('selected');
+        const val = btn.querySelector('input').value.toUpperCase();
+        document.getElementById('fmtDisplay').textContent = val;
+      });
+    });
+
+    /* ── Quick date range presets ── */
+    function setRange(preset) {
+      const today = new Date();
+      const fmt   = function (d) { return d.toISOString().split('T')[0]; };
+      let from = '', to = fmt(today);
+
+      if (preset === 'today') {
+        from = fmt(today);
+      } else if (preset === 'week') {
+        const d = new Date(today); d.setDate(d.getDate() - d.getDay());
+        from = fmt(d);
+      } else if (preset === 'month') {
+        from = fmt(new Date(today.getFullYear(), today.getMonth(), 1));
+      } else if (preset === 'year') {
+        from = fmt(new Date(today.getFullYear(), 0, 1));
+      } else if (preset === 'all') {
+        from = ''; to = '';
+      }
+
+      document.getElementById('date_from').value = from;
+      document.getElementById('date_to').value   = to;
+    }
+
+    /* ── Export button: progress animation ── */
+    document.getElementById('exportForm').addEventListener('submit', function () {
+      const checked = document.querySelectorAll('.fm-col-check input:checked').length;
+      if (checked === 0) {
+        alert('Please select at least one column to export.');
+        return false;
+      }
+
+      const btn = document.getElementById('exportBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa fa-spinner fa-spin me-2"></i>Preparing…';
+
+      const wrap = document.getElementById('progressWrap');
+      const bar  = document.getElementById('progressBar');
+      wrap.style.display = 'block';
+
+      let pct = 0;
+      const interval = setInterval(function () {
+        pct = Math.min(pct + Math.random() * 20, 95);
+        bar.style.width = pct + '%';
+      }, 300);
+
+      setTimeout(function () {
+        clearInterval(interval);
+        bar.style.width = '100%';
+        wrap.style.display = 'none';
+        const banner = document.getElementById('successBanner');
+        banner.style.display = 'flex';
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa fa-download me-2"></i>Download Again';
+      }, 2200);
+    });
+
+  </script>
+
+</body>
+</html>

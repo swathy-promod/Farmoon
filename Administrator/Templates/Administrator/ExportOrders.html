@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Farmoon – Export Orders</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&family=Lora:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    /* ── Design tokens ── */
+    :root {
+      --fm-green:      #4caf50;
+      --fm-green-dark: #388e3c;
+      --fm-orange:     #ff9800;
+      --fm-sidebar-bg: #1b2b1e;
+      --fm-sidebar-w:  255px;
+      --fm-topbar-h:   36px;
+      --fm-header-h:   64px;
+      --fm-font-head:  'Lora', serif;
+      --fm-font-body:  'Open Sans', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: var(--fm-font-body); background: #f5f7f5; color: #333; margin: 0; }
+
+    /* ── TOP BAR ── */
+    .fm-topbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1060;
+      height: var(--fm-topbar-h);
+      background: var(--fm-sidebar-bg);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; font-size: 0.76rem; color: #aaa;
+    }
+    .fm-topbar a { color: #aaa; text-decoration: none; margin-left: 10px; transition: color .2s; }
+    .fm-topbar a:hover { color: var(--fm-orange); }
+
+    /* ── NAVBAR ── */
+    .fm-navbar {
+      position: fixed;
+      top: var(--fm-topbar-h); left: 0; right: 0; z-index: 1050;
+      height: var(--fm-header-h);
+      background: #fff;
+      box-shadow: 0 2px 10px rgba(0,0,0,.08);
+      display: flex; align-items: center; padding: 0 24px; gap: 12px;
+    }
+    .fm-brand {
+      font-family: var(--fm-font-head); font-size: 1.55rem; font-weight: 700;
+      color: var(--fm-green); text-decoration: none; white-space: nowrap;
+    }
+    .fm-brand span { color: var(--fm-orange); }
+    .fm-admin-pill {
+      font-size: 0.68rem; background: #e8f5e9; color: var(--fm-green-dark);
+      padding: 2px 10px; border-radius: 50px; font-weight: 700; letter-spacing: .04em;
+    }
+    .fm-nav-links { display: flex; align-items: center; gap: 2px; margin-left: auto; }
+    .fm-nav-links a {
+      font-size: 0.84rem; color: #555; padding: 6px 13px;
+      border-radius: 50px; text-decoration: none; transition: all .2s;
+    }
+    .fm-nav-links a:hover, .fm-nav-links a.active { background: var(--fm-green); color: #fff; }
+
+    /* ── SIDEBAR ── */
+    .fm-sidebar {
+      position: fixed;
+      top: calc(var(--fm-topbar-h) + var(--fm-header-h));
+      left: 0; width: var(--fm-sidebar-w); bottom: 0;
+      background: var(--fm-sidebar-bg);
+      overflow-y: auto; z-index: 1040;
+      padding: 12px 0 40px;
+      transition: transform .3s;
+    }
+    .fm-sidebar::-webkit-scrollbar { width: 3px; }
+    .fm-sidebar::-webkit-scrollbar-thumb { background: #3a5e3d; border-radius: 4px; }
+    .fm-sidebar-cap {
+      font-size: 0.66rem; font-weight: 700; letter-spacing: .09em;
+      text-transform: uppercase; color: #5a7a5d;
+      padding: 18px 18px 5px;
+    }
+    .fm-sidebar a {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 18px; color: #b0c8b2;
+      text-decoration: none; font-size: 0.855rem;
+      border-left: 3px solid transparent; transition: all .2s;
+    }
+    .fm-sidebar a:hover  { color: #fff; background: rgba(76,175,80,.13); border-left-color: var(--fm-green); }
+    .fm-sidebar a.active { color: #fff; background: rgba(76,175,80,.2);  border-left-color: var(--fm-green); font-weight: 600; }
+    .fm-sidebar a i      { width: 18px; text-align: center; }
+    .fm-sidebar-divider  { height: 1px; background: #2a3e2d; margin: 6px 0; }
+
+    /* ── MAIN ── */
+    .fm-main {
+      margin-left: var(--fm-sidebar-w);
+      padding-top: calc(var(--fm-topbar-h) + var(--fm-header-h) + 24px);
+      padding-left: 24px; padding-right: 24px; padding-bottom: 40px;
+      min-height: 100vh;
+    }
+
+    /* ── PAGE HEADER ── */
+    .fm-page-title {
+      font-family: var(--fm-font-head); font-size: 1.55rem;
+      font-weight: 700; color: #222; margin: 0;
+    }
+    .fm-page-sub { font-size: 0.8rem; color: #999; margin-top: 3px; }
+
+    /* ── BREADCRUMB ── */
+    .fm-breadcrumb {
+      font-size: 0.78rem; color: #bbb; margin-bottom: 20px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .fm-breadcrumb a { color: var(--fm-green); text-decoration: none; }
+    .fm-breadcrumb a:hover { text-decoration: underline; }
+    .fm-breadcrumb i { font-size: 0.6rem; color: #ddd; }
+
+    /* ── MAIN CARD ── */
+    .fm-card {
+      background: #fff; border-radius: 12px;
+      border: 2px solid #e8f5e9;
+      box-shadow: 0 2px 8px rgba(0,0,0,.05); overflow: hidden;
+    }
+    .fm-card-hdr {
+      padding: 14px 18px 12px;
+      border-bottom: 1px solid #f0f4f0;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 10px;
+    }
+    .fm-card-title { font-family: var(--fm-font-head); font-size: 0.98rem; font-weight: 700; color: #222; margin: 0; }
+    .fm-card-sub   { font-size: 0.76rem; color: #aaa; margin-top: 1px; }
+    .fm-card-body  { padding: 20px 22px; }
+
+    /* ── SECTION LABEL ── */
+    .fm-section-label {
+      font-size: 0.68rem; font-weight: 700; letter-spacing: .07em;
+      text-transform: uppercase; color: #999;
+      margin-bottom: 10px; display: block;
+    }
+
+    /* ── PRESET CHIPS ── */
+    .fm-chip-row { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 18px; }
+    .fm-chip {
+      padding: 5px 14px; border-radius: 50px;
+      border: 1px solid #e0e0e0; background: #fff;
+      font-size: 0.78rem; font-weight: 600; color: #777;
+      cursor: pointer; transition: all .18s; font-family: var(--fm-font-body);
+    }
+    .fm-chip:hover  { border-color: var(--fm-green); color: var(--fm-green-dark); background: #e8f5e9; }
+    .fm-chip.active { border-color: var(--fm-green); color: var(--fm-green-dark); background: #e8f5e9; }
+
+    /* ── FORM FIELDS ── */
+    .fm-field label {
+      display: block; font-size: 0.78rem; font-weight: 600;
+      color: #777; margin-bottom: 5px;
+    }
+    .fm-field input[type="date"],
+    .fm-field select {
+      width: 100%; padding: 8px 12px;
+      border: 1px solid #e0e0e0; border-radius: 8px;
+      font-size: 0.82rem; font-family: var(--fm-font-body);
+      color: #333; outline: none; background: #fff;
+      transition: border-color .2s;
+    }
+    .fm-field input[type="date"]:focus,
+    .fm-field select:focus { border-color: var(--fm-green); box-shadow: 0 0 0 3px rgba(76,175,80,.1); }
+    .fm-field select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23aaa'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 11px center;
+      padding-right: 30px;
+    }
+
+    /* ── STATUS CHECKBOXES ── */
+    .fm-status-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+      gap: 8px;
+    }
+    .fm-status-opt {
+      display: flex; align-items: center; gap: 8px;
+      padding: 9px 12px; border-radius: 8px;
+      border: 1px solid #e8e8e8; background: #fafcfa;
+      cursor: pointer; transition: all .18s; user-select: none;
+    }
+    .fm-status-opt:hover { border-color: var(--fm-green); background: #f0faf0; }
+    .fm-status-opt.checked { border-color: var(--fm-green); background: #e8f5e9; }
+    .fm-chk-box {
+      width: 16px; height: 16px; border-radius: 4px;
+      border: 1.5px solid #ccc; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .15s;
+    }
+    .fm-status-opt.checked .fm-chk-box { border-color: var(--fm-green); background: var(--fm-green); }
+    .fm-chk-box svg { display: none; }
+    .fm-status-opt.checked .fm-chk-box svg { display: block; }
+    .fm-status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .fm-status-name { font-size: 0.78rem; font-weight: 600; color: #444; }
+
+    /* ── COLUMNS GRID ── */
+    .fm-col-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+      gap: 8px;
+    }
+    .fm-col-opt {
+      display: flex; align-items: center; gap: 8px;
+      padding: 9px 12px; border-radius: 8px;
+      border: 1px solid #e8e8e8; background: #fafcfa;
+      cursor: pointer; transition: all .18s; user-select: none;
+    }
+    .fm-col-opt:hover { border-color: var(--fm-green); background: #f0faf0; }
+    .fm-col-opt.checked { border-color: var(--fm-green); background: #e8f5e9; }
+    .fm-col-name { font-size: 0.78rem; font-weight: 600; color: #444; }
+
+    /* ── FORMAT CARDS ── */
+    .fm-format-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+    .fm-format-card {
+      border: 2px solid #e8e8e8; border-radius: 10px;
+      padding: 18px 12px; text-align: center; cursor: pointer;
+      transition: all .18s; user-select: none; position: relative;
+      background: #fafcfa;
+    }
+    .fm-format-card:hover { border-color: var(--fm-green); background: #f0faf0; }
+    .fm-format-card.selected { border-color: var(--fm-green); background: #e8f5e9; }
+    .fm-format-card.selected::after {
+      content: ''; position: absolute; top: 9px; right: 9px;
+      width: 10px; height: 10px; border-radius: 50%; background: var(--fm-green);
+    }
+    .fm-format-icon { font-size: 1.8rem; margin-bottom: 6px; }
+    .fm-format-name { font-size: 0.82rem; font-weight: 700; color: #222; display: block; }
+    .fm-format-desc { font-size: 0.71rem; color: #aaa; display: block; margin-top: 2px; }
+
+    /* ── PREVIEW BAR ── */
+    .fm-preview-bar {
+      background: #e8f5e9; border: 1.5px solid rgba(76,175,80,.3);
+      border-radius: 8px; padding: 12px 18px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 10px; margin-bottom: 20px;
+    }
+    .fm-preview-bar-left { display: flex; align-items: center; gap: 10px; }
+    .fm-preview-bar-left i { color: var(--fm-green); font-size: 1rem; }
+    .fm-preview-bar-title { font-size: 0.82rem; font-weight: 700; color: var(--fm-green-dark); }
+    .fm-preview-bar-desc  { font-size: 0.74rem; color: #5a9a5d; margin-top: 1px; }
+    .fm-preview-stat {
+      font-family: monospace; font-size: 0.8rem; font-weight: 700;
+      color: var(--fm-green-dark); background: rgba(76,175,80,.15);
+      border-radius: 6px; padding: 4px 12px;
+    }
+
+    /* ── LINK BUTTONS ── */
+    .fm-link-btn {
+      font-size: 0.74rem; font-weight: 600; color: var(--fm-green);
+      background: none; border: none; cursor: pointer;
+      font-family: var(--fm-font-body); padding: 0;
+    }
+    .fm-link-btn:hover { text-decoration: underline; }
+
+    /* ── DIVIDER ── */
+    .fm-section-div { height: 1px; background: #f0f4f0; margin: 22px 0; }
+
+    /* ── ACTION BUTTONS ── */
+    .fm-btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 9px 22px; border-radius: 50px;
+      font-size: 0.82rem; font-weight: 600; cursor: pointer;
+      border: none; font-family: var(--fm-font-body); transition: all .18s;
+    }
+    .fm-btn-primary { background: var(--fm-green); color: #fff; }
+    .fm-btn-primary:hover { background: var(--fm-green-dark); }
+    .fm-btn-primary:active { transform: scale(0.97); }
+    .fm-btn-secondary {
+      background: #fff; color: #666;
+      border: 1px solid #ddd;
+    }
+    .fm-btn-secondary:hover { border-color: #aaa; color: #333; }
+
+    /* ── PROGRESS OVERLAY ── */
+    #fm-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.35);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9990; opacity: 0; pointer-events: none; transition: opacity .2s;
+    }
+    #fm-overlay.show { opacity: 1; pointer-events: all; }
+    .fm-progress-box {
+      background: #fff; border-radius: 14px; padding: 32px 36px;
+      width: 340px; text-align: center;
+      box-shadow: 0 8px 30px rgba(0,0,0,.12);
+    }
+    .fm-progress-box h3 { font-family: var(--fm-font-head); font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; color: #222; }
+    .fm-progress-box p  { font-size: 0.8rem; color: #aaa; margin-bottom: 20px; }
+    .fm-prog-track { height: 7px; background: #e8f5e9; border-radius: 99px; overflow: hidden; margin-bottom: 10px; }
+    .fm-prog-fill  { height: 100%; background: var(--fm-green); border-radius: 99px; width: 0%; transition: width .15s; }
+    .fm-prog-pct   { font-family: monospace; font-size: 0.78rem; color: #aaa; }
+
+    /* ── TOAST ── */
+    #fm-toast {
+      position: fixed; bottom: 28px; right: 28px;
+      background: #1b2b1e; color: #fff;
+      padding: 11px 18px; border-radius: 10px;
+      font-size: 0.8rem; font-weight: 600;
+      display: flex; align-items: center; gap: 9px;
+      box-shadow: 0 4px 20px rgba(0,0,0,.2);
+      opacity: 0; transform: translateY(10px);
+      transition: all .25s; pointer-events: none; z-index: 9999;
+    }
+    #fm-toast.show { opacity: 1; transform: translateY(0); }
+
+    /* ── FOOTER ── */
+    .fm-footer {
+      text-align: center; font-size: 0.76rem; color: #bbb;
+      padding: 20px; border-top: 1px solid #e8f5e9; margin-top: 8px;
+    }
+    .fm-footer a { color: var(--fm-green); text-decoration: none; }
+
+    @media (max-width: 991px) {
+      .fm-sidebar { transform: translateX(-100%); }
+      .fm-sidebar.open { transform: translateX(0); }
+      .fm-main { margin-left: 0; }
+      .fm-nav-links { display: none; }
+      .fm-format-row { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 576px) {
+      .fm-format-row { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="fm-topbar">
+  <span><i class="fa fa-map-marker-alt me-2"></i>Farmoon Admin Panel</span>
+  <span>
+    Follow us:
+    <a href="#"><i class="fab fa-facebook-f"></i></a>
+    <a href="#"><i class="fab fa-twitter"></i></a>
+    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+    <a href="#"><i class="fab fa-instagram"></i></a>
+  </span>
+</div>
+
+<!-- NAVBAR -->
+<div class="fm-navbar">
+  <button class="btn btn-sm d-xl-none me-1" id="sidebarToggle"
+          style="background:none;border:none;font-size:1.3rem;color:#555;">
+    <i class="bi bi-list"></i>
+  </button>
+  <a href="/Administrator/HomePage/" class="fm-brand">Farm<span>oo</span>n</a>
+  <span class="fm-admin-pill">ADMIN</span>
+  <nav class="fm-nav-links">
+    <a href="/"><i class="fa fa-globe me-1"></i>Guest Site</a>
+    <a href="/Administrator/HomePage/"><i class="fa fa-tachometer-alt me-1"></i>Dashboard</a>
+    <a href="/Administrator/Userlist/"><i class="fa fa-users me-1"></i>Users</a>
+    <a href="/Administrator/Farmerlist/"><i class="fa fa-leaf me-1"></i>Farmers</a>
+    <a href="/Administrator/OrderList/" class="active"><i class="fa fa-shopping-bag me-1"></i>Orders</a>
+  </nav>
+</div>
+
+<!-- SIDEBAR -->
+<aside class="fm-sidebar" id="fmSidebar">
+  <div class="fm-sidebar-cap">Main</div>
+  <a href="/Administrator/HomePage/"><i class="fa fa-tachometer-alt"></i>Dashboard</a>
+
+  <div class="fm-sidebar-divider"></div>
+  <div class="fm-sidebar-cap">User Management</div>
+  <a href="/Administrator/Userlist/"><i class="fa fa-users"></i>User List</a>
+  <a href="/Administrator/Farmerlist/"><i class="fa fa-leaf"></i>Farmer List</a>
+  <a href="/Administrator/AdminRegistration/"><i class="fa fa-user-shield"></i>Admin Accounts</a>
+
+  <div class="fm-sidebar-divider"></div>
+  <div class="fm-sidebar-cap">Location</div>
+  <a href="/Administrator/District/"><i class="fa fa-map"></i>Districts</a>
+  <a href="/Administrator/Place/"><i class="fa fa-map-marker-alt"></i>Places</a>
+
+  <div class="fm-sidebar-divider"></div>
+  <div class="fm-sidebar-cap">Catalogue</div>
+  <a href="/Administrator/Category/"><i class="fa fa-tags"></i>Categories</a>
+  <a href="/Administrator/Subcategory/"><i class="fa fa-list-ul"></i>Subcategories</a>
+
+  <div class="fm-sidebar-divider"></div>
+  <div class="fm-sidebar-cap">Orders &amp; Payments</div>
+  <a href="/Administrator/OrderList/" class="active"><i class="fa fa-shopping-bag"></i>Orders</a>
+  <a href="/Administrator/TransactionList/"><i class="fa fa-credit-card"></i>Transactions</a>
+
+  <div class="fm-sidebar-divider"></div>
+  <div class="fm-sidebar-cap">Support</div>
+  <a href="/Administrator/ViewComplaint/"><i class="fa fa-exclamation-circle"></i>Complaints</a>
+  <a href="/Administrator/ViewFeedback/"><i class="fa fa-comment-dots"></i>Feedback</a>
+
+  <div class="fm-sidebar-divider"></div>
+  <a href="/Login/"><i class="fa fa-sign-out-alt"></i>Logout</a>
+</aside>
+
+<!-- MAIN -->
+<main class="fm-main">
+
+  <!-- Breadcrumb -->
+  <div class="fm-breadcrumb">
+    <a href="/Administrator/HomePage/"><i class="fa fa-home"></i> Dashboard</a>
+    <i class="fa fa-chevron-right"></i>
+    <a href="/Administrator/OrderList/">Order List</a>
+    <i class="fa fa-chevron-right"></i>
+    <span>Export Orders</span>
+  </div>
+
+  <!-- Page header -->
+  <div class="d-flex align-items-start justify-content-between mb-4 flex-wrap gap-3">
+    <div>
+      <h1 class="fm-page-title">
+        <i class="fa fa-download me-2" style="color:var(--fm-green);font-size:1.2rem;"></i>Export Orders
+      </h1>
+      <p class="fm-page-sub">Choose filters, columns, and format — then download your order data.</p>
+    </div>
+    <a href="/Administrator/OrderList/" class="fm-btn fm-btn-secondary">
+      <i class="fa fa-arrow-left"></i> Back to Orders
+    </a>
+  </div>
+
+  <!-- ── CARD: Date Range ── -->
+  <div class="fm-card mb-4">
+    <div class="fm-card-hdr">
+      <div>
+        <div class="fm-card-title"><i class="fa fa-calendar-alt me-2" style="color:var(--fm-green)"></i>Date Range</div>
+        <div class="fm-card-sub">Filter orders by the date they were placed</div>
+      </div>
+    </div>
+    <div class="fm-card-body">
+      <span class="fm-section-label">Quick presets</span>
+      <div class="fm-chip-row">
+        <div class="fm-chip active" data-preset="today">Today</div>
+        <div class="fm-chip" data-preset="yesterday">Yesterday</div>
+        <div class="fm-chip" data-preset="last7">Last 7 days</div>
+        <div class="fm-chip" data-preset="last30">Last 30 days</div>
+        <div class="fm-chip" data-preset="thismonth">This month</div>
+        <div class="fm-chip" data-preset="lastmonth">Last month</div>
+        <div class="fm-chip" data-preset="custom">Custom range</div>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="fm-field">
+            <label for="dateFrom">From</label>
+            <input type="date" id="dateFrom">
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="fm-field">
+            <label for="dateTo">To</label>
+            <input type="date" id="dateTo">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CARD: Order Status ── -->
+  <div class="fm-card mb-4">
+    <div class="fm-card-hdr">
+      <div>
+        <div class="fm-card-title"><i class="fa fa-filter me-2" style="color:var(--fm-green)"></i>Order Status</div>
+        <div class="fm-card-sub">Include only orders in selected states</div>
+      </div>
+      <div class="d-flex gap-3">
+        <button class="fm-link-btn" onclick="toggleAllStatus(true)">Select all</button>
+        <button class="fm-link-btn" onclick="toggleAllStatus(false)" style="color:#aaa">Clear</button>
+      </div>
+    </div>
+    <div class="fm-card-body">
+      <div class="fm-status-grid" id="statusGrid">
+        <div class="fm-status-opt checked" data-status="Placed">
+          <div class="fm-chk-box"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.2"><polyline points="2,6 5,9 10,3"/></svg></div>
+          <div class="fm-status-dot" style="background:#2196f3"></div>
+          <span class="fm-status-name">Placed</span>
+        </div>
+        <div class="fm-status-opt checked" data-status="Confirmed">
+          <div class="fm-chk-box"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.2"><polyline points="2,6 5,9 10,3"/></svg></div>
+          <div class="fm-status-dot" style="background:#4caf50"></div>
+          <span class="fm-status-name">Confirmed</span>
+        </div>
+        <div class="fm-status-opt checked" data-status="Shipped">
+          <div class="fm-chk-box"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.2"><polyline points="2,6 5,9 10,3"/></svg></div>
+          <div class="fm-status-dot" style="background:#9c27b0"></div>
+          <span class="fm-status-name">Shipped</span>
+        </div>
+        <div class="fm-status-opt checked" data-status="Delivered">
+          <div class="fm-chk-box"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.2"><polyline points="2,6 5,9 10,3"/></svg></div>
+          <div class="fm-status-dot" style="background:#009688"></div>
+          <span class="fm-status-name">Delivered</span>
+        </div>
+        <div class="fm-status-opt" data-status="Cancelled">
+          <div class="fm-chk-box"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.2"><polyline points="2,6 5,9 10,3"/></svg></div>
+          <div class="fm-status-dot" style="background:#f44336"></div>
+          <span class="fm-status-name">Cancelled</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CARD: Columns ── -->
+  <div class="fm-card mb-4">
+    <div class="fm-card-hdr">
+      <div>
+        <div class="fm-card-title"><i class="fa fa-table me-2" style="color:var(--fm-green)"></i>Columns to Include</div>
+        <div class="fm-card-sub">Choose which data fields appear in the export</div>
+      </div>
+      <div class="d-flex gap-3">
+        <button class="fm-link-btn" onclick="toggleAllCols(true)">Select all</button>
+        <button class="fm-link-btn" onclick="toggleAllCols(false)" style="color:#aaa">Clear</button>
+      </div>
+    </div>
+    <div class="fm-card-body">
+      <div class="fm-col-grid" id="colGrid">
+        <div class="fm-col-opt checked"><div class="fm-chk-box"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.2"><polyline points="2,6 5,9 10,3"/></svg></div><span class="fm-col-name">Order ID</span></div>
+        <div class="fm-col-opt checked"><div class="fm-chk-box"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.2"><polyline points="2,6 5,9 10,3"/></svg></div><span class="fm-col-name">Order Date</span></div>
+        <div class="fm-col-opt checked"><div class="fm-chk-box"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.2"><polyline points="2,6 5,9 10,3"/></svg></div><span class="fm-col-name">Customer Name</span></div>
+        <div class="fm-col-opt checked"><div class="fm-chk-box"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.2"><polyline points="2,6 5,9 10,3"/></svg></div><span class="fm-col-name">Email</span></div>
+        <div class="fm-col-opt checked"><div class="fm-chk-box"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.2"><polyline points="2,6 5,9 10,3"/></svg></div><span class="fm-col-name">Phone</span></div>
+        <div class="fm-col-opt checked"><div class="fm-chk-box"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.2"><polyline points="2,6 5,9 10,3"/></svg></div><span class="fm-col-name">Order Status</span></div>
+        <div class="fm-col-opt checked"><div class="fm-chk-box"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.2"><polyline points="2,6 5,9 10,3"/></svg></div><span class="fm-col-name">Order Total</span></div>
+        <div class="fm-col-opt checked"><div class="fm-chk-box"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.2"><polyline points="2,6 5,9 10,3"/></svg></div><span class="fm-col-name">Items Count</span></div>
+        <div class="fm-col-opt"><div class="fm-chk-box"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.2"><polyline points="2,6 5,9 10,3"/></svg></div><span class="fm-col-name">Product Names</span></div>
+        <div class="fm-col-opt"><div class="fm-chk-box"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.2"><polyline points="2,6 5,9 10,3"/></svg></div><span class="fm-col-name">Payment Method</span></div>
+        <div class="fm-col-opt"><div class="fm-chk-box"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.2"><polyline points="2,6 5,9 10,3"/></svg></div><span class="fm-col-name">Payment Status</span></div>
+        <div class="fm-col-opt"><div class="fm-chk-box"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.2"><polyline points="2,6 5,9 10,3"/></svg></div><span class="fm-col-name">Shipping Address</span></div>
+        <div class="fm-col-opt"><div class="fm-chk-box"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.2"><polyline points="2,6 5,9 10,3"/></svg></div><span class="fm-col-name">District / Place</span></div>
+        <div class="fm-col-opt"><div class="fm-chk-box"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.2"><polyline points="2,6 5,9 10,3"/></svg></div><span class="fm-col-name">Farmer Name</span></div>
+        <div class="fm-col-opt"><div class="fm-chk-box"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.2"><polyline points="2,6 5,9 10,3"/></svg></div><span class="fm-col-name">Order Notes</span></div>
+        <div class="fm-col-opt"><div class="fm-chk-box"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.2"><polyline points="2,6 5,9 10,3"/></svg></div><span class="fm-col-name">Coupon Code</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CARD: Export Format ── -->
+  <div class="fm-card mb-4">
+    <div class="fm-card-hdr">
+      <div>
+        <div class="fm-card-title"><i class="fa fa-file-alt me-2" style="color:var(--fm-green)"></i>Export Format</div>
+        <div class="fm-card-sub">Choose the file format for your download</div>
+      </div>
+    </div>
+    <div class="fm-card-body">
+      <div class="fm-format-row">
+        <div class="fm-format-card selected" data-format="csv">
+          <div class="fm-format-icon">📊</div>
+          <span class="fm-format-name">CSV</span>
+          <span class="fm-format-desc">Universal, compact</span>
+        </div>
+        <div class="fm-format-card" data-format="xlsx">
+          <div class="fm-format-icon">📗</div>
+          <span class="fm-format-name">Excel (.xlsx)</span>
+          <span class="fm-format-desc">Formatted spreadsheet</span>
+        </div>
+        <div class="fm-format-card" data-format="pdf">
+          <div class="fm-format-icon">📄</div>
+          <span class="fm-format-name">PDF</span>
+          <span class="fm-format-desc">Print-ready report</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preview bar -->
+  <div class="fm-preview-bar">
+    <div class="fm-preview-bar-left">
+      <i class="fa fa-info-circle"></i>
+      <div>
+        <div class="fm-preview-bar-title">Ready to export</div>
+        <div class="fm-preview-bar-desc" id="previewDesc">Today's orders · 4 statuses · 8 columns · CSV</div>
+      </div>
+    </div>
+    <div class="fm-preview-stat" id="previewStat">~284 rows</div>
+  </div>
+
+  <!-- Action row -->
+  <div class="d-flex align-items-center justify-content-end gap-3 mb-4">
+    <button class="fm-btn fm-btn-secondary" onclick="resetForm()">
+      <i class="fa fa-undo"></i> Reset
+    </button>
+    <button class="fm-btn fm-btn-primary" onclick="startExport()">
+      <i class="fa fa-download"></i> Export Orders
+    </button>
+  </div>
+
+  <!-- Footer -->
+  <div class="fm-footer">
+    &copy; <a href="#">Farmoon</a> Admin Panel &nbsp;·&nbsp;
+    
+  </div>
+
+</main>
+
+<!-- Progress overlay -->
+<div id="fm-overlay">
+  <div class="fm-progress-box">
+    <h3>Generating Export</h3>
+    <p id="progMsg">Gathering orders…</p>
+    <div class="fm-prog-track">
+      <div class="fm-prog-fill" id="progFill"></div>
+    </div>
+    <div class="fm-prog-pct" id="progPct">0%</div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="fm-toast">
+  <i class="fa fa-check-circle" style="color:var(--fm-green)"></i>
+  <span id="toastMsg">Export downloaded successfully.</span>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Sidebar toggle
+  document.getElementById('sidebarToggle').addEventListener('click', function () {
+    document.getElementById('fmSidebar').classList.toggle('open');
+  });
+
+  // ── Date helpers ──
+  function fmtDate(d) { return d.toISOString().split('T')[0]; }
+  function today()    { return fmtDate(new Date()); }
+  function daysAgo(n) { const d = new Date(); d.setDate(d.getDate()-n); return fmtDate(d); }
+
+  const presets = {
+    today:     () => [today(), today()],
+    yesterday: () => { const d = daysAgo(1); return [d, d]; },
+    last7:     () => [daysAgo(6), today()],
+    last30:    () => [daysAgo(29), today()],
+    thismonth: () => { const t = new Date(); return [fmtDate(new Date(t.getFullYear(), t.getMonth(), 1)), today()]; },
+    lastmonth: () => { const t = new Date(); return [fmtDate(new Date(t.getFullYear(), t.getMonth()-1, 1)), fmtDate(new Date(t.getFullYear(), t.getMonth(), 0))]; },
+    custom:    () => null,
+  };
+
+  document.querySelectorAll('.fm-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.fm-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      const r = presets[chip.dataset.preset]?.();
+      if (r) { document.getElementById('dateFrom').value = r[0]; document.getElementById('dateTo').value = r[1]; }
+      updatePreview();
+    });
+  });
+
+  // ── Status toggles ──
+  document.querySelectorAll('.fm-status-opt').forEach(o => {
+    o.addEventListener('click', () => { o.classList.toggle('checked'); updatePreview(); });
+  });
+  function toggleAllStatus(v) {
+    document.querySelectorAll('.fm-status-opt').forEach(o => o.classList[v ? 'add' : 'remove']('checked'));
+    updatePreview();
+  }
+
+  // ── Column toggles ──
+  document.querySelectorAll('.fm-col-opt').forEach(o => {
+    o.addEventListener('click', () => { o.classList.toggle('checked'); updatePreview(); });
+  });
+  function toggleAllCols(v) {
+    document.querySelectorAll('.fm-col-opt').forEach(o => o.classList[v ? 'add' : 'remove']('checked'));
+    updatePreview();
+  }
+
+  // ── Format toggle ──
+  document.querySelectorAll('.fm-format-card').forEach(card => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.fm-format-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      updatePreview();
+    });
+  });
+
+  // ── Preview ──
+  function updatePreview() {
+    const preset   = document.querySelector('.fm-chip.active')?.textContent || 'Custom';
+    const statuses = document.querySelectorAll('.fm-status-opt.checked').length;
+    const cols     = document.querySelectorAll('.fm-col-opt.checked').length;
+    const format   = document.querySelector('.fm-format-card.selected')?.dataset.format?.toUpperCase() || 'CSV';
+    const rows     = Math.max(5, statuses * 52 + Math.floor(Math.random() * 20));
+    document.getElementById('previewDesc').textContent =
+      `${preset} · ${statuses} status${statuses !== 1 ? 'es' : ''} · ${cols} column${cols !== 1 ? 's' : ''} · ${format}`;
+    document.getElementById('previewStat').textContent = `~${rows} rows`;
+  }
+
+  // ── Reset ──
+  function resetForm() {
+    document.querySelectorAll('.fm-chip').forEach((c, i) => c.classList.toggle('active', i === 0));
+    document.querySelectorAll('.fm-status-opt').forEach(o => o.classList.add('checked'));
+    document.querySelectorAll('.fm-col-opt').forEach((o, i) => o.classList.toggle('checked', i < 8));
+    document.querySelectorAll('.fm-format-card').forEach((c, i) => c.classList.toggle('selected', i === 0));
+    document.getElementById('dateFrom').value = today();
+    document.getElementById('dateTo').value   = today();
+    updatePreview();
+    showToast('Filters reset to defaults.');
+  }
+
+  // ── Export ──
+  function startExport() {
+    const overlay = document.getElementById('fm-overlay');
+    const fill    = document.getElementById('progFill');
+    const pct     = document.getElementById('progPct');
+    const msg     = document.getElementById('progMsg');
+    const msgs    = ['Gathering orders…', 'Applying filters…', 'Building columns…', 'Formatting data…', 'Finalising file…'];
+    overlay.classList.add('show');
+    let p = 0;
+    const iv = setInterval(() => {
+      p += Math.random() * 20 + 5;
+      if (p >= 100) { p = 100; clearInterval(iv); finishExport(); }
+      fill.style.width = p + '%';
+      pct.textContent  = Math.round(p) + '%';
+      msg.textContent  = msgs[Math.min(Math.floor(p / 22), msgs.length - 1)];
+    }, 200);
+  }
+  function finishExport() {
+    setTimeout(() => {
+      document.getElementById('fm-overlay').classList.remove('show');
+      const fmt = document.querySelector('.fm-format-card.selected')?.dataset.format || 'csv';
+      showToast(`Orders exported as .${fmt} — download started.`);
+    }, 400);
+  }
+  function showToast(msg) {
+    document.getElementById('toastMsg').textContent = msg;
+    const t = document.getElementById('fm-toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3500);
+  }
+
+  // Init
+  document.getElementById('dateFrom').value = today();
+  document.getElementById('dateTo').value   = today();
+  updatePreview();
+</script>
+</body>
+</html>

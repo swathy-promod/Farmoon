@@ -1,0 +1,422 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Farmer Dashboard - Farmer Support System</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <!-- Favicon -->
+    <link href="{% static 'Main/img/icon-1.png' %}" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500&family=Lora:wght@600;700&display=swap" rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="{% static 'Main/lib/animate/animate.min.css' %}" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="{% static 'Main/css/bootstrap.min.css' %}" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="{% static 'Main/css/style.css' %}" rel="stylesheet">
+
+    <style>
+        /* ── Hero banner ── */
+        .farmer-hero {
+            min-height: 340px;
+            background: linear-gradient(135deg, rgba(30,80,30,0.82) 0%, rgba(92,184,92,0.75) 100%),
+                        url("{% static 'Main/img/carousel-2.jpg' %}") center/cover no-repeat;
+            display: flex;
+            align-items: center;
+            padding-top: 90px;
+        }
+
+        .farmer-hero h1 {
+            font-family: 'Lora', serif;
+            color: #fff;
+            font-size: 2.6rem;
+        }
+
+        .farmer-hero p {
+            font-family: 'Open Sans', sans-serif;
+            color: rgba(255,255,255,0.85);
+            font-size: 1rem;
+        }
+
+        .farmer-hero .welcome-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.18);
+            border: 1px solid rgba(255,255,255,0.35);
+            color: #fff;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.8rem;
+            padding: 4px 14px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+        }
+
+        /* ── Dashboard cards ── */
+        .dashboard-wrapper {
+            background: #f8faf6;
+            padding: 60px 0 80px;
+        }
+
+        .section-title {
+            font-family: 'Lora', serif;
+            font-size: 1.9rem;
+            color: #222;
+        }
+
+        .section-sub {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .dash-card {
+            background: #fff;
+            border-top: 3px solid var(--bs-primary, #5cb85c);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+            padding: 38px 30px 32px;
+            text-align: center;
+            transition: transform 0.25s, box-shadow 0.25s;
+            text-decoration: none;
+            display: block;
+            color: inherit;
+            height: 100%;
+        }
+
+        .dash-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 36px rgba(0,0,0,0.13);
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .dash-card .icon-wrap {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 1.7rem;
+            color: var(--bs-primary, #5cb85c);
+            transition: background 0.25s;
+        }
+
+        .dash-card:hover .icon-wrap {
+            background: linear-gradient(135deg, var(--bs-primary, #5cb85c), #388e3c);
+            color: #fff;
+        }
+
+        .dash-card h5 {
+            font-family: 'Lora', serif;
+            font-size: 1.1rem;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .dash-card p {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.83rem;
+            color: #999;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        /* ── Quick-action strip ── */
+        .quick-strip {
+            background: var(--bs-primary, #5cb85c);
+            padding: 28px 0;
+        }
+
+        .quick-strip .strip-label {
+            font-family: 'Lora', serif;
+            color: #fff;
+            font-size: 1.25rem;
+        }
+
+        .quick-strip .strip-sub {
+            font-family: 'Open Sans', sans-serif;
+            color: rgba(255,255,255,0.8);
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Spinner Start -->
+    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-border text-primary" role="status"></div>
+    </div>
+    <!-- Spinner End -->
+
+    <!-- Navbar Start -->
+    <div class="container-fluid fixed-top px-0 wow fadeIn" data-wow-delay="0.1s">
+        <div class="top-bar row gx-0 align-items-center d-none d-lg-flex">
+            <div class="col-lg-6 px-5 text-start">
+                <small><i class="fa fa-map-marker-alt me-2"></i>Idukki,Kerala</small>
+                <small class="ms-4"><i class="fa fa-envelope me-2"></i>farmoon@gmail.com</small>
+            </div>
+            <div class="col-lg-6 px-5 text-end">
+                <small>Follow us:</small>
+                <a class="text-body ms-3" href=""><i class="fab fa-facebook-f"></i></a>
+                <a class="text-body ms-3" href=""><i class="fab fa-twitter"></i></a>
+                <a class="text-body ms-3" href=""><i class="fab fa-linkedin-in"></i></a>
+                <a class="text-body ms-3" href=""><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
+
+        <nav class="navbar navbar-expand-lg navbar-light py-lg-0 px-lg-5 wow fadeIn" data-wow-delay="0.1s">
+            <a href="{% url 'Farmer:HomePage' %}" class="navbar-brand ms-4 ms-lg-0">
+                <h1 class="fw-bold text-primary m-0">Farm<span class="text-secondary">oo</span>n</h1>
+            </a>
+            <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <div class="navbar-nav ms-auto p-4 p-lg-0">
+                    <a href="{% url 'Farmer:HomePage' %}" class="nav-item nav-link active">Home</a>
+
+                    <!-- Profile Dropdown -->
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="fa fa-user-circle me-1"></i> My Account
+                        </a>
+                        <div class="dropdown-menu m-0">
+                            <a href="{% url 'Farmer:MyProfile' %}" class="dropdown-item">
+                                <i class="fa fa-id-card me-2 text-primary"></i>My Profile
+                            </a>
+                            <a href="{% url 'Farmer:EditProfile' %}" class="dropdown-item">
+                                <i class="fa fa-user-edit me-2 text-primary"></i>Edit Profile
+                            </a>
+                            <a href="{% url 'Farmer:ChangePassword' %}" class="dropdown-item">
+                                <i class="fa fa-key me-2 text-primary"></i>Change Password
+                            </a>
+                        </div>
+                    </div>
+                    <a href="{% url 'Guest:Login' %}" class="nav-item nav-link">Logout</a>
+                </div>
+                <div class="d-none d-lg-flex ms-2">
+                    <a class="btn-sm-square bg-white rounded-circle ms-3" href="{% url 'Farmer:MyProfile' %}">
+                        <small class="fa fa-user text-body"></small>
+                    </a>
+                    <a class="btn-sm-square bg-white rounded-circle ms-3" href="{% url 'Farmer:AddProduct' %}">
+                        <small class="fa fa-plus text-body"></small>
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <!-- Navbar End -->
+
+    <!-- Hero Banner -->
+    <div class="farmer-hero wow fadeIn" data-wow-delay="0.1s">
+        <div class="container">
+            <div class="row justify-content-start">
+                <div class="col-lg-7">
+                    <span class="welcome-badge"><i class="fa fa-leaf me-2"></i>Farmer Dashboard</span>
+                    <h1 class="mb-3">Welcome Back, Farmer!</h1>
+                    <p class="mb-4">Manage your profile, products, and farm activities all from one place. Use the cards below to get started quickly.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Hero End -->
+
+    <!-- Dashboard Cards -->
+    <div class="dashboard-wrapper">
+        <div class="container">
+
+            <!-- Section Heading -->
+            <div class="text-center mb-5 wow fadeInUp" data-wow-delay="0.1s">
+                <h2 class="section-title">Quick Actions</h2>
+                <p class="section-sub">Everything you need to manage your farm account</p>
+            </div>
+
+            <div class="row g-4 justify-content-center">
+
+                <!-- My Profile -->
+                <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                    <a href="{% url 'Farmer:MyProfile' %}" class="dash-card">
+                        <div class="icon-wrap">
+                            <i class="fa fa-id-card"></i>
+                        </div>
+                        <h5>My Profile</h5>
+                        <p>View your personal details, location, and account information</p>
+                    </a>
+                </div>
+
+                <!-- Edit Profile -->
+                <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.2s">
+                    <a href="{% url 'Farmer:EditProfile' %}" class="dash-card">
+                        <div class="icon-wrap">
+                            <i class="fa fa-user-edit"></i>
+                        </div>
+                        <h5>Edit Profile</h5>
+                        <p>Update your name, contact details, address, or profile photo</p>
+                    </a>
+                </div>
+
+                <!-- Change Password -->
+                <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
+                    <a href="{% url 'Farmer:ChangePassword' %}" class="dash-card">
+                        <div class="icon-wrap">
+                            <i class="fa fa-key"></i>
+                        </div>
+                        <h5>Change Password</h5>
+                        <p>Keep your account secure by updating your password regularly</p>
+                    </a>
+                </div>
+
+                <!-- Add Product -->
+                <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.4s">
+                    <a href="{% url 'Farmer:AddProduct' %}" class="dash-card">
+                        <div class="icon-wrap">
+                            <i class="fa fa-seedling"></i>
+                        </div>
+                        <h5>Add Product</h5>
+                        <p>List a new crop or farm product for buyers to browse and purchase</p>
+                    </a>
+                </div>
+
+                <!-- View Booking -->
+                <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.4s">
+                    <a href="{% url 'Farmer:Viewbooking' %}" class="dash-card">
+                        <div class="icon-wrap">
+                            <i class="fa fa-calendar-check"></i>
+                        </div>
+                        <h5>View Booking</h5>
+                        <p>View and manage all crops orders and booking requests in one place</p>
+                    </a>
+                </div>
+                <!-- View Rating -->
+                <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.4s">
+                    <a href="{% url 'Farmer:Viewrating' %}" class="dash-card">
+                        <div class="icon-wrap">
+                            <i class="fa fa-star"></i>
+                        </div>
+                        <h5>View Rating</h5>
+                        <p>Check buyer reviews and ratings for your crops and farm products</p>
+                    </a>
+                </div>
+
+                <!-- Crop Recommendation -->
+                <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.4s">
+                    <a href="{% url 'Farmer:CropRecommend' %}" class="dash-card">
+                        <div class="icon-wrap">
+                            <i class="fa fa-lightbulb"></i>
+                        </div>
+                        <h5>Crop Recommendation</h5>
+                        <p>Recieive prsonalized crop recommendations for better farming decicions</p>
+                    </a>
+                </div>
+                <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
+                    <a href="{% url 'Farmer:SalesReport' %}" class="dash-card">
+                    <div class="icon-wrap">
+                        <i class="fa fa-chart-bar"></i>
+                    </div>
+                    <h5>Sales Report</h5>
+                    <p>View your full order history, revenue breakdown, and delivery status</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Dashboard Cards End -->
+
+    <!-- Quick Action Strip -->
+    <div class="quick-strip wow fadeIn" data-wow-delay="0.1s">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="strip-label">Ready to list your harvest?</div>
+                    <div class="strip-sub">Add your products now and reach buyers across your region</div>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <a href="{% url 'Farmer:AddProduct' %}" class="btn btn-lg btn-secondary rounded-pill py-3 px-5">
+                        <i class="fa fa-plus me-2"></i>Add Product
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Quick Action Strip End -->
+
+    <!-- Footer Start -->
+    <div class="container-fluid bg-dark footer mt-5 pt-5 wow fadeIn" data-wow-delay="0.1s">
+        <div class="container py-5">
+            <div class="row g-5">
+                <div class="col-lg-3 col-md-6">
+                    <h1 class="fw-bold text-primary mb-4">Farm<span class="text-secondary">oo</span>n</h1>
+                    <div class="d-flex pt-2">
+                        <a class="btn btn-square btn-outline-light rounded-circle me-1" href=""><i class="fab fa-twitter"></i></a>
+                        <a class="btn btn-square btn-outline-light rounded-circle me-1" href=""><i class="fab fa-facebook-f"></i></a>
+                        <a class="btn btn-square btn-outline-light rounded-circle me-1" href=""><i class="fab fa-youtube"></i></a>
+                        <a class="btn btn-square btn-outline-light rounded-circle me-0" href=""><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h4 class="text-light mb-4">Address</h4>
+                    <p><i class="fa fa-map-marker-alt me-3"></i>Idukki,Kerala</p>
+                    <p><i class="fa fa-phone-alt me-3"></i>+012 345 67890</p>
+                    <p><i class="fa fa-envelope me-3"></i>farmoon@gmail.com</p>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h4 class="text-light mb-4">Quick Links</h4>
+                    <a class="btn btn-link" href="{% url 'Guest:AboutUs' %}">About Us</a>
+                    <a class="btn btn-link" href="{% url 'Guest:ContactUs' %}">Contact Us</a>
+                    <a class="btn btn-link" href="">Our Services</a>
+                    <a class="btn btn-link" href="">Terms & Condition</a>
+                    <a class="btn btn-link" href="">Support</a>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h4 class="text-light mb-4">Newsletter</h4>
+                    <div class="position-relative mx-auto" style="max-width: 400px;">
+                        <input class="form-control bg-transparent w-100 py-3 ps-4 pe-5" type="text" placeholder="Your email">
+                        <button type="button" class="btn btn-primary py-2 position-absolute top-0 end-0 mt-2 me-2">SignUp</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid copyright">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                        &copy; <a href="#">Farmoon</a>, All Right Reserved.
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Footer End -->
+
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-lg btn-primary btn-lg-square rounded-circle back-to-top"><i class="bi bi-arrow-up"></i></a>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'Main/lib/wow/wow.min.js' %}"></script>
+    <script src="{% static 'Main/lib/easing/easing.min.js' %}"></script>
+    <script src="{% static 'Main/lib/waypoints/waypoints.min.js' %}"></script>
+    <script src="{% static 'Main/js/main.js' %}"></script>
+</body>
+
+</html>

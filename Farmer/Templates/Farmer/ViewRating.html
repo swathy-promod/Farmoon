@@ -1,0 +1,276 @@
+{% extends 'Farmer/Head.html' %}
+{% block content %}
+
+<style>
+    /* ── Page background ── */
+    .page-wrapper {
+        padding: 110px 0 60px;
+        min-height: 100vh;
+        background: #f8faf6;
+    }
+
+    /* ── Section heading ── */
+    .section-title {
+        font-family: 'Lora', serif;
+        font-size: 1.7rem;
+        font-weight: 700;
+        color: #333;
+        position: relative;
+        padding-bottom: 10px;
+        margin-bottom: 36px;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 48px;
+        height: 3px;
+        background: var(--bs-primary, #5cb85c);
+        border-radius: 2px;
+    }
+
+    /* ── Average Rating Box ── */
+    .average-box {
+        background: #fff;
+        border-top: 4px solid var(--bs-primary, #5cb85c);
+        box-shadow: 0 6px 32px rgba(0,0,0,0.09);
+        padding: 28px 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        margin-bottom: 36px;
+        flex-wrap: wrap;
+    }
+
+    .average-score {
+        font-family: 'Lora', serif;
+        font-size: 3.2rem;
+        font-weight: 700;
+        color: var(--bs-primary, #5cb85c);
+        line-height: 1;
+    }
+
+    .average-meta {
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .average-meta .label {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #aaa;
+        margin-bottom: 4px;
+    }
+
+    .average-meta .stars-large {
+        font-size: 1.5rem;
+        color: #f5a623;
+        letter-spacing: 2px;
+    }
+
+    .average-meta .out-of {
+        font-size: 0.82rem;
+        color: #aaa;
+        margin-top: 2px;
+    }
+
+    /* ── Ratings Table ── */
+    .table-card {
+        background: #fff;
+        box-shadow: 0 6px 32px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+
+    .ratings-table {
+        font-family: 'Open Sans', sans-serif;
+        font-size: 0.875rem;
+        margin-bottom: 0;
+    }
+
+    .ratings-table thead th {
+        background: var(--bs-primary, #5cb85c);
+        color: #fff;
+        font-family: 'Lora', serif;
+        font-weight: 600;
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        border: none;
+        padding: 14px 16px;
+        white-space: nowrap;
+    }
+
+    .ratings-table tbody tr {
+        border-bottom: 1px solid #f0f0f0;
+        transition: background 0.2s;
+    }
+
+    .ratings-table tbody tr:hover {
+        background: #f5fbf3;
+    }
+
+    .ratings-table tbody td {
+        padding: 14px 16px;
+        vertical-align: middle;
+        color: #444;
+        border: none;
+    }
+
+    /* User name chip */
+    .user-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .user-avatar {
+        width: 34px;
+        height: 34px;
+        background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+        color: var(--bs-primary, #5cb85c);
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.8rem;
+        font-family: 'Lora', serif;
+        flex-shrink: 0;
+    }
+
+    .user-name {
+        font-weight: 600;
+        color: #333;
+    }
+
+    /* Stars */
+    .stars {
+        color: #f5a623;
+        font-size: 1.05rem;
+        letter-spacing: 1px;
+    }
+
+    .stars .empty {
+        color: #ddd;
+    }
+
+    /* Review text */
+    .review-text {
+        color: #666;
+        font-style: italic;
+        max-width: 280px;
+    }
+
+    /* Date */
+    .date-text {
+        font-size: 0.8rem;
+        color: #aaa;
+        white-space: nowrap;
+    }
+
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        padding: 56px 20px;
+        color: #bbb;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .empty-state i {
+        font-size: 2.8rem;
+        margin-bottom: 14px;
+        display: block;
+        color: #ddd;
+    }
+</style>
+
+<div class="page-wrapper">
+    <div class="container">
+
+        <!-- Page Title -->
+        <h2 class="section-title text-center wow fadeInUp" data-wow-delay="0.1s">Farmer Ratings</h2>
+
+        <!-- ── Average Rating Box ── -->
+        {% if average %}
+        <div class="average-box wow fadeInUp" data-wow-delay="0.1s">
+            <div class="average-score">{{ average|floatformat:1 }}</div>
+            <div class="average-meta">
+                <div class="label">Average Rating</div>
+                <div class="stars-large">
+                    {% for i in "12345" %}
+                        {% if forloop.counter <= average %}★{% else %}☆{% endif %}
+                    {% endfor %}
+                </div>
+                <div class="out-of">out of 5</div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- ── Ratings Table ── -->
+        <div class="table-card wow fadeInUp" data-wow-delay="0.2s">
+            <div class="table-responsive">
+                <table class="table ratings-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>User</th>
+                            <th>Rating</th>
+                            <th>Review</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in ratings %}
+                        <tr>
+                            <td>
+                                <span style="display:inline-flex;align-items:center;justify-content:center;
+                                    width:28px;height:28px;background:#eaf5ea;
+                                    color:#5cb85c;border-radius:50%;font-weight:600;font-size:0.78rem;">
+                                    {{ forloop.counter }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="user-chip">
+                                    <div class="user-avatar">
+                                        {{ r.user.userregistration_name|first|upper }}
+                                    </div>
+                                    <span class="user-name">{{ r.user.userregistration_name }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="stars">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= r.rating_data %}
+                                            ★
+                                        {% else %}
+                                            <span class="empty">☆</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                </span>
+                            </td>
+                            <td><span class="review-text">{{ r.user_review }}</span></td>
+                            <td><span class="date-text">{{ r.datetime }}</span></td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5">
+                                <div class="empty-state">
+                                    <i class="fa fa-star"></i>
+                                    No ratings yet. Ratings from buyers will appear here.
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock content %}

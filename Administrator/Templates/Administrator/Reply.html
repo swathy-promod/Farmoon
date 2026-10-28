@@ -1,0 +1,456 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Farmoon – Reply to Complaint</title>
+  <link rel="shortcut icon" type="image/png" href="{% static 'Main/img/icon-1.png' %}" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&family=Lora:wght@600;700&display=swap" rel="stylesheet">
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --fm-green:      #4caf50;
+      --fm-green-dark: #388e3c;
+      --fm-orange:     #ff9800;
+      --fm-sidebar-bg: #1b2b1e;
+      --fm-sidebar-w:  255px;
+      --fm-topbar-h:   36px;
+      --fm-header-h:   64px;
+      --fm-font-head:  'Lora', serif;
+      --fm-font-body:  'Open Sans', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: var(--fm-font-body); background: #f5f7f5; color: #333; margin: 0; }
+
+    /* ── TOP BAR ── */
+    .fm-topbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1060;
+      height: var(--fm-topbar-h);
+      background: var(--fm-sidebar-bg);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; font-size: 0.76rem; color: #aaa;
+    }
+    .fm-topbar a { color: #aaa; text-decoration: none; margin-left: 10px; transition: color .2s; }
+    .fm-topbar a:hover { color: var(--fm-orange); }
+
+    /* ── NAVBAR ── */
+    .fm-navbar {
+      position: fixed;
+      top: var(--fm-topbar-h); left: 0; right: 0; z-index: 1050;
+      height: var(--fm-header-h);
+      background: #fff;
+      box-shadow: 0 2px 10px rgba(0,0,0,.08);
+      display: flex; align-items: center; padding: 0 24px; gap: 12px;
+    }
+    .fm-brand {
+      font-family: var(--fm-font-head); font-size: 1.55rem; font-weight: 700;
+      color: var(--fm-green); text-decoration: none; white-space: nowrap;
+    }
+    .fm-brand span { color: var(--fm-orange); }
+    .fm-admin-pill {
+      font-size: 0.68rem; background: #e8f5e9; color: var(--fm-green-dark);
+      padding: 2px 10px; border-radius: 50px; font-weight: 700; letter-spacing: .04em;
+    }
+    .fm-nav-links { display: flex; align-items: center; gap: 2px; margin-left: auto; }
+    .fm-nav-links a {
+      font-size: 0.84rem; color: #555; padding: 6px 13px;
+      border-radius: 50px; text-decoration: none; transition: all .2s;
+    }
+    .fm-nav-links a:hover, .fm-nav-links a.active { background: var(--fm-green); color: #fff; }
+
+    /* ── SIDEBAR ── */
+    .fm-sidebar {
+      position: fixed;
+      top: calc(var(--fm-topbar-h) + var(--fm-header-h));
+      left: 0; width: var(--fm-sidebar-w); bottom: 0;
+      background: var(--fm-sidebar-bg);
+      overflow-y: auto; z-index: 1040;
+      padding: 12px 0 40px;
+      transition: transform .3s;
+    }
+    .fm-sidebar::-webkit-scrollbar { width: 3px; }
+    .fm-sidebar::-webkit-scrollbar-thumb { background: #3a5e3d; border-radius: 4px; }
+    .fm-sidebar-cap {
+      font-size: 0.66rem; font-weight: 700; letter-spacing: .09em;
+      text-transform: uppercase; color: #5a7a5d; padding: 18px 18px 5px;
+    }
+    .fm-sidebar a {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 18px; color: #b0c8b2;
+      text-decoration: none; font-size: 0.855rem;
+      border-left: 3px solid transparent; transition: all .2s;
+    }
+    .fm-sidebar a:hover  { color: #fff; background: rgba(76,175,80,.13); border-left-color: var(--fm-green); }
+    .fm-sidebar a.active { color: #fff; background: rgba(76,175,80,.2);  border-left-color: var(--fm-green); font-weight: 600; }
+    .fm-sidebar a i      { width: 18px; text-align: center; }
+    .fm-sidebar-divider  { height: 1px; background: #2a3e2d; margin: 6px 0; }
+
+    /* ── MAIN ── */
+    .fm-main {
+      margin-left: var(--fm-sidebar-w);
+      padding-top: calc(var(--fm-topbar-h) + var(--fm-header-h) + 24px);
+      padding-left: 24px; padding-right: 24px; padding-bottom: 40px;
+      min-height: 100vh;
+    }
+
+    /* ── PAGE HEADER ── */
+    .fm-page-title { font-family: var(--fm-font-head); font-size: 1.55rem; font-weight: 700; color: #222; margin: 0; }
+    .fm-page-sub   { font-size: 0.8rem; color: #999; margin-top: 3px; }
+
+    /* ── BREADCRUMB ── */
+    .fm-breadcrumb {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 0.78rem; color: #aaa; margin-bottom: 20px;
+    }
+    .fm-breadcrumb a { color: var(--fm-green); text-decoration: none; }
+    .fm-breadcrumb a:hover { text-decoration: underline; }
+    .fm-breadcrumb i { font-size: 0.65rem; color: #ccc; }
+
+    /* ── CARD ── */
+    .fm-card {
+      background: #fff; border-radius: 12px;
+      border: 2px solid #e8f5e9;
+      box-shadow: 0 2px 8px rgba(0,0,0,.05); overflow: hidden;
+    }
+    .fm-card-hdr {
+      padding: 16px 20px 14px;
+      border-bottom: 1px solid #f0f4f0;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .fm-card-hdr-icon {
+      width: 38px; height: 38px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; flex-shrink: 0;
+    }
+    .fm-card-title { font-family: var(--fm-font-head); font-size: 1rem; font-weight: 700; color: #222; margin: 0; }
+    .fm-card-sub   { font-size: 0.76rem; color: #aaa; margin-top: 1px; }
+
+    /* ── COMPLAINT DETAIL BLOCK ── */
+    .fm-detail-row {
+      display: flex; gap: 10px; align-items: flex-start;
+      padding: 11px 0;
+      border-bottom: 1px solid #f5f5f5;
+      font-size: 0.83rem;
+    }
+    .fm-detail-row:last-child { border-bottom: none; }
+    .fm-detail-label {
+      min-width: 100px; font-weight: 700; font-size: 0.76rem;
+      color: #aaa; text-transform: uppercase; letter-spacing: .04em;
+      padding-top: 1px;
+    }
+    .fm-detail-value { color: #333; flex: 1; line-height: 1.55; }
+
+    /* ── STATUS PILL ── */
+    .fm-pill {
+      display: inline-block; padding: 3px 11px;
+      border-radius: 50px; font-size: 0.7rem; font-weight: 700;
+    }
+    .pill-pending { background: rgba(255,152,0,.12); color: #e65100; }
+    .pill-replied { background: rgba(76,175,80,.12);  color: #2e7d32; }
+
+    /* ── FORM ── */
+    .fm-form-body { padding: 22px 24px; }
+    .fm-label {
+      display: block; font-size: 0.78rem; font-weight: 700;
+      color: #555; margin-bottom: 6px; letter-spacing: .02em;
+    }
+    .fm-label span { color: #f44336; margin-left: 2px; }
+
+    .fm-textarea {
+      width: 100%; padding: 11px 14px;
+      border: 1.5px solid #e0e8e0; border-radius: 8px;
+      font-size: 0.84rem; font-family: var(--fm-font-body);
+      background: #fafcfa; color: #333; outline: none; resize: vertical;
+      min-height: 110px;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .fm-textarea:focus {
+      border-color: var(--fm-green);
+      box-shadow: 0 0 0 3px rgba(76,175,80,.1);
+      background: #fff;
+    }
+    .fm-textarea::placeholder { color: #c5c5c5; }
+
+    /* ── CHAR COUNTER ── */
+    .fm-char-counter { font-size: 0.74rem; color: #bbb; text-align: right; margin-top: 4px; }
+
+    /* ── BUTTONS ── */
+    .fm-btn-submit {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 10px 26px; border-radius: 8px;
+      background: var(--fm-green); color: #fff;
+      font-family: var(--fm-font-body); font-size: 0.84rem; font-weight: 700;
+      border: none; cursor: pointer; white-space: nowrap;
+      transition: background .2s, box-shadow .2s;
+      box-shadow: 0 3px 10px rgba(76,175,80,.25);
+    }
+    .fm-btn-submit:hover { background: var(--fm-green-dark); box-shadow: 0 5px 16px rgba(76,175,80,.3); }
+
+    .fm-btn-cancel {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 10px 18px; border-radius: 8px;
+      background: #f5f5f5; color: #777;
+      font-family: var(--fm-font-body); font-size: 0.84rem; font-weight: 600;
+      border: none; cursor: pointer; white-space: nowrap;
+      text-decoration: none; transition: background .2s;
+    }
+    .fm-btn-cancel:hover { background: #ebebeb; color: #555; }
+
+    /* ── AVATAR ── */
+    .fm-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--fm-green), var(--fm-green-dark));
+      display: inline-flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 0.8rem; font-weight: 700; flex-shrink: 0;
+    }
+
+    /* ── FOOTER ── */
+    .fm-footer {
+      text-align: center; font-size: 0.76rem; color: #bbb;
+      padding: 20px; border-top: 1px solid #e8f5e9; margin-top: 8px;
+    }
+    .fm-footer a { color: var(--fm-green); text-decoration: none; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 991px) {
+      .fm-sidebar { transform: translateX(-100%); }
+      .fm-sidebar.open { transform: translateX(0); }
+      .fm-main { margin-left: 0; }
+      .fm-nav-links { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- TOP BAR -->
+  <div class="fm-topbar">
+    <span><i class="fa fa-map-marker-alt me-2"></i>Farmoon Admin Panel</span>
+    <span>
+      Follow us:
+      <a href="#"><i class="fab fa-facebook-f"></i></a>
+      <a href="#"><i class="fab fa-twitter"></i></a>
+      <a href="#"><i class="fab fa-linkedin-in"></i></a>
+      <a href="#"><i class="fab fa-instagram"></i></a>
+    </span>
+  </div>
+
+  <!-- NAVBAR -->
+  <div class="fm-navbar">
+    <button class="btn btn-sm d-xl-none me-1" id="sidebarToggle"
+            style="background:none;border:none;font-size:1.3rem;color:#555;">
+      <i class="bi bi-list"></i>
+    </button>
+    <a href="{% url 'Administrator:HomePage' %}" class="fm-brand">Farm<span>oo</span>n</a>
+    <span class="fm-admin-pill">ADMIN</span>
+    <nav class="fm-nav-links">
+      <a href="{% url 'Guest:index' %}"><i class="fa fa-globe me-1"></i>Guest Site</a>
+      <a href="{% url 'Administrator:HomePage' %}"><i class="fa fa-tachometer-alt me-1"></i>Dashboard</a>
+      <a href="{% url 'Administrator:Userlist' %}"><i class="fa fa-users me-1"></i>Users</a>
+      <a href="{% url 'Administrator:Farmerlist' %}"><i class="fa fa-leaf me-1"></i>Farmers</a>
+      <a href="{% url 'Administrator:ViewComplaint' %}" class="active"><i class="fa fa-exclamation-circle me-1"></i>Complaints</a>
+      <a href="{% url 'Administrator:ViewFeedback' %}"><i class="fa fa-comment-dots me-1"></i>Feedback</a>
+    </nav>
+  </div>
+
+  <!-- SIDEBAR -->
+  <aside class="fm-sidebar" id="fmSidebar">
+    <div class="fm-sidebar-cap">Main</div>
+    <a href="{% url 'Administrator:HomePage' %}"><i class="fa fa-tachometer-alt"></i>Dashboard</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <div class="fm-sidebar-cap">User Management</div>
+    <a href="{% url 'Administrator:Userlist' %}"><i class="fa fa-users"></i>User List</a>
+    <a href="{% url 'Administrator:Farmerlist' %}"><i class="fa fa-leaf"></i>Farmer List</a>
+    <a href="{% url 'Administrator:AdminRegistration' %}"><i class="fa fa-user-shield"></i>Admin Accounts</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <div class="fm-sidebar-cap">Location</div>
+    <a href="{% url 'Administrator:District' %}"><i class="fa fa-map"></i>Districts</a>
+    <a href="{% url 'Administrator:Place' %}"><i class="fa fa-map-marker-alt"></i>Places</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <div class="fm-sidebar-cap">Catalogue</div>
+    <a href="{% url 'Administrator:Category' %}"><i class="fa fa-tags"></i>Categories</a>
+    <a href="{% url 'Administrator:Subcategory' %}"><i class="fa fa-list-ul"></i>Subcategories</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <div class="fm-sidebar-cap">Orders & Payments</div>
+    <a href="{% url 'Administrator:OrderList' %}"><i class="fa fa-shopping-bag"></i>Orders
+      {% if pending_orders %}
+        <span class="fm-pill pill-pending ms-auto">{{ pending_orders }}</span>
+      {% endif %}
+    </a>
+    <a href="{% url 'Administrator:TransactionList' %}"><i class="fa fa-credit-card"></i>Transactions</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <div class="fm-sidebar-cap">Support</div>
+    <a href="{% url 'Administrator:ViewComplaint' %}" class="active"><i class="fa fa-exclamation-circle"></i>Complaints</a>
+    <a href="{% url 'Administrator:ViewFeedback' %}"><i class="fa fa-comment-dots"></i>Feedback</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <a href="{% url 'Guest:Login' %}"><i class="fa fa-sign-out-alt"></i>Logout</a>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="fm-main">
+
+    <!-- Breadcrumb -->
+    <div class="fm-breadcrumb">
+      <a href="{% url 'Administrator:HomePage' %}">Dashboard</a>
+      <i class="fa fa-chevron-right"></i>
+      <a href="{% url 'Administrator:ViewComplaint' %}">Complaints</a>
+      <i class="fa fa-chevron-right"></i>
+      <span>Reply</span>
+    </div>
+
+    <!-- Page Header -->
+    <div class="mb-4">
+      <h1 class="fm-page-title">
+        <i class="fa fa-reply me-2" style="color:var(--fm-green);font-size:1.2rem;"></i>Reply to Complaint
+      </h1>
+      <p class="fm-page-sub">Review the complaint details and send your response to the user.</p>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+      <div class="col-xl-7 col-lg-8">
+
+        <!-- Complaint Detail Card -->
+        {% if data %}
+        <div class="fm-card mb-4">
+          <div class="fm-card-hdr">
+            <div class="fm-card-hdr-icon" style="background:rgba(255,152,0,.1);">
+              <i class="fa fa-exclamation-circle" style="color:var(--fm-orange);"></i>
+            </div>
+            <div>
+              <div class="fm-card-title">Complaint Details</div>
+              <div class="fm-card-sub">Submitted by the user — read before replying</div>
+            </div>
+          </div>
+          <div style="padding: 18px 24px;">
+            <div class="fm-detail-row">
+              <div class="fm-detail-label">User</div>
+              <div class="fm-detail-value">
+                <div class="d-flex align-items-center gap-2">
+                  <div class="fm-avatar">{{ data.user.userregistration_name|first|upper }}</div>
+                  <span style="font-weight:600;">{{ data.user.userregistration_name }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="fm-detail-row">
+              <div class="fm-detail-label">Title</div>
+              <div class="fm-detail-value" style="font-weight:600;">{{ data.complaint_title }}</div>
+            </div>
+            <div class="fm-detail-row">
+              <div class="fm-detail-label">Content</div>
+              <div class="fm-detail-value">{{ data.complaint_content }}</div>
+            </div>
+            <div class="fm-detail-row">
+              <div class="fm-detail-label">Date</div>
+              <div class="fm-detail-value" style="color:#999;">
+                <i class="fa fa-calendar me-1" style="color:#ccc;"></i>{{ data.complaint_date }}
+              </div>
+            </div>
+            <div class="fm-detail-row">
+              <div class="fm-detail-label">Status</div>
+              <div class="fm-detail-value">
+                {% if data.complaint_status == 0 %}
+                  <span class="fm-pill pill-pending"><i class="fa fa-clock me-1"></i>Pending</span>
+                {% else %}
+                  <span class="fm-pill pill-replied"><i class="fa fa-check me-1"></i>Replied</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+        {% if data.complaint_status == 0 %}
+        <!-- Reply Form Card -->
+        <div class="fm-card">
+          <div class="fm-card-hdr">
+            <div class="fm-card-hdr-icon" style="background:rgba(76,175,80,.1);">
+              <i class="fa fa-reply" style="color:var(--fm-green);"></i>
+            </div>
+            <div>
+              <div class="fm-card-title">Write Your Reply</div>
+              <div class="fm-card-sub">Your response will be sent to the user</div>
+            </div>
+          </div>
+
+          <form method="POST">
+            {% csrf_token %}
+            <div class="fm-form-body">
+
+              <label class="fm-label" for="txt_reply">
+                Reply Message <span>*</span>
+              </label>
+              <textarea
+                class="fm-textarea"
+                id="txt_reply"
+                name="txt_reply"
+                required
+                placeholder="Type your reply here… Be clear and helpful."
+                maxlength="1000"
+                oninput="updateCounter(this)"
+              ></textarea>
+              <div class="fm-char-counter"><span id="charCount">0</span> / 1000 characters</div>
+
+              <div class="d-flex gap-2 mt-4 justify-content-end">
+                <a href="{% url 'Administrator:ViewComplaint' %}" class="fm-btn-cancel">
+                  <i class="fa fa-times"></i>Cancel
+                </a>
+                <button type="submit" name="btn_submit" class="fm-btn-submit">
+                  <i class="fa fa-paper-plane"></i>Send Reply
+                </button>
+              </div>
+
+            </div>
+          </form>
+        </div>
+        {% endif %}
+        <!-- Tip card -->
+        <div class="fm-card mt-3" style="border-color:#fff8e1;">
+          <div style="padding:14px 20px;">
+            <div style="font-size:0.78rem;color:#888;display:flex;gap:10px;align-items:flex-start;">
+              <i class="fa fa-lightbulb" style="color:var(--fm-orange);margin-top:2px;flex-shrink:0;"></i>
+              <span>Keep replies polite and specific. Address the user's concern directly and let them know what action, if any, has been taken.</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="fm-footer mt-4">
+      &copy; <a href="#">Farmoon</a> Admin Panel &nbsp;·&nbsp;
+      
+    </div>
+
+  </main>
+
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.getElementById('sidebarToggle').addEventListener('click', function () {
+      document.getElementById('fmSidebar').classList.toggle('open');
+    });
+
+    function updateCounter(el) {
+      document.getElementById('charCount').textContent = el.value.length;
+    }
+  </script>
+
+</body>
+</html>

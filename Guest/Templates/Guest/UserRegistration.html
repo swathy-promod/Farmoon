@@ -1,0 +1,501 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>User Registration - Farmer Support System</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <!-- Favicon -->
+    <link href="{% static 'Main/img/icon-1.png' %}" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500&family=Lora:wght@600;700&display=swap" rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="{% static 'Main/lib/animate/animate.min.css' %}" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="{% static 'Main/css/bootstrap.min.css' %}" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="{% static 'Main/css/style.css' %}" rel="stylesheet">
+
+    <style>
+        .register-wrapper {
+            min-height: 100vh;
+            background: linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(240,248,235,0.95) 100%),
+                        url("{% static 'Main/img/carousel-1.jpg' %}") center/cover no-repeat;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 120px 15px 60px;
+        }
+
+        .register-card {
+            background: #fff;
+            border-radius: 0;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.12);
+            padding: 50px 45px;
+            max-width: 620px;
+            width: 100%;
+            border-top: 4px solid var(--bs-primary, #5cb85c);
+        }
+
+        .brand-title {
+            font-family: 'Lora', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--bs-primary, #5cb85c);
+            letter-spacing: -1px;
+        }
+
+        .brand-title span {
+            color: var(--bs-secondary, #f0ad4e);
+        }
+
+        .register-card h4 {
+            font-family: 'Lora', serif;
+            font-size: 1.4rem;
+            color: #333;
+        }
+
+        .section-divider {
+            font-family: 'Lora', serif;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--bs-primary, #5cb85c);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            border-bottom: 1px solid #e5e5e5;
+            padding-bottom: 6px;
+            margin-bottom: 18px;
+        }
+
+        .form-label {
+            font-family: 'Open Sans', sans-serif;
+            font-weight: 500;
+            color: #555;
+            font-size: 0.88rem;
+            margin-bottom: 5px;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 0;
+            border: 1px solid #ddd;
+            padding: 11px 15px;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.88rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--bs-primary, #5cb85c);
+            box-shadow: 0 0 0 0.2rem rgba(92,184,92,0.15);
+        }
+
+        .input-group-text {
+            border-radius: 0;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            color: var(--bs-primary, #5cb85c);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 90px;
+        }
+
+        .form-control[type="file"] {
+            padding: 8px 15px;
+            cursor: pointer;
+        }
+
+        .file-label {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.78rem;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        /* Gender radio buttons */
+        .gender-group {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            background: #fff;
+        }
+
+        .gender-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.88rem;
+            color: #555;
+            cursor: pointer;
+            margin: 0;
+        }
+
+        .gender-option input[type="radio"] {
+            accent-color: var(--bs-primary, #5cb85c);
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        /* Password strength hint */
+        .field-hint {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.78rem;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        .btn-register {
+            border-radius: 50px;
+            padding: 12px 0;
+            font-family: 'Open Sans', sans-serif;
+            font-weight: 500;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+            width: 100%;
+        }
+
+        .btn-cancel {
+            border-radius: 50px;
+            padding: 12px 0;
+            font-family: 'Open Sans', sans-serif;
+            font-weight: 500;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+            width: 100%;
+            border-width: 2px;
+        }
+
+        /* Password match indicator */
+        #password-match-msg {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.78rem;
+            margin-top: 4px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Spinner Start -->
+    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-border text-primary" role="status"></div>
+    </div>
+    <!-- Spinner End -->
+
+    <!-- Navbar Start -->
+    <div class="container-fluid fixed-top px-0 wow fadeIn" data-wow-delay="0.1s">
+        <div class="top-bar row gx-0 align-items-center d-none d-lg-flex">
+            <div class="col-lg-6 px-5 text-start">
+                <small><i class="fa fa-map-marker-alt me-2"></i>Idukki,Kerala</small>
+                <small class="ms-4"><i class="fa fa-envelope me-2"></i>farmoon@gmail.com</small>
+            </div>
+            <div class="col-lg-6 px-5 text-end">
+                <small>Follow us:</small>
+                <a class="text-body ms-3" href=""><i class="fab fa-facebook-f"></i></a>
+                <a class="text-body ms-3" href=""><i class="fab fa-twitter"></i></a>
+                <a class="text-body ms-3" href=""><i class="fab fa-linkedin-in"></i></a>
+                <a class="text-body ms-3" href=""><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
+
+        <nav class="navbar navbar-expand-lg navbar-light py-lg-0 px-lg-5 wow fadeIn" data-wow-delay="0.1s">
+            <a href="{% url 'Guest:index' %}" class="navbar-brand ms-4 ms-lg-0">
+                <h1 class="fw-bold text-primary m-0">Farm<span class="text-secondary">oo</span>n</h1>
+            </a>
+            <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <div class="navbar-nav ms-auto p-4 p-lg-0">
+                    <a href="{% url 'Guest:index' %}" class="nav-item nav-link">Home</a>
+                    <a href="{% url 'Guest:Login' %}" class="nav-item nav-link">Login</a>
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
+                        <div class="dropdown-menu m-0">
+                            <a href="blog.html" class="dropdown-item">Blog Grid</a>
+                            <a href="feature.html" class="dropdown-item">Our Features</a>
+                            <a href="testimonial.html" class="dropdown-item">Testimonial</a>
+                            <a href="Main/404.html" class="dropdown-item">404 Page</a>
+                        </div>
+                    </div>
+                    <a href="{% url 'Guest:ContactUs' %}" class="nav-item nav-link">Contact Us</a>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <!-- Navbar End -->
+
+    <!-- Registration Section -->
+    <div class="register-wrapper wow fadeIn" data-wow-delay="0.1s">
+        <div class="register-card">
+
+            <!-- Brand & Heading -->
+            <div class="text-center mb-4">
+                <div class="brand-title">Farm<span>oo</span>n</div>
+                <h4 class="mt-2 mb-0">User Registration</h4>
+                <p class="text-muted" style="font-family:'Open Sans',sans-serif; font-size:0.88rem;">
+                    Create your account and start exploring
+                </p>
+            </div>
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- Personal Info -->
+                <div class="section-divider">Personal Information</div>
+
+                <div class="mb-3">
+                    <label class="form-label">Full Name</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa fa-user"></i></span>
+                        <input type="text" class="form-control" name="txt_name"
+                               placeholder="Enter your full name"
+                               title="Name allows only alphabets, spaces and first letter must be capital"
+                               pattern="^[A-Z]+[a-zA-Z ]*$" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Email Address</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa fa-envelope"></i></span>
+                        <input type="email" class="form-control" name="txt_Email"
+                               placeholder="Enter your email" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Contact Number</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa fa-phone-alt"></i></span>
+                        <input type="number" class="form-control" name="num_contact"
+                               placeholder="Enter your contact number"
+                               pattern="[7-9]{1}[0-9]{9}"
+                               title="Phone number must start with 7-9 followed by 9 digits" required>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Gender</label>
+                        <div class="gender-group">
+                            <label class="gender-option">
+                                <input type="radio" name="rd_Gender" value="Male" required> Male
+                            </label>
+                            <label class="gender-option">
+                                <input type="radio" name="rd_Gender" value="Female"> Female
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Date of Birth</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa fa-calendar-alt"></i></span>
+                            <input type="date" class="form-control" name="txt_date" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Address</label>
+                    <div class="input-group align-items-start">
+                        <span class="input-group-text pt-2"><i class="fa fa-map-marker-alt"></i></span>
+                        <textarea class="form-control" name="txt_Address"
+                                  placeholder="Enter your full address" required></textarea>
+                    </div>
+                </div>
+
+                <!-- Location -->
+                <div class="section-divider">Location</div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label">District</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa fa-map"></i></span>
+                            <select class="form-select" name="sel_district" id="sel_district" required>
+                                <option value="">Select district</option>
+                                {% for i in district %}
+                                <option value="{{ i.id }}">{{ i.district_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Place</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa fa-map-pin"></i></span>
+                            <select class="form-select" name="txt_place" id="sel_place">
+                                <option value="">Select place</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Setup -->
+                <div class="section-divider">Account Setup</div>
+
+                <div class="mb-3">
+                    <label class="form-label">Profile Photo</label>
+                    <input type="file" class="form-control" name="file_photo" accept="image/*" required>
+                    <div class="file-label"><i class="fa fa-info-circle me-1"></i>JPG, PNG accepted</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa fa-lock"></i></span>
+                        <input type="password" class="form-control" name="txt_password"
+                               id="txt_password" placeholder="Enter your password" required>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Re-type Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa fa-lock"></i></span>
+                        <input type="password" class="form-control" name="txt_confirm_password"
+                               id="txt_confirm_password" placeholder="Enter your password again" required>
+                    </div>
+                    <div id="password-match-msg"></div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="row g-3">
+                    <div class="col-8">
+                        <button type="submit" name="btn_register" class="btn btn-primary btn-register">
+                            <i class="fa fa-user-plus me-2"></i>Create Account
+                        </button>
+                    </div>
+                    <div class="col-4">
+                        <button type="reset" name="btn_cancel" class="btn btn-outline-secondary btn-cancel">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Login redirect -->
+                <p class="text-center mt-4 mb-0" style="font-family:'Open Sans',sans-serif; font-size:0.85rem; color:#888;">
+                    Already have an account?
+                    <a href="{% url 'Guest:Login' %}" class="text-primary">Sign in here</a>
+                </p>
+
+            </form>
+           
+        </div>
+    </div>
+    <!-- Registration Section End -->
+
+    <!-- Footer Start -->
+    <div class="container-fluid bg-dark footer pt-5 wow fadeIn" data-wow-delay="0.1s">
+        <div class="container py-5">
+            <div class="row g-5">
+                <div class="col-lg-3 col-md-6">
+                    <h1 class="fw-bold text-primary mb-4">Farm<span class="text-secondary">oo</span>n</h1>
+                    <p></p>
+                    <div class="d-flex pt-2">
+                        <a class="btn btn-square btn-outline-light rounded-circle me-1" href=""><i class="fab fa-twitter"></i></a>
+                        <a class="btn btn-square btn-outline-light rounded-circle me-1" href=""><i class="fab fa-facebook-f"></i></a>
+                        <a class="btn btn-square btn-outline-light rounded-circle me-1" href=""><i class="fab fa-youtube"></i></a>
+                        <a class="btn btn-square btn-outline-light rounded-circle me-0" href=""><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h4 class="text-light mb-4">Address</h4>
+                    <p><i class="fa fa-map-marker-alt me-3"></i>Idukki,Kerala</p>
+                    <p><i class="fa fa-phone-alt me-3"></i>+012 345 67890</p>
+                    <p><i class="fa fa-envelope me-3"></i>farmoon@gmail.com</p>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h4 class="text-light mb-4">Quick Links</h4>
+                    <a class="btn btn-link" href="{% url 'Guest:AboutUs' %}">About Us</a>
+                    <a class="btn btn-link" href="{% url 'Guest:ContactUs' %}">Contact Us</a>
+                    <a class="btn btn-link" href="">Our Services</a>
+                    <a class="btn btn-link" href="">Terms & Condition</a>
+                    <a class="btn btn-link" href="">Support</a>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h4 class="text-light mb-4">Newsletter</h4>
+                    <p></p>
+                    <div class="position-relative mx-auto" style="max-width: 400px;">
+                        <input class="form-control bg-transparent w-100 py-3 ps-4 pe-5" type="text" placeholder="Your email">
+                        <button type="button" class="btn btn-primary py-2 position-absolute top-0 end-0 mt-2 me-2">SignUp</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid copyright">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                        &copy; <a href="#">farmoon</a>, All Right Reserved.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Footer End -->
+
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-lg btn-primary btn-lg-square rounded-circle back-to-top"><i class="bi bi-arrow-up"></i></a>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'Main/lib/wow/wow.min.js' %}"></script>
+    <script src="{% static 'Main/lib/easing/easing.min.js' %}"></script>
+    <script src="{% static 'Main/lib/waypoints/waypoints.min.js' %}"></script>
+    <script src="{% static 'Main/js/main.js' %}"></script>
+
+    <!-- Ajax: Load places based on selected district -->
+    <script>
+        $('#sel_district').change(function () {
+            var did = $(this).val();
+            var ur = "{% url 'Guest:Ajaxplace' %}";
+            $.ajax({
+                url: ur,
+                data: { did: did },
+                success: function (data) {
+                    $('#sel_place').html(data);
+                }
+            });
+        });
+
+        // Password match indicator
+        $('#txt_confirm_password').on('input', function () {
+            var pw  = $('#txt_password').val();
+            var cpw = $(this).val();
+            var msg = $('#password-match-msg');
+            if (cpw.length === 0) {
+                msg.hide();
+            } else if (pw === cpw) {
+                msg.show().html('<span style="color:#5cb85c;"><i class="fa fa-check-circle me-1"></i>Passwords match</span>');
+            } else {
+                msg.show().html('<span style="color:#d9534f;"><i class="fa fa-times-circle me-1"></i>Passwords do not match</span>');
+            }
+        });
+    </script>
+
+</body>
+</html>

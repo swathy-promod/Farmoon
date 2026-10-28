@@ -1,0 +1,796 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Order #{{ order.id }} – Farmoon Admin</title>
+  <link rel="shortcut icon" type="image/png" href="{% static 'Main/img/icon-1.png' %}" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&family=Lora:wght@600;700&display=swap" rel="stylesheet">
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --fm-green:      #4caf50;
+      --fm-green-dark: #388e3c;
+      --fm-orange:     #ff9800;
+      --fm-sidebar-bg: #1b2b1e;
+      --fm-sidebar-w:  255px;
+      --fm-topbar-h:   36px;
+      --fm-header-h:   64px;
+      --fm-font-head:  'Lora', serif;
+      --fm-font-body:  'Open Sans', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: var(--fm-font-body); background: #f5f7f5; color: #333; margin: 0; }
+
+    /* ── TOP BAR ── */
+    .fm-topbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1060;
+      height: var(--fm-topbar-h);
+      background: var(--fm-sidebar-bg);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; font-size: 0.76rem; color: #aaa;
+    }
+    .fm-topbar a { color: #aaa; text-decoration: none; margin-left: 10px; transition: color .2s; }
+    .fm-topbar a:hover { color: var(--fm-orange); }
+
+    /* ── NAVBAR ── */
+    .fm-navbar {
+      position: fixed;
+      top: var(--fm-topbar-h); left: 0; right: 0; z-index: 1050;
+      height: var(--fm-header-h);
+      background: #fff;
+      box-shadow: 0 2px 10px rgba(0,0,0,.08);
+      display: flex; align-items: center; padding: 0 24px; gap: 12px;
+    }
+    .fm-brand {
+      font-family: var(--fm-font-head); font-size: 1.55rem; font-weight: 700;
+      color: var(--fm-green); text-decoration: none; white-space: nowrap;
+    }
+    .fm-brand span { color: var(--fm-orange); }
+    .fm-admin-pill {
+      font-size: 0.68rem; background: #e8f5e9; color: var(--fm-green-dark);
+      padding: 2px 10px; border-radius: 50px; font-weight: 700; letter-spacing: .04em;
+    }
+    .fm-nav-links { display: flex; align-items: center; gap: 2px; margin-left: auto; }
+    .fm-nav-links a {
+      font-size: 0.84rem; color: #555; padding: 6px 13px;
+      border-radius: 50px; text-decoration: none; transition: all .2s;
+    }
+    .fm-nav-links a:hover, .fm-nav-links a.active { background: var(--fm-green); color: #fff; }
+
+    /* ── SIDEBAR ── */
+    .fm-sidebar {
+      position: fixed;
+      top: calc(var(--fm-topbar-h) + var(--fm-header-h));
+      left: 0; width: var(--fm-sidebar-w); bottom: 0;
+      background: var(--fm-sidebar-bg);
+      overflow-y: auto; z-index: 1040;
+      padding: 12px 0 40px;
+      transition: transform .3s;
+    }
+    .fm-sidebar::-webkit-scrollbar { width: 3px; }
+    .fm-sidebar::-webkit-scrollbar-thumb { background: #3a5e3d; border-radius: 4px; }
+    .fm-sidebar-cap {
+      font-size: 0.66rem; font-weight: 700; letter-spacing: .09em;
+      text-transform: uppercase; color: #5a7a5d;
+      padding: 18px 18px 5px;
+    }
+    .fm-sidebar a {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 18px; color: #b0c8b2;
+      text-decoration: none; font-size: 0.855rem;
+      border-left: 3px solid transparent; transition: all .2s;
+    }
+    .fm-sidebar a:hover   { color: #fff; background: rgba(76,175,80,.13); border-left-color: var(--fm-green); }
+    .fm-sidebar a.active  { color: #fff; background: rgba(76,175,80,.2);  border-left-color: var(--fm-green); font-weight: 600; }
+    .fm-sidebar a i       { width: 18px; text-align: center; }
+    .fm-sidebar-divider   { height: 1px; background: #2a3e2d; margin: 6px 0; }
+
+    /* ── MAIN ── */
+    .fm-main {
+      margin-left: var(--fm-sidebar-w);
+      padding-top: calc(var(--fm-topbar-h) + var(--fm-header-h) + 24px);
+      padding-left: 24px; padding-right: 24px; padding-bottom: 40px;
+      min-height: 100vh;
+    }
+
+    .fm-page-title {
+      font-family: var(--fm-font-head); font-size: 1.55rem;
+      font-weight: 700; color: #222; margin: 0;
+    }
+    .fm-page-sub { font-size: 0.8rem; color: #999; margin-top: 3px; }
+
+    /* ── CARD ── */
+    .fm-card {
+      background: #fff; border-radius: 12px;
+      border: 2px solid #e8f5e9;
+      box-shadow: 0 2px 8px rgba(0,0,0,.05); overflow: hidden;
+    }
+    .fm-card-hdr {
+      padding: 14px 18px 12px;
+      border-bottom: 1px solid #f0f4f0;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .fm-card-title { font-family: var(--fm-font-head); font-size: 0.98rem; font-weight: 700; color: #222; margin: 0; }
+    .fm-card-sub   { font-size: 0.76rem; color: #aaa; margin-top: 1px; }
+
+    /* ── PILLS ── */
+    .fm-pill {
+      display: inline-block; padding: 3px 10px;
+      border-radius: 50px; font-size: 0.7rem; font-weight: 700;
+    }
+    .pill-pending   { background: rgba(255,152,0,.12);  color: #e65100; }
+    .pill-accepted  { background: rgba(76,175,80,.12);  color: #2e7d32; }
+    .pill-rejected  { background: rgba(244,67,54,.12);  color: #b71c1c; }
+    .pill-resolved  { background: rgba(33,150,243,.12); color: #0d47a1; }
+    .pill-open      { background: rgba(255,152,0,.12);  color: #e65100; }
+    .pill-placed    { background: rgba(33,150,243,.12); color: #0d47a1; }
+    .pill-confirmed { background: rgba(76,175,80,.12);  color: #2e7d32; }
+    .pill-shipped   { background: rgba(156,39,176,.12); color: #6a1b9a; }
+    .pill-delivered { background: rgba(0,150,136,.12);  color: #00695c; }
+    .pill-cancelled { background: rgba(244,67,54,.12);  color: #b71c1c; }
+    .pill-paid      { background: rgba(76,175,80,.12);  color: #2e7d32; }
+    .pill-failed    { background: rgba(244,67,54,.12);  color: #b71c1c; }
+    .pill-refunded  { background: rgba(63,81,181,.12);  color: #283593; }
+
+    /* ── SECTION LABEL ── */
+    .fm-section-label {
+      font-family: var(--fm-font-head);
+      font-size: 0.78rem; font-weight: 700;
+      letter-spacing: .07em; text-transform: uppercase;
+      color: #aaa; margin-bottom: 12px; margin-top: 8px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .fm-section-label::after { content: ''; flex: 1; height: 1px; background: #e8f5e9; }
+
+    /* ── INFO GRID ── */
+    .fm-info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0;
+    }
+    .fm-info-item {
+      padding: 16px 20px;
+      border-bottom: 1px solid #f0f4f0;
+      border-right: 1px solid #f0f4f0;
+    }
+    .fm-info-item:nth-child(even):last-child { border-right: none; }
+    .fm-info-lbl {
+      font-size: 0.68rem; font-weight: 700; letter-spacing: .07em;
+      text-transform: uppercase; color: #bbb; margin-bottom: 5px;
+    }
+    .fm-info-val {
+      font-size: 0.88rem; font-weight: 600; color: #222;
+    }
+    .fm-info-val.muted { font-weight: 400; color: #666; }
+    .fm-info-val.money {
+      font-family: var(--fm-font-head); font-size: 1.1rem;
+      color: var(--fm-green-dark); font-weight: 700;
+    }
+
+    /* ── ORDER PROGRESS TRACKER ── */
+    .fm-tracker {
+      display: flex; align-items: flex-start; justify-content: center;
+      gap: 0; padding: 28px 24px 22px; flex-wrap: nowrap; overflow-x: auto;
+    }
+    .fm-tracker-step {
+      display: flex; flex-direction: column; align-items: center;
+      flex: 1; min-width: 90px; position: relative;
+    }
+    .fm-tracker-step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 20px;
+      left: calc(50% + 22px);
+      right: calc(-50% + 22px);
+      height: 2px;
+      background: #e0e0e0;
+      z-index: 0;
+    }
+    .fm-tracker-step.done:not(:last-child)::after { background: var(--fm-green); }
+    .fm-tracker-dot {
+      width: 40px; height: 40px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; z-index: 1; border: 2px solid #e0e0e0;
+      background: #f5f7f5; color: #ccc; transition: all .3s;
+      position: relative;
+    }
+    .fm-tracker-step.done .fm-tracker-dot {
+      background: var(--fm-green); border-color: var(--fm-green); color: #fff;
+    }
+    .fm-tracker-step.active .fm-tracker-dot {
+      background: #fff; border-color: var(--fm-green); color: var(--fm-green);
+      box-shadow: 0 0 0 4px rgba(76,175,80,.15);
+    }
+    .fm-tracker-step.cancelled .fm-tracker-dot {
+      background: #fdecea; border-color: #f44336; color: #f44336;
+    }
+    .fm-tracker-lbl {
+      font-size: 0.7rem; font-weight: 600; color: #bbb;
+      margin-top: 8px; text-align: center; letter-spacing: .02em;
+    }
+    .fm-tracker-step.done .fm-tracker-lbl,
+    .fm-tracker-step.active .fm-tracker-lbl { color: var(--fm-green-dark); }
+    .fm-tracker-step.cancelled .fm-tracker-lbl { color: #f44336; }
+    .fm-tracker-date {
+      font-size: 0.62rem; color: #ccc; margin-top: 2px; text-align: center;
+    }
+
+    /* ── ITEMS TABLE ── */
+    .fm-tbl { font-size: 0.82rem; margin: 0; }
+    .fm-tbl thead th {
+      font-size: 0.72rem; font-weight: 700; letter-spacing: .05em;
+      text-transform: uppercase; color: #aaa;
+      border: none; padding: 10px 14px; background: #fafcfa;
+    }
+    .fm-tbl tbody td { padding: 11px 14px; vertical-align: middle; border-color: #f0f4f0; }
+    .fm-tbl tbody tr:hover { background: #f5fbf5; }
+
+    /* ── PRODUCT THUMB ── */
+    .fm-product-thumb {
+      width: 46px; height: 46px; border-radius: 8px;
+      object-fit: cover; border: 1px solid #e8f5e9;
+      background: #f0f4f0;
+    }
+    .fm-product-thumb-placeholder {
+      width: 46px; height: 46px; border-radius: 8px;
+      background: #e8f5e9; display: flex; align-items: center;
+      justify-content: center; color: var(--fm-green); font-size: 1.1rem;
+    }
+
+    /* ── SUMMARY BOX ── */
+    .fm-summary-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 9px 20px; font-size: 0.84rem;
+      border-bottom: 1px solid #f0f4f0;
+    }
+    .fm-summary-row:last-child { border-bottom: none; }
+    .fm-summary-row.total {
+      font-family: var(--fm-font-head); font-size: 1.05rem;
+      font-weight: 700; color: #1a1a1a;
+      background: #f5fbf5; padding: 13px 20px;
+    }
+    .fm-summary-lbl { color: #888; }
+    .fm-summary-val { font-weight: 600; color: #333; }
+    .fm-summary-val.green { color: var(--fm-green-dark); }
+    .fm-summary-val.red   { color: #e53935; }
+
+    /* ── STATUS UPDATE FORM ── */
+    .fm-status-form {
+      padding: 18px 20px;
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+    .fm-select {
+      font-family: var(--fm-font-body); font-size: 0.83rem;
+      padding: 7px 12px; border: 1.5px solid #d8e8d8;
+      border-radius: 8px; color: #333;
+      background: #fff; outline: none; transition: border-color .2s;
+    }
+    .fm-select:focus { border-color: var(--fm-green); }
+    .fm-btn {
+      font-family: var(--fm-font-body); font-size: 0.82rem; font-weight: 600;
+      padding: 7px 18px; border-radius: 50px; border: none;
+      cursor: pointer; transition: all .2s;
+    }
+    .fm-btn-green { background: var(--fm-green); color: #fff; }
+    .fm-btn-green:hover { background: var(--fm-green-dark); }
+    .fm-btn-outline {
+      background: rgba(76,175,80,.1); color: var(--fm-green-dark);
+      border: 1.5px solid rgba(76,175,80,.25);
+    }
+    .fm-btn-outline:hover { background: rgba(76,175,80,.2); }
+    .fm-btn-red { background: rgba(244,67,54,.1); color: #b71c1c; border: 1.5px solid rgba(244,67,54,.2); }
+    .fm-btn-red:hover { background: rgba(244,67,54,.2); }
+
+    /* ── ADDRESS BLOCK ── */
+    .fm-address-block {
+      padding: 16px 20px; font-size: 0.84rem; line-height: 1.8;
+    }
+    .fm-address-block strong { color: #222; font-size: 0.9rem; }
+    .fm-address-block p { margin: 0; color: #666; }
+
+    /* ── TIMELINE ── */
+    .fm-timeline { padding: 12px 20px 4px; }
+    .fm-timeline-item {
+      display: flex; gap: 14px; padding-bottom: 16px;
+      position: relative;
+    }
+    .fm-timeline-item::before {
+      content: '';
+      position: absolute;
+      left: 15px; top: 32px; bottom: 0;
+      width: 2px; background: #e8f5e9;
+    }
+    .fm-timeline-item:last-child::before { display: none; }
+    .fm-timeline-dot {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: rgba(76,175,80,.1); border: 2px solid var(--fm-green);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; color: var(--fm-green); flex-shrink: 0;
+    }
+    .fm-timeline-body { padding-top: 4px; }
+    .fm-timeline-title { font-size: 0.83rem; font-weight: 600; color: #222; }
+    .fm-timeline-meta  { font-size: 0.72rem; color: #bbb; margin-top: 2px; }
+
+    /* ── FOOTER ── */
+    .fm-footer {
+      text-align: center; font-size: 0.76rem; color: #bbb;
+      padding: 20px; border-top: 1px solid #e8f5e9; margin-top: 8px;
+    }
+    .fm-footer a { color: var(--fm-green); text-decoration: none; }
+
+    /* ── BACK BTN ── */
+    .fm-back-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.8rem; color: #888; text-decoration: none;
+      padding: 5px 12px; border-radius: 50px;
+      border: 1.5px solid #e0e8e0; background: #fff;
+      transition: all .2s;
+    }
+    .fm-back-btn:hover { color: var(--fm-green-dark); border-color: var(--fm-green); background: #f5fbf5; }
+
+    @media (max-width: 991px) {
+      .fm-sidebar { transform: translateX(-100%); }
+      .fm-sidebar.open { transform: translateX(0); }
+      .fm-main { margin-left: 0; }
+      .fm-nav-links { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- TOP BAR -->
+  <div class="fm-topbar">
+    <span><i class="fa fa-map-marker-alt me-2"></i>Farmoon Admin Panel</span>
+    <span>
+      Follow us:
+      <a href="#"><i class="fab fa-facebook-f"></i></a>
+      <a href="#"><i class="fab fa-twitter"></i></a>
+      <a href="#"><i class="fab fa-linkedin-in"></i></a>
+      <a href="#"><i class="fab fa-instagram"></i></a>
+    </span>
+  </div>
+
+  <!-- NAVBAR -->
+  <div class="fm-navbar">
+    <button class="btn btn-sm d-xl-none me-1" id="sidebarToggle"
+            style="background:none;border:none;font-size:1.3rem;color:#555;">
+      <i class="bi bi-list"></i>
+    </button>
+    <a href="{% url 'Administrator:HomePage' %}" class="fm-brand">Farm<span>oo</span>n</a>
+    <span class="fm-admin-pill">ADMIN</span>
+    <nav class="fm-nav-links">
+      <a href="{% url 'Guest:index' %}"><i class="fa fa-globe me-1"></i>Guest Site</a>
+      <a href="{% url 'Administrator:HomePage' %}"><i class="fa fa-tachometer-alt me-1"></i>Dashboard</a>
+      <a href="{% url 'Administrator:Userlist' %}"><i class="fa fa-users me-1"></i>Users</a>
+      <a href="{% url 'Administrator:Farmerlist' %}"><i class="fa fa-leaf me-1"></i>Farmers</a>
+      <a href="{% url 'Administrator:OrderList' %}" class="active"><i class="fa fa-shopping-bag me-1"></i>Orders</a>
+      <a href="{% url 'Administrator:ViewComplaint' %}"><i class="fa fa-exclamation-circle me-1"></i>Complaints</a>
+      <a href="{% url 'Administrator:ViewFeedback' %}"><i class="fa fa-comment-dots me-1"></i>Feedback</a>
+    </nav>
+  </div>
+
+  <!-- SIDEBAR -->
+  <aside class="fm-sidebar" id="fmSidebar">
+
+    <div class="fm-sidebar-cap">Main</div>
+    <a href="{% url 'Administrator:HomePage' %}"><i class="fa fa-tachometer-alt"></i>Dashboard</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <div class="fm-sidebar-cap">User Management</div>
+    <a href="{% url 'Administrator:Userlist' %}"><i class="fa fa-users"></i>User List</a>
+    <a href="{% url 'Administrator:Farmerlist' %}"><i class="fa fa-leaf"></i>Farmer List</a>
+    <a href="{% url 'Administrator:AdminRegistration' %}"><i class="fa fa-user-shield"></i>Admin Accounts</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <div class="fm-sidebar-cap">Location</div>
+    <a href="{% url 'Administrator:District' %}"><i class="fa fa-map"></i>Districts</a>
+    <a href="{% url 'Administrator:Place' %}"><i class="fa fa-map-marker-alt"></i>Places</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <div class="fm-sidebar-cap">Catalogue</div>
+    <a href="{% url 'Administrator:Category' %}"><i class="fa fa-tags"></i>Categories</a>
+    <a href="{% url 'Administrator:Subcategory' %}"><i class="fa fa-list-ul"></i>Subcategories</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <div class="fm-sidebar-cap">Orders & Payments</div>
+    <a href="{% url 'Administrator:OrderList' %}" class="active"><i class="fa fa-shopping-bag"></i>Orders
+      {% if pending_orders %}
+        <span class="fm-pill pill-pending ms-auto">{{ pending_orders }}</span>
+      {% endif %}
+    </a>
+    <a href="{% url 'Administrator:TransactionList' %}"><i class="fa fa-credit-card"></i>Transactions</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <div class="fm-sidebar-cap">Support</div>
+    <a href="{% url 'Administrator:ViewComplaint' %}"><i class="fa fa-exclamation-circle"></i>Complaints
+      {% if pending_complaints %}
+        <span class="fm-pill pill-open ms-auto">{{ pending_complaints }}</span>
+      {% endif %}
+    </a>
+    <a href="{% url 'Administrator:ViewFeedback' %}"><i class="fa fa-comment-dots"></i>Feedback</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <a href="{% url 'Guest:Login' %}"><i class="fa fa-sign-out-alt"></i>Logout</a>
+
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="fm-main">
+
+    <!-- Page Header -->
+    <div class="d-flex align-items-start justify-content-between mb-4 flex-wrap gap-2">
+      <div>
+        <div class="mb-2">
+          <a href="{% url 'Administrator:OrderList' %}" class="fm-back-btn">
+            <i class="fa fa-arrow-left"></i> Back to Orders
+          </a>
+        </div>
+        <h1 class="fm-page-title">
+          <i class="fa fa-shopping-bag me-2" style="color:var(--fm-green);font-size:1.2rem;"></i>
+          Order <span style="color:var(--fm-green);">#{{ order.id }}</span>
+        </h1>
+        <p class="fm-page-sub">Placed on {{ order.booking_date }} &nbsp;·&nbsp; {{ order.booking_time }}</p>
+      </div>
+      <div class="d-flex align-items-center gap-2 mt-2">
+        {% if order.booking_status == 2 %}
+          <span class="fm-pill pill-placed" style="font-size:0.82rem;padding:5px 14px;">Placed</span>
+        {% elif order.booking_status == 3 %}
+          <span class="fm-pill pill-confirmed" style="font-size:0.82rem;padding:5px 14px;">Packed</span>
+        {% elif order.booking_status == 4 %}
+          <span class="fm-pill pill-shipped" style="font-size:0.82rem;padding:5px 14px;">Shipped</span>
+        {% elif order.booking_status == 6 %}
+          <span class="fm-pill pill-delivered" style="font-size:0.82rem;padding:5px 14px;">Delivered</span>
+        {% elif order.booking_status == 7 %}
+          <span class="fm-pill pill-cancelled" style="font-size:0.82rem;padding:5px 14px;">Cancelled</span>
+        {% else %}
+          <span class="fm-pill pill-pending" style="font-size:0.82rem;padding:5px 14px;">Pending</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- ── ORDER PROGRESS TRACKER ── -->
+    <div class="fm-section-label">Order Progress</div>
+    <div class="fm-card mb-4">
+      <div class="fm-tracker">
+
+        <!-- Placed -->
+        <div class="fm-tracker-step {% if order.booking_status >= 2 %}done{% endif %} {% if order.booking_status == 2 %}active{% endif %}">
+          <div class="fm-tracker-dot"><i class="fa fa-check"></i></div>
+          <div class="fm-tracker-lbl">Placed</div>
+          <div class="fm-tracker-date">{{ order.booking_date }}</div>
+        </div>
+
+        <!-- Packed -->
+        <div class="fm-tracker-step {% if order.booking_status >= 3 %}done{% endif %} {% if order.booking_status == 3 %}active{% endif %}">
+          <div class="fm-tracker-dot"><i class="fa fa-box"></i></div>
+          <div class="fm-tracker-lbl">Packed</div>
+          <div class="fm-tracker-date">&nbsp;</div>
+        </div>
+
+        <!-- Shipped -->
+        <div class="fm-tracker-step {% if order.booking_status >= 4 %}done{% endif %} {% if order.booking_status == 4 %}active{% endif %}">
+          <div class="fm-tracker-dot"><i class="fa fa-truck"></i></div>
+          <div class="fm-tracker-lbl">Shipped</div>
+          <div class="fm-tracker-date">&nbsp;</div>
+        </div>
+
+        <!-- Delivered -->
+        <div class="fm-tracker-step {% if order.booking_status == 6 %}done{% endif %} {% if order.booking_status == 7 %}cancelled{% endif %}">
+          <div class="fm-tracker-dot">
+            {% if order.booking_status == 7 %}
+              <i class="fa fa-times"></i>
+            {% else %}
+              <i class="fa fa-home"></i>
+            {% endif %}
+          </div>
+          <div class="fm-tracker-lbl">
+            {% if order.booking_status == 7 %}Cancelled{% else %}Delivered{% endif %}
+          </div>
+          <div class="fm-tracker-date">&nbsp;</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── ROW : ORDER INFO + ADDRESS ── -->
+    <div class="fm-section-label">Order Information</div>
+    <div class="row g-3 mb-4">
+
+      <!-- Order meta -->
+      <div class="col-lg-8">
+        <div class="fm-card h-100">
+          <div class="fm-card-hdr">
+            <div>
+              <div class="fm-card-title">Order Details</div>
+              <div class="fm-card-sub">Core metadata for this order</div>
+            </div>
+          </div>
+          <div class="fm-info-grid">
+            <div class="fm-info-item">
+              <div class="fm-info-lbl">Order ID</div>
+              <div class="fm-info-val">#{{ order.id }}</div>
+            </div>
+            <div class="fm-info-item">
+              <div class="fm-info-lbl">Customer</div>
+              <div class="fm-info-val">{{ order.userid.userregistration_name }}</div>
+            </div>
+            <div class="fm-info-item">
+              <div class="fm-info-lbl">Contact</div>
+              <div class="fm-info-val muted">{{ order.userid.userregistration_contact }}</div>
+            </div>
+            <div class="fm-info-item">
+              <div class="fm-info-lbl">Email</div>
+              <div class="fm-info-val muted">{{ order.userid.userregistration_email }}</div>
+            </div>
+            <div class="fm-info-item">
+              <div class="fm-info-lbl">Booking Date</div>
+              <div class="fm-info-val muted">{{ order.booking_date }}</div>
+            </div>
+            <div class="fm-info-item">
+              <div class="fm-info-lbl">Booking Time</div>
+              <div class="fm-info-val muted">{{ order.booking_time }}</div>
+            </div>
+            <div class="fm-info-item">
+              <div class="fm-info-lbl">Payment Method</div>
+              <div class="fm-info-val muted">{{ order.payment_method|default:"Online" }}</div>
+            </div>
+            <div class="fm-info-item">
+              <div class="fm-info-lbl">Order Amount</div>
+              <div class="fm-info-val money">₹{{ order.booking_amount }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Delivery Address -->
+      <div class="col-lg-4">
+        <div class="fm-card h-100">
+          <div class="fm-card-hdr">
+            <div>
+              <div class="fm-card-title">Delivery Address</div>
+              <div class="fm-card-sub">Where this order is headed</div>
+            </div>
+            <i class="fa fa-map-marker-alt" style="color:var(--fm-green);"></i>
+          </div>
+          <div class="fm-address-block">
+            <strong>{{ order.userid.userregistration_name }}</strong>
+            <p>{{ order.delivery_address|default:"Address not provided" }}</p>
+            <p style="margin-top:8px;font-size:0.78rem;color:#aaa;">
+              <i class="fa fa-phone me-1"></i>{{ order.userid.userregistration_contact }}
+            </p>
+          </div>
+
+          <!-- Update Status Form -->
+          <div style="border-top:1px solid #f0f4f0;">
+            <div style="padding:12px 20px 6px;">
+              <div class="fm-info-lbl">Update Order Status</div>
+            </div>
+        
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── ORDERED ITEMS ── -->
+    <div class="fm-section-label">Items Ordered</div>
+    <div class="row g-3 mb-4">
+      <div class="col-lg-8">
+        <div class="fm-card">
+          <div class="fm-card-hdr">
+            <div>
+              <div class="fm-card-title">Product Line Items</div>
+              <div class="fm-card-sub">All items included in this order</div>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table fm-tbl mb-0">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Product</th>
+                  <th>Farmer</th>
+                  <th>Unit Price</th>
+                  <th>Qty</th>
+                  <th>Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in order_items %}
+                <tr>
+                  <td style="color:#bbb;">{{ forloop.counter }}</td>
+                  <td>
+                    <div class="d-flex align-items-center gap-3">
+                      {% if item.productid.product_photo %}
+                        <img src="{{ item.productid.product_photo.url }}" alt="{{ item.productid.product_name }}" class="fm-product-thumb">
+                      {% else %}
+                        <div class="fm-product-thumb-placeholder"><i class="fa fa-seedling"></i></div>
+                      {% endif %}
+                      <div>
+                        <div style="font-weight:600;font-size:0.84rem;">{{ item.productid.product_name }}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td style="color:#666;font-size:0.81rem;">{{ item.productid.farmer_id.farmer_name|default:"—" }}</td>
+                  <td style="font-weight:600;">₹{{ item.unit_price }}</td>
+                  <td>
+                    <span class="fm-pill" style="background:rgba(76,175,80,.1);color:var(--fm-green-dark);">
+                      {{ item.cart_quantity }}
+                    </span>
+                  </td>
+                  <td style="font-weight:700;color:var(--fm-green-dark);">₹{{ item.subtotal }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="6" class="text-center py-4" style="color:#bbb;">
+                    <i class="fa fa-box-open fa-2x mb-2 d-block" style="color:var(--fm-green);opacity:.4;"></i>
+                    No items found for this order.
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Summary -->
+      <div class="col-lg-4">
+        <div class="fm-card">
+          <div class="fm-card-hdr">
+            <div>
+              <div class="fm-card-title">Order Summary</div>
+              <div class="fm-card-sub">Payment breakdown</div>
+            </div>
+          </div>
+          <div class="fm-summary-row">
+            <span class="fm-summary-lbl">Subtotal</span>
+            <span class="fm-summary-val">₹{{ order.booking_amount }}</span>
+          </div>
+          <div class="fm-summary-row">
+            <span class="fm-summary-lbl">Delivery Charge</span>
+            <span class="fm-summary-val">₹{{ order.delivery_charge|default:"0" }}</span>
+          </div>
+          <div class="fm-summary-row">
+            <span class="fm-summary-lbl">Discount</span>
+            <span class="fm-summary-val red">- ₹{{ order.discount|default:"0" }}</span>
+          </div>
+          <div class="fm-summary-row">
+            <span class="fm-summary-lbl">Tax / GST</span>
+            <span class="fm-summary-val">₹{{ order.tax|default:"0" }}</span>
+          </div>
+          <div class="fm-summary-row total">
+            <span>Total Paid</span>
+            <span class="fm-summary-val green">₹{{ order.booking_amount }}</span>
+          </div>
+        </div>
+
+        <!-- Payment Status Card -->
+        <div class="fm-card mt-3">
+          <div class="fm-card-hdr">
+            <div>
+              <div class="fm-card-title">Payment Info</div>
+              <div class="fm-card-sub">Transaction details</div>
+            </div>
+          </div>
+          <div class="fm-info-item" style="border-right:none;">
+            <div class="fm-info-lbl">Transaction ID</div>
+            <div class="fm-info-val muted" style="font-family:monospace;font-size:0.8rem;">
+              #T{{ order.id|default:"—" }}
+            </div>
+          </div>
+          <div class="fm-info-item" style="border-right:none;">
+            <div class="fm-info-lbl">Payment Status</div>
+            <div class="fm-info-val">
+              {% if order.payment_status == 'Paid' %}
+                <span class="fm-pill pill-paid">Paid</span>
+              {% elif order.payment_status == 'Pending' %}
+                <span class="fm-pill pill-pending">Pending</span>
+              {% elif order.payment_status == 'Failed' %}
+                <span class="fm-pill pill-failed">Failed</span>
+              {% elif order.payment_status == 'Refunded' %}
+                <span class="fm-pill pill-refunded">Refunded</span>
+              {% else %}
+                <span class="fm-pill pill-pending">{{ order.payment_status|default:"—" }}</span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="fm-info-item" style="border-bottom:none;border-right:none;">
+            <div class="fm-info-lbl">Method</div>
+            <div class="fm-info-val muted">{{ order.payment_method|default:"Online" }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ORDER TIMELINE ── -->
+    <div class="fm-section-label">Activity Timeline</div>
+    <div class="fm-card mb-4">
+      <div class="fm-card-hdr">
+        <div>
+          <div class="fm-card-title">Order History</div>
+          <div class="fm-card-sub">Status changes and updates</div>
+        </div>
+      </div>
+      <div class="fm-timeline">
+        <div class="fm-timeline-item">
+          <div class="fm-timeline-dot"><i class="fa fa-plus"></i></div>
+          <div class="fm-timeline-body">
+            <div class="fm-timeline-title">Order Placed</div>
+            <div class="fm-timeline-meta">{{ order.booking_date }} at {{ order.booking_time }} &nbsp;·&nbsp; by {{ order.userid.userregistration_name }}</div>
+          </div>
+        </div>
+        {% if order.booking_status >= 3 %}
+        <div class="fm-timeline-item">
+          <div class="fm-timeline-dot"><i class="fa fa-box"></i></div>
+          <div class="fm-timeline-body">
+            <div class="fm-timeline-title">Order Packed</div>
+            <div class="fm-timeline-meta">Items packed and ready for dispatch</div>
+          </div>
+        </div>
+        {% endif %}
+        {% if order.booking_status >= 4 %}
+        <div class="fm-timeline-item">
+          <div class="fm-timeline-dot"><i class="fa fa-truck"></i></div>
+          <div class="fm-timeline-body">
+            <div class="fm-timeline-title">Order Shipped</div>
+            <div class="fm-timeline-meta">Out for delivery to customer</div>
+          </div>
+        </div>
+        {% endif %}
+        {% if order.booking_status == 6 %}
+        <div class="fm-timeline-item">
+          <div class="fm-timeline-dot" style="background:rgba(76,175,80,.2);border-color:var(--fm-green);color:var(--fm-green);">
+            <i class="fa fa-check"></i>
+          </div>
+          <div class="fm-timeline-body">
+            <div class="fm-timeline-title" style="color:var(--fm-green-dark);">Delivered Successfully</div>
+            <div class="fm-timeline-meta">Order completed and delivered to {{ order.userid.userregistration_name }}</div>
+          </div>
+        </div>
+        {% endif %}
+        {% if order.booking_status == 7 %}
+        <div class="fm-timeline-item">
+          <div class="fm-timeline-dot" style="background:rgba(244,67,54,.1);border-color:#f44336;color:#f44336;">
+            <i class="fa fa-times"></i>
+          </div>
+          <div class="fm-timeline-body">
+            <div class="fm-timeline-title" style="color:#e53935;">Order Cancelled</div>
+            <div class="fm-timeline-meta">This order was cancelled</div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="fm-footer">
+      &copy; <a href="#">Farmoon</a> Admin Panel &nbsp;·&nbsp;
+      
+    </div>
+
+  </main>
+
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.getElementById('sidebarToggle').addEventListener('click', function () {
+      document.getElementById('fmSidebar').classList.toggle('open');
+    });
+  </script>
+
+</body>
+</html>

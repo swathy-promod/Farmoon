@@ -1,0 +1,353 @@
+{% extends 'Farmer/Head.html' %}
+{% block content %}
+
+<style>
+    /* ── Page background ── */
+    .page-wrapper {
+        padding: 110px 0 60px;
+        min-height: 100vh;
+        background: #f8faf6;
+    }
+
+    /* ── Section heading ── */
+    .section-title {
+        font-family: 'Lora', serif;
+        font-size: 1.7rem;
+        font-weight: 700;
+        color: #333;
+        position: relative;
+        padding-bottom: 10px;
+        margin-bottom: 36px;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 48px;
+        height: 3px;
+        background: var(--bs-primary, #5cb85c);
+        border-radius: 2px;
+    }
+
+    /* ── Order Card ── */
+    .order-card {
+        background: #fff;
+        border-top: 4px solid var(--bs-primary, #5cb85c);
+        box-shadow: 0 6px 32px rgba(0,0,0,0.09);
+        border-radius: 0;
+        padding: 30px 32px;
+        margin-bottom: 28px;
+        transition: box-shadow 0.25s;
+    }
+
+    .order-card:hover {
+        box-shadow: 0 12px 40px rgba(0,0,0,0.13);
+    }
+
+    /* ── Card Header ── */
+    .card-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 18px;
+    }
+
+    .card-date {
+        font-family: 'Open Sans', sans-serif;
+        font-size: 0.85rem;
+        color: #888;
+    }
+
+    .card-date span {
+        font-weight: 600;
+        color: #444;
+    }
+
+    .card-total {
+        font-family: 'Lora', serif;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--bs-primary, #5cb85c);
+    }
+
+    /* ── Divider ── */
+    .card-divider {
+        border: none;
+        border-top: 1px solid #f0f0f0;
+        margin: 18px 0;
+    }
+
+    /* ── User section label ── */
+    .user-label {
+        font-family: 'Lora', serif;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--bs-primary, #5cb85c);
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* ── User detail rows ── */
+    .user-detail {
+        font-family: 'Open Sans', sans-serif;
+        font-size: 0.85rem;
+        color: #555;
+        margin-bottom: 5px;
+    }
+
+    .user-detail b {
+        color: #333;
+        font-weight: 600;
+        min-width: 70px;
+        display: inline-block;
+    }
+
+    /* ── Table ── */
+    .booking-table {
+        font-family: 'Open Sans', sans-serif;
+        font-size: 0.875rem;
+        margin-bottom: 0;
+    }
+
+    .booking-table thead th {
+        background: var(--bs-primary, #5cb85c);
+        color: #fff;
+        font-family: 'Lora', serif;
+        font-weight: 600;
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        border: none;
+        padding: 13px 14px;
+        white-space: nowrap;
+    }
+
+    .booking-table tbody tr {
+        border-bottom: 1px solid #f0f0f0;
+        transition: background 0.2s;
+    }
+
+    .booking-table tbody tr:hover {
+        background: #f5fbf3;
+    }
+
+    .booking-table tbody td {
+        padding: 13px 14px;
+        vertical-align: middle;
+        color: #444;
+        border: none;
+    }
+
+    /* Serial badge */
+    .sl-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        background: #eaf5ea;
+        color: var(--bs-primary, #5cb85c);
+        border-radius: 50%;
+        font-weight: 600;
+        font-size: 0.78rem;
+    }
+
+    /* Product thumbnail */
+    .product-thumb {
+        width: 48px;
+        height: 48px;
+        object-fit: cover;
+        border: 2px solid #eee;
+        border-radius: 0;
+    }
+
+    /* Price */
+    .price-text {
+        font-weight: 600;
+        color: var(--bs-primary, #5cb85c);
+    }
+
+    /* Status badges */
+    .status-badge {
+        display: inline-block;
+        font-family: 'Open Sans', sans-serif;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 4px 12px;
+        border-radius: 50px;
+        letter-spacing: 0.3px;
+    }
+
+    .status-paid     { background: #cfe2ff; color: #084298; }
+    .status-packed   { background: #fff3cd; color: #856404; }
+    .status-shipped  { background: #cff4fc; color: #055160; }
+    .status-out      { background: #e2e3e5; color: #41464b; }
+    .status-delivered{ background: #d1e7dd; color: #0a3622; }
+    .status-pending  { background: #f8d7da; color: #842029; }
+
+    /* Action buttons */
+    .btn-action {
+        border-radius: 50px;
+        font-size: 0.76rem;
+        font-family: 'Open Sans', sans-serif;
+        padding: 4px 14px;
+        font-weight: 500;
+        border-width: 1.5px;
+        white-space: nowrap;
+    }
+
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #bbb;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 14px;
+        display: block;
+        color: #ddd;
+    }
+</style>
+
+<div class="page-wrapper">
+    <div class="container">
+
+        <!-- Page Title -->
+        <h2 class="section-title text-center wow fadeInUp" data-wow-delay="0.1s">Booking Details</h2>
+
+        {% for i in bookingdata %}
+
+        <!-- ── Order Card ── -->
+        <div class="order-card wow fadeInUp" data-wow-delay="0.1s">
+
+            <!-- Header: date + total -->
+            <div class="card-meta">
+                <div class="card-date">
+                    <i class="fa fa-calendar-alt me-2" style="color:#5cb85c;"></i>
+                    <span>{{ i.booking_date }}</span>
+                </div>
+                <div class="card-total">
+                    ₹{{ i.booking_amount }}
+                </div>
+            </div>
+
+            <hr class="card-divider">
+
+            <!-- User Details -->
+            <div class="user-label">
+                <i class="fa fa-user"></i> User Details
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="user-detail"><b>Name</b> {{ i.userid.userregistration_name }}</p>
+                    <p class="user-detail"><b>Email</b> {{ i.userid.userregistration_email }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p class="user-detail"><b>Contact</b> {{ i.userid.userregistration_contact }}</p>
+                    <p class="user-detail"><b>Address</b> {{ i.delivery_address }}</p>
+                </div>
+            </div>
+
+            <hr class="card-divider">
+
+            <!-- Items Table -->
+            <div class="table-responsive">
+                <table class="table booking-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Product</th>
+                            <th>Photo</th>
+                            <th>Price</th>
+                            <th>Qty</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for j in i.tbl_cart_set.all %}
+                        <tr>
+                            <td><span class="sl-badge">{{ forloop.counter }}</span></td>
+                            <td><strong>{{ j.productid.product_name }}</strong></td>
+                            <td>
+                                <img src="{{ j.productid.product_photo.url }}"
+                                     class="product-thumb" alt="{{ j.productid.product_name }}">
+                            </td>
+                            <td><span class="price-text">₹{{ j.productid.product_price }}</span></td>
+                            <td>{{ j.cart_quantity }}</td>
+
+                            <!-- Status -->
+                            <td>
+                                {% if j.cart_status == 2 %}
+                                    <span class="status-badge status-paid">Paid</span>
+                                {% elif j.cart_status == 3 %}
+                                    <span class="status-badge status-packed">Packed</span>
+                                {% elif j.cart_status == 4 %}
+                                    <span class="status-badge status-shipped">Shipped</span>
+                                {% elif j.cart_status == 5 %}
+                                    <span class="status-badge status-out">Out for Delivery</span>
+                                {% elif j.cart_status == 6 %}
+                                    <span class="status-badge status-delivered">Delivered</span>
+                                {% else %}
+                                    <span class="status-badge status-pending">Pending</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Action -->
+                            <td>
+                                {% if j.cart_status == 2 %}
+                                    <a href="{% url 'Farmer:Orderpack' i.id %}"
+                                       class="btn btn-warning btn-action">
+                                        <i class="fa fa-box me-1"></i>Pack
+                                    </a>
+                                {% elif j.cart_status == 3 %}
+                                    <a href="{% url 'Farmer:Ordershipped' i.id %}"
+                                       class="btn btn-info btn-action">
+                                        <i class="fa fa-shipping-fast me-1"></i>Ship
+                                    </a>
+                                {% elif j.cart_status == 4 %}
+                                    <a href="{% url 'Farmer:Outfordelivery' i.id %}"
+                                       class="btn btn-secondary btn-action">
+                                        <i class="fa fa-truck me-1"></i>Out
+                                    </a>
+                                {% elif j.cart_status == 5 %}
+                                    <a href="{% url 'Farmer:Delivered' i.id %}"
+                                       class="btn btn-success btn-action">
+                                        <i class="fa fa-check me-1"></i>Deliver
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted" style="font-size:0.82rem;">No Action</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        {% empty %}
+        <div class="empty-state wow fadeInUp" data-wow-delay="0.1s">
+            <i class="fa fa-calendar-times"></i>
+            No bookings found yet.
+        </div>
+        {% endfor %}
+
+    </div>
+</div>
+
+{% endblock content %}

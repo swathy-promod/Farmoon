@@ -1,0 +1,406 @@
+{% extends 'User/Head.html' %}
+{% block content %}
+
+<style>
+    /* ── Page background ── */
+    .page-wrapper {
+        padding: 110px 0 60px;
+        min-height: 100vh;
+        background: #f8faf6;
+    }
+
+    /* ── Section heading ── */
+    .section-title {
+        font-family: 'Lora', serif;
+        font-size: 1.7rem;
+        font-weight: 700;
+        color: #333;
+        position: relative;
+        padding-bottom: 10px;
+        margin-bottom: 36px;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 48px;
+        height: 3px;
+        background: var(--bs-primary, #5cb85c);
+        border-radius: 2px;
+    }
+
+    /* ── Booking Card ── */
+    .booking-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+        border-bottom: 3px solid transparent;
+        transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+        overflow: hidden;
+        margin-bottom: 28px;
+    }
+
+    .booking-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 14px 40px rgba(0,0,0,0.13);
+        border-bottom-color: var(--bs-primary, #5cb85c);
+    }
+
+    /* ── Booking Card Header ── */
+    .booking-header {
+        background: #f5fbf3;
+        border-bottom: 1px solid #e8f3ea;
+        padding: 18px 28px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .booking-meta {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-family: 'Open Sans', sans-serif;
+        font-size: 0.82rem;
+        color: #aaa;
+    }
+
+    .booking-meta i {
+        color: var(--bs-primary, #5cb85c);
+        font-size: 0.78rem;
+    }
+
+    .booking-meta strong {
+        font-family: 'Lora', serif;
+        font-size: 0.95rem;
+        color: #333;
+        font-weight: 700;
+    }
+
+    .booking-amount {
+        font-family: 'Lora', serif;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--bs-primary, #5cb85c);
+    }
+
+    .booking-amount span {
+        font-family: 'Open Sans', sans-serif;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #aaa;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        display: block;
+        margin-bottom: 2px;
+    }
+
+    /* ── Booking Card Body ── */
+    .booking-body {
+        padding: 0 8px 8px;
+    }
+
+    /* ── Table ── */
+    .booking-table thead th {
+        font-family: 'Open Sans', sans-serif;
+        font-size: 0.74rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #aaa;
+        border: none;
+        padding: 14px 16px;
+        background: #fff;
+    }
+
+    .booking-table tbody td {
+        font-family: 'Open Sans', sans-serif;
+        font-size: 0.87rem;
+        color: #333;
+        vertical-align: middle;
+        padding: 14px 16px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .booking-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* ── Product image ── */
+    .product-img {
+        width: 56px;
+        height: 56px;
+        object-fit: cover;
+        border-radius: 10px;
+        border: 2px solid #dff3e4;
+        transition: transform 0.25s;
+    }
+
+    .product-img:hover {
+        transform: scale(1.08);
+    }
+
+    /* ── Product name ── */
+    .product-name-cell {
+        font-family: 'Lora', serif;
+        font-weight: 700;
+        color: #333;
+        font-size: 0.9rem;
+    }
+
+    /* ── Price / total ── */
+    .price-cell {
+        font-family: 'Lora', serif;
+        font-weight: 600;
+        color: var(--bs-primary, #5cb85c);
+    }
+
+    .total-cell {
+        font-family: 'Lora', serif;
+        font-weight: 700;
+        color: #333;
+    }
+
+    /* ── Status badges ── */
+    .status-badge {
+        display: inline-block;
+        font-family: 'Open Sans', sans-serif;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+        padding: 4px 12px;
+        border-radius: 50px;
+    }
+
+    .badge-payment  { background: #e8f7ec; color: #34AD54; }
+    .badge-packed   { background: #fff3cd; color: #856404; }
+    .badge-shipped  { background: #cce5ff; color: #004085; }
+    .badge-delivery { background: #fff3e0; color: #e65100; }
+    .badge-delivered{ background: #d4edda; color: #155724; }
+    .badge-none     { background: #f8d7da; color: #721c24; }
+
+    /* ── Rating button ── */
+    .btn-rating {
+        display: inline-block;
+        border-radius: 50px;
+        font-family: 'Open Sans', sans-serif;
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 5px 14px;
+        margin-top: 6px;
+        background: var(--bs-primary, #5cb85c);
+        color: #fff;
+        text-decoration: none;
+        transition: background 0.2s, transform 0.2s;
+    }
+
+    .btn-rating:hover {
+        background: #4aa84a;
+        color: #fff;
+        transform: translateY(-1px);
+    }
+
+    /* ── Empty state ── */
+    .empty-state {
+        text-align: center;
+        padding: 70px 20px;
+        color: #bbb;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 14px;
+        display: block;
+        color: #ddd;
+    }
+
+    .empty-state p { font-size: 0.9rem; }
+</style>
+
+<div class="page-wrapper">
+    <div class="container">
+
+        <!-- Page Title -->
+        <h2 class="section-title text-center wow fadeInUp" data-wow-delay="0.1s">
+            My Bookings
+        </h2>
+        <a href="{% url 'User:ViewFarmers' %}" class="back-link">
+            <i class="fa fa-arrow-left"></i> Browse more products
+        </a>
+
+        {% if bookingdata %}
+
+            {% for i in bookingdata %}
+            <div class="booking-card wow fadeInUp" data-wow-delay="0.1s">
+
+                <!-- Header -->
+                <div class="booking-header">
+    <div>
+        <div class="booking-meta">
+            <i class="fa fa-calendar-alt"></i>
+            <div>
+                <span style="font-size:0.72rem; text-transform:uppercase; letter-spacing:0.4px;">Booking Date</span>
+                <strong>{{ i.booking_date }}</strong>
+            </div>
+        </div>
+
+        <div class="px-4 py-3 border-bottom bg-light">
+        <strong>
+            <i class="fa fa-map-marker-alt text-success"></i>
+            Delivery Address
+        </strong>
+    <div class="mt-2 text-muted">
+        {{ i.delivery_address }}
+    </div>
+</div>
+    </div>
+
+    <div class="text-end">
+        <span style="font-family:'Open Sans',sans-serif; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.4px; color:#aaa;">
+            Total Amount
+        </span>
+        <div class="booking-amount">₹{{ i.booking_amount }}</div>
+    </div>
+</div>
+
+                <!-- Table -->
+                <div class="booking-body">
+                    <div class="table-responsive">
+                        <table class="table booking-table text-center align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Product</th>
+                                    <th>Photo</th>
+                                    <th>Price</th>
+                                    <th>Qty</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for j in i.tbl_cart_set.all %}
+                                <tr>
+                                    <td style="color:#aaa; font-size:0.8rem;">{{ forloop.counter }}</td>
+
+                                    <td class="product-name-cell">{{ j.productid.product_name }}</td>
+
+                                    <td>
+                                        <img src="{{ j.productid.product_photo.url }}"
+                                             class="product-img"
+                                             alt="{{ j.productid.product_name }}">
+                                    </td>
+
+                                    <td class="price-cell">₹{{ j.productid.product_price }}</td>
+
+                                    <td>{{ j.cart_quantity }}</td>
+
+                                    <td class="total-cell">₹{{ j.bookingid.booking_amount }}</td>
+
+                                    <td>
+                                    {% if j.cart_status == 2 %}
+                                        <span class="status-badge badge-payment">
+                                            <i class="fa fa-check-circle me-1"></i>Payment Completed
+                                        </span>
+                                    <br>
+                                    <form method="POST" action="{% url 'User:cancel_booking' j.id %}">
+                                    {% csrf_token %}
+                                        <button type="submit"
+                                            onclick="return confirm('Are you sure you want to cancel this order?')"
+                                            class="btn btn-sm btn-danger mt-2">
+                                            <i class="fa fa-times me-1"></i>Cancel Order
+                                        </button>
+                                    </form>
+
+                                    {% elif j.cart_status == 3 %}
+                                        <span class="status-badge badge-packed">
+                                            <i class="fa fa-box me-1"></i>Order Packed
+                                        </span>
+                                    <br>
+                                    <form method="POST" action="{% url 'User:cancel_booking' j.id %}">
+                                    {% csrf_token %}
+                                        <button type="submit"
+                                            onclick="return confirm('Are you sure you want to cancel this order?')"
+                                            class="btn btn-sm btn-danger mt-2 rounded-pill">
+                                            <i class="fa fa-times me-1"></i>Cancel Order
+                                        </button>
+                                    </form>
+
+                                    {% elif j.cart_status == 4 %}
+                                        <span class="status-badge badge-shipped">
+                                            <i class="fa fa-shipping-fast me-1"></i>Order Shipped
+                                        </span>
+                                    <br>
+                                    <form method="POST" action="{% url 'User:cancel_booking' j.id %}">
+                                    {% csrf_token %}
+                                        <button type="submit"
+                                            onclick="return confirm('Are you sure you want to cancel this order?')"
+                                            class="btn btn-sm btn-danger mt-2">
+                                            <i class="fa fa-times me-1"></i>Cancel Order
+                                        </button>
+                                    </form>
+
+                                    {% elif j.cart_status == 5 %}
+                                    <span class="status-badge badge-delivery">
+                                        <i class="fa fa-motorcycle me-1"></i>Out For Delivery
+                                    </span>
+                                    <!-- No cancel button here — too late -->
+
+    {% elif j.cart_status == 6 %}
+        <span class="status-badge badge-delivered">
+            <i class="fa fa-check-double me-1"></i>Delivered
+        </span>
+        <br>
+        <a href="{% url 'User:rating' j.productid.farmer_id.id %}"
+           class="btn-rating">
+            <i class="fa fa-star me-1"></i>Rate Farmer
+        </a>
+
+    {% elif j.cart_status == 7 %}
+        <span class="status-badge badge-danger">
+            <i class="fa fa-times-circle me-1"></i>Order Cancelled
+        </span>
+
+    {% else %}
+        <span class="status-badge badge-none">
+            <i class="fa fa-clock me-1"></i>Pending
+        </span>
+        <br>
+        <form method="POST" action="{% url 'User:cancel_booking' j.id %}">
+            {% csrf_token %}
+            <button type="submit"
+                onclick="return confirm('Are you sure you want to cancel this order?')"
+                class="btn btn-sm btn-danger mt-2">
+                <i class="fa fa-times me-1"></i>Cancel Order
+            </button>
+        </form>
+    {% endif %}
+</td>
+                                    
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+            {% endfor %}
+
+        {% else %}
+        <div class="empty-state wow fadeInUp" data-wow-delay="0.1s">
+            <i class="fa fa-receipt"></i>
+            <p>You have no bookings yet. <a href="{% url 'Guest:Product' %}">Start shopping</a></p>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+{% endblock content %}

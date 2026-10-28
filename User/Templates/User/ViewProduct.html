@@ -1,0 +1,416 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Home - User Dashboard</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <link href="{% static 'Main/img/icon-1.png' %}" rel="icon">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500&family=Lora:wght@600;700&display=swap" rel="stylesheet">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <link href="{% static 'Main/lib/animate/animate.min.css' %}" rel="stylesheet">
+    <link href="{% static 'Main/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'Main/css/style.css' %}" rel="stylesheet">
+
+<style>
+    /* ── Page background ── */
+    .page-wrapper {
+        padding: 110px 0 60px;
+        min-height: 100vh;
+        background: #f8faf6;
+    }
+
+    /* ── Section heading ── */
+    .section-title {
+        font-family: 'Lora', serif;
+        font-size: 1.7rem;
+        font-weight: 700;
+        color: #333;
+        position: relative;
+        padding-bottom: 10px;
+        margin-bottom: 36px;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 48px;
+        height: 3px;
+        background: var(--bs-primary, #5cb85c);
+        border-radius: 2px;
+    }
+
+    /* ── Product Card ── */
+    .product-card {
+        background: #fff;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+        border-bottom: 3px solid transparent;
+        transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 14px 40px rgba(0,0,0,0.13);
+        border-bottom-color: var(--bs-primary, #5cb85c);
+    }
+
+    /* Product image */
+    .product-img-wrap {
+        position: relative;
+        overflow: hidden;
+        height: 190px;
+        background: #f5fbf3;
+    }
+
+    .product-img-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.35s ease;
+    }
+
+    .product-card:hover .product-img-wrap img {
+        transform: scale(1.05);
+    }
+
+    /* Category pill overlaid on image */
+    .category-pill {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        background: rgba(255,255,255,0.92);
+        color: var(--bs-primary, #5cb85c);
+        font-family: 'Open Sans', sans-serif;
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 50px;
+        letter-spacing: 0.4px;
+    }
+
+    /* Card body */
+    .product-body {
+        padding: 18px 20px 14px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-name {
+        font-family: 'Lora', serif;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 5px;
+        line-height: 1.3;
+    }
+
+    .product-desc {
+        font-family: 'Open Sans', sans-serif;
+        font-size: 0.78rem;
+        color: #aaa;
+        margin-bottom: 12px;
+        line-height: 1.5;
+        /* clamp to 2 lines */
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .product-price {
+        font-family: 'Lora', serif;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--bs-primary, #5cb85c);
+        margin-bottom: 8px;
+    }
+
+    /* Seller row */
+    .seller-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-family: 'Open Sans', sans-serif;
+        font-size: 0.76rem;
+        color: #aaa;
+        margin-bottom: 16px;
+        margin-top: auto;
+        padding-top: 10px;
+        border-top: 1px solid #f0f0f0;
+    }
+
+    .seller-row i {
+        color: var(--bs-primary, #5cb85c);
+        font-size: 0.7rem;
+    }
+
+    /* Action buttons */
+    .card-actions {
+        display: flex;
+        gap: 8px;
+        padding: 0 20px 20px;
+    }
+
+    .btn-cart {
+        border-radius: 50px;
+        font-size: 0.78rem;
+        font-family: 'Open Sans', sans-serif;
+        padding: 7px 16px;
+        font-weight: 600;
+        flex: 1;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    .btn-viewmore {
+        border-radius: 50px;
+        font-size: 0.78rem;
+        font-family: 'Open Sans', sans-serif;
+        padding: 7px 16px;
+        font-weight: 600;
+        flex: 1;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    /* ── Results meta ── */
+    .results-meta {
+        font-family: 'Open Sans', sans-serif;
+        font-size: 0.82rem;
+        color: #aaa;
+        margin-bottom: 24px;
+        text-align: center;
+    }
+
+    .results-meta span {
+        font-weight: 600;
+        color: var(--bs-primary, #5cb85c);
+    }
+
+    /* ── Empty state ── */
+    .empty-state {
+        text-align: center;
+        padding: 70px 20px;
+        color: #bbb;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 14px;
+        display: block;
+        color: #ddd;
+    }
+
+    .empty-state p {
+        font-size: 0.9rem;
+    }
+</style>
+</head>
+<body>
+<!-- Spinner Start -->
+    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-border text-primary" role="status"></div>
+    </div>
+    <!-- Spinner End -->
+
+    <!-- Navbar Start -->
+    <div class="container-fluid fixed-top px-0 wow fadeIn" data-wow-delay="0.1s">
+        <div class="top-bar row gx-0 align-items-center d-none d-lg-flex">
+            <div class="col-lg-6 px-5 text-start">
+                <small><i class="fa fa-map-marker-alt me-2"></i>Idukki,Kerala</small>
+                <small class="ms-4"><i class="fa fa-envelope me-2"></i>farmoon@gmail.com</small>
+            </div>
+            <div class="col-lg-6 px-5 text-end">
+                <small>Follow us:</small>
+                <a class="text-body ms-3" href=""><i class="fab fa-facebook-f"></i></a>
+                <a class="text-body ms-3" href=""><i class="fab fa-twitter"></i></a>
+                <a class="text-body ms-3" href=""><i class="fab fa-linkedin-in"></i></a>
+                <a class="text-body ms-3" href=""><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
+
+        <nav class="navbar navbar-expand-lg navbar-light py-lg-0 px-lg-5 wow fadeIn" data-wow-delay="0.1s">
+            <a href="{% url 'Guest:index' %}" class="navbar-brand ms-4 ms-lg-0">
+                <h1 class="fw-bold text-primary m-0">Farm<span class="text-secondary">oo</span>n</h1>
+            </a>
+            <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <div class="navbar-nav ms-auto p-4 p-lg-0">
+                    <a href="{% url 'Guest:Product' %}" class="nav-item nav-link">Products</a>
+                    <a href="{% url 'Guest:Login' %}" class="nav-item nav-link">Logout</a>
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
+                        <div class="dropdown-menu m-0">
+                            <a href="{% url 'User:Mycart' %}" class="dropdown-item">My Cart</a>
+                            <a href="{% url 'User:Mybooking' %}" class="dropdown-item">My Booking</a>
+                        </div>
+                    </div>
+                    <a href="{% url 'Guest:ContactUs' %}" class="nav-item nav-link">Contact Us</a>
+                </div>
+                <div class="d-none d-lg-flex ms-2">
+                    <a class="btn-sm-square bg-white rounded-circle ms-3" href="{% url 'User:MyProfile' %}">
+                        <small class="fa fa-user text-body"></small>
+                    </a>
+                    <a class="btn-sm-square bg-white rounded-circle ms-3" href="{% url 'Guest:Product' %}">
+                        <small class="fa fa-shopping-bag text-body"></small>
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <!-- Navbar End -->
+<div class="page-wrapper">
+    <div class="container">
+
+        <!-- Page Title -->
+        <h2 class="section-title text-center wow fadeInUp" data-wow-delay="0.1s">
+            View Products
+        </h2>
+
+        {% if Productdata %}
+
+        <!-- Results count -->
+        <div class="results-meta wow fadeInUp" data-wow-delay="0.1s">
+            <span>{{ Productdata|length }}</span> product(s) available
+        </div>
+
+        <!-- ── Product Grid ── -->
+        <div class="row g-4">
+            {% for i in Productdata %}
+            <div class="col-lg-3 col-md-4 col-sm-6 wow fadeInUp"
+                 data-wow-delay="0.{% if forloop.counter <= 4 %}{{ forloop.counter }}{% else %}1{% endif %}s">
+
+                <div class="product-card">
+
+                    <!-- Image -->
+                    <div class="product-img-wrap">
+                        <img src="{{ i.product_photo.url }}" alt="{{ i.product_name }}">
+                        <span class="category-pill">{{ i.category_id.category_name }}</span>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="product-body">
+                        <div class="product-name">{{ i.product_name }}</div>
+                        <div class="product-desc">{{ i.product_details }}</div>
+                        <div class="product-price">₹{{ i.product_price }}</div>
+                        <div class="seller-row">
+                            <i class="fa fa-user-circle"></i>
+                            {{ i.farmer_id.farmer_name }}
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="card-actions">
+                        <a href="{% url 'User:Addtocart' i.id fid %}"
+                           class="btn btn-primary btn-cart">
+                            <i class="fa fa-cart-plus me-1"></i>Add to Cart
+                        </a>
+                        <a href="{% url 'User:Viewmore' i.id %}"
+                           class="btn btn-outline-secondary btn-viewmore">
+                            <i class="fa fa-eye me-1"></i>Details
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% else %}
+        <div class="empty-state wow fadeInUp" data-wow-delay="0.1s">
+            <i class="fa fa-box-open"></i>
+            <p>No products available from this farmer yet.</p>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+<!-- Footer Start -->
+    <div class="container-fluid bg-dark footer mt-5 pt-5 wow fadeIn" data-wow-delay="0.1s">
+        <div class="container py-5">
+            <div class="row g-5">
+                <div class="col-lg-3 col-md-6">
+                    <h1 class="fw-bold text-primary mb-4">Farm<span class="text-secondary">oo</span>n</h1>
+                    <div class="d-flex pt-2">
+                        <a class="btn btn-square btn-outline-light rounded-circle me-1" href=""><i class="fab fa-twitter"></i></a>
+                        <a class="btn btn-square btn-outline-light rounded-circle me-1" href=""><i class="fab fa-facebook-f"></i></a>
+                        <a class="btn btn-square btn-outline-light rounded-circle me-1" href=""><i class="fab fa-youtube"></i></a>
+                        <a class="btn btn-square btn-outline-light rounded-circle me-0" href=""><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h4 class="text-light mb-4">Address</h4>
+                    <p><i class="fa fa-map-marker-alt me-3"></i>Idukki,Kerala</p>
+                    <p><i class="fa fa-phone-alt me-3"></i>+012 345 67890</p>
+                    <p><i class="fa fa-envelope me-3"></i>farmoon@gmail.com</p>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h4 class="text-light mb-4">Quick Links</h4>
+                    <a class="btn btn-link" href="{% url 'Guest:AboutUs' %}">About Us</a>
+                    <a class="btn btn-link" href="{% url 'Guest:ContactUs' %}">Contact Us</a>
+                    <a class="btn btn-link" href="">Our Services</a>
+                    <a class="btn btn-link" href="">Terms & Condition</a>
+                    <a class="btn btn-link" href="">Support</a>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h4 class="text-light mb-4">Newsletter</h4>
+                    <div class="position-relative mx-auto" style="max-width: 400px;">
+                        <input class="form-control bg-transparent w-100 py-3 ps-4 pe-5" type="text" placeholder="Your email">
+                        <button type="button" class="btn btn-primary py-2 position-absolute top-0 end-0 mt-2 me-2">SignUp</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid copyright">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                        &copy; <a href="#">Farmoon</a>, All Right Reserved.
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Footer End -->
+
+    <a href="#" class="btn btn-lg btn-primary btn-lg-square rounded-circle back-to-top"><i class="bi bi-arrow-up"></i></a>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'Main/lib/wow/wow.min.js' %}"></script>
+    <script src="{% static 'Main/lib/easing/easing.min.js' %}"></script>
+    <script src="{% static 'Main/lib/waypoints/waypoints.min.js' %}"></script>
+    <script src="{% static 'Main/js/main.js' %}"></script>
+
+</body>
+</html>
+
+{% if msg %}
+<script>
+    alert("{{ msg }}");
+    window.location = "{% url 'User:Viewproduct' fid %}";
+</script>
+{% endif %}
+
+

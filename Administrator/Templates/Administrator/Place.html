@@ -1,0 +1,586 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Farmoon – Places</title>
+  <link rel="shortcut icon" type="image/png" href="{% static 'Main/img/icon-1.png' %}" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&family=Lora:wght@600;700&display=swap" rel="stylesheet">
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --fm-green:      #4caf50;
+      --fm-green-dark: #388e3c;
+      --fm-orange:     #ff9800;
+      --fm-sidebar-bg: #1b2b1e;
+      --fm-sidebar-w:  255px;
+      --fm-topbar-h:   36px;
+      --fm-header-h:   64px;
+      --fm-font-head:  'Lora', serif;
+      --fm-font-body:  'Open Sans', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: var(--fm-font-body); background: #f5f7f5; color: #333; margin: 0; }
+
+    /* ── TOP BAR ── */
+    .fm-topbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1060;
+      height: var(--fm-topbar-h);
+      background: var(--fm-sidebar-bg);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; font-size: 0.76rem; color: #aaa;
+    }
+    .fm-topbar a { color: #aaa; text-decoration: none; margin-left: 10px; transition: color .2s; }
+    .fm-topbar a:hover { color: var(--fm-orange); }
+
+    /* ── NAVBAR ── */
+    .fm-navbar {
+      position: fixed;
+      top: var(--fm-topbar-h); left: 0; right: 0; z-index: 1050;
+      height: var(--fm-header-h);
+      background: #fff;
+      box-shadow: 0 2px 10px rgba(0,0,0,.08);
+      display: flex; align-items: center; padding: 0 24px; gap: 12px;
+    }
+    .fm-brand {
+      font-family: var(--fm-font-head); font-size: 1.55rem; font-weight: 700;
+      color: var(--fm-green); text-decoration: none; white-space: nowrap;
+    }
+    .fm-brand span { color: var(--fm-orange); }
+    .fm-admin-pill {
+      font-size: 0.68rem; background: #e8f5e9; color: var(--fm-green-dark);
+      padding: 2px 10px; border-radius: 50px; font-weight: 700; letter-spacing: .04em;
+    }
+    .fm-nav-links { display: flex; align-items: center; gap: 2px; margin-left: auto; }
+    .fm-nav-links a {
+      font-size: 0.84rem; color: #555; padding: 6px 13px;
+      border-radius: 50px; text-decoration: none; transition: all .2s;
+    }
+    .fm-nav-links a:hover, .fm-nav-links a.active { background: var(--fm-green); color: #fff; }
+
+    /* ── SIDEBAR ── */
+    .fm-sidebar {
+      position: fixed;
+      top: calc(var(--fm-topbar-h) + var(--fm-header-h));
+      left: 0; width: var(--fm-sidebar-w); bottom: 0;
+      background: var(--fm-sidebar-bg);
+      overflow-y: auto; z-index: 1040;
+      padding: 12px 0 40px;
+      transition: transform .3s;
+    }
+    .fm-sidebar::-webkit-scrollbar { width: 3px; }
+    .fm-sidebar::-webkit-scrollbar-thumb { background: #3a5e3d; border-radius: 4px; }
+    .fm-sidebar-cap {
+      font-size: 0.66rem; font-weight: 700; letter-spacing: .09em;
+      text-transform: uppercase; color: #5a7a5d; padding: 18px 18px 5px;
+    }
+    .fm-sidebar a {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 18px; color: #b0c8b2;
+      text-decoration: none; font-size: 0.855rem;
+      border-left: 3px solid transparent; transition: all .2s;
+    }
+    .fm-sidebar a:hover  { color: #fff; background: rgba(76,175,80,.13); border-left-color: var(--fm-green); }
+    .fm-sidebar a.active { color: #fff; background: rgba(76,175,80,.2);  border-left-color: var(--fm-green); font-weight: 600; }
+    .fm-sidebar a i      { width: 18px; text-align: center; }
+    .fm-sidebar-divider  { height: 1px; background: #2a3e2d; margin: 6px 0; }
+
+    /* ── MAIN ── */
+    .fm-main {
+      margin-left: var(--fm-sidebar-w);
+      padding-top: calc(var(--fm-topbar-h) + var(--fm-header-h) + 24px);
+      padding-left: 24px; padding-right: 24px; padding-bottom: 40px;
+      min-height: 100vh;
+    }
+
+    /* ── PAGE HEADER ── */
+    .fm-page-title { font-family: var(--fm-font-head); font-size: 1.55rem; font-weight: 700; color: #222; margin: 0; }
+    .fm-page-sub   { font-size: 0.8rem; color: #999; margin-top: 3px; }
+
+    /* ── CARD ── */
+    .fm-card {
+      background: #fff; border-radius: 12px;
+      border: 2px solid #e8f5e9;
+      box-shadow: 0 2px 8px rgba(0,0,0,.05); overflow: hidden;
+    }
+    .fm-card-hdr {
+      padding: 16px 20px 14px;
+      border-bottom: 1px solid #f0f4f0;
+      display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+    }
+    .fm-card-title { font-family: var(--fm-font-head); font-size: 1rem; font-weight: 700; color: #222; margin: 0; }
+    .fm-card-sub   { font-size: 0.76rem; color: #aaa; margin-top: 1px; }
+
+    /* ── FORM ── */
+    .fm-form-body { padding: 22px 24px; }
+    .fm-field      { margin-bottom: 16px; }
+    .fm-label {
+      display: block; font-size: 0.78rem; font-weight: 700;
+      color: #555; margin-bottom: 6px; letter-spacing: .02em;
+    }
+    .fm-label span { color: #f44336; margin-left: 2px; }
+
+    /* shared input/select wrapper */
+    .fm-input-wrap { position: relative; }
+    .fm-input-icon {
+      position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+      color: #bbb; font-size: 0.85rem; pointer-events: none; z-index: 1;
+    }
+    .fm-input, .fm-select {
+      width: 100%; padding: 9px 14px 9px 36px;
+      border: 1.5px solid #e0e8e0; border-radius: 8px;
+      font-size: 0.84rem; font-family: var(--fm-font-body);
+      background: #fafcfa; color: #333; outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      appearance: none; -webkit-appearance: none;
+    }
+    .fm-input:focus, .fm-select:focus {
+      border-color: var(--fm-green);
+      box-shadow: 0 0 0 3px rgba(76,175,80,.1);
+      background: #fff;
+    }
+    .fm-input::placeholder { color: #c5c5c5; }
+    .fm-select-arrow {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      color: #bbb; font-size: 0.75rem; pointer-events: none;
+    }
+
+    /* buttons */
+    .fm-btn-submit {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 9px 22px; border-radius: 8px;
+      background: var(--fm-green); color: #fff;
+      font-family: var(--fm-font-body); font-size: 0.84rem; font-weight: 700;
+      border: none; cursor: pointer; white-space: nowrap;
+      transition: background .2s, box-shadow .2s;
+      box-shadow: 0 3px 10px rgba(76,175,80,.25);
+    }
+    .fm-btn-submit:hover { background: var(--fm-green-dark); box-shadow: 0 5px 16px rgba(76,175,80,.3); }
+
+    .fm-btn-cancel {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 9px 18px; border-radius: 8px;
+      background: #f5f5f5; color: #777;
+      font-family: var(--fm-font-body); font-size: 0.84rem; font-weight: 600;
+      border: none; cursor: pointer; white-space: nowrap;
+      text-decoration: none; transition: background .2s;
+    }
+    .fm-btn-cancel:hover { background: #ebebeb; color: #555; }
+
+    /* ── EDIT BANNER ── */
+    .fm-edit-banner {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; border-radius: 8px; margin-bottom: 16px;
+      background: rgba(255,152,0,.08); border: 1.5px solid rgba(255,152,0,.25);
+      font-size: 0.8rem; color: #e65100;
+    }
+
+    /* ── TIP CARD ── */
+    .fm-tip { display: flex; gap: 10px; align-items: flex-start; font-size: 0.78rem; color: #888; }
+    .fm-tip i { color: var(--fm-orange); margin-top: 2px; flex-shrink: 0; }
+
+    /* ── COUNT BADGE ── */
+    .fm-count-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      background: #e8f5e9; color: var(--fm-green-dark);
+      font-size: 0.72rem; font-weight: 700;
+      padding: 2px 10px; border-radius: 50px; min-width: 32px;
+    }
+
+    /* ── DISTRICT FILTER PILLS ── */
+    .fm-filter-bar { display: flex; gap: 6px; flex-wrap: wrap; padding: 12px 16px; border-bottom: 1px solid #f0f4f0; }
+    .fm-filter-pill {
+      padding: 4px 13px; border-radius: 50px; font-size: 0.75rem; font-weight: 600;
+      border: 1.5px solid #e0e8e0; background: #fff; color: #777;
+      cursor: pointer; transition: all .18s;
+    }
+    .fm-filter-pill:hover  { border-color: var(--fm-green); color: var(--fm-green-dark); }
+    .fm-filter-pill.active { background: var(--fm-green); border-color: var(--fm-green); color: #fff; }
+
+    /* ── SEARCH ── */
+    .fm-search { position: relative; max-width: 220px; width: 100%; }
+    .fm-search input {
+      width: 100%; padding: 7px 14px 7px 34px;
+      border: 1.5px solid #e0e8e0; border-radius: 50px;
+      font-size: 0.82rem; font-family: var(--fm-font-body);
+      background: #f7faf7; outline: none; color: #333; transition: border-color .2s;
+    }
+    .fm-search input:focus { border-color: var(--fm-green); background: #fff; }
+    .fm-search i { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: #aaa; font-size: 0.8rem; }
+
+    /* ── TABLE ── */
+    .fm-tbl { font-size: 0.82rem; margin: 0; width: 100%; }
+    .fm-tbl thead th {
+      font-size: 0.72rem; font-weight: 700; letter-spacing: .05em;
+      text-transform: uppercase; color: #aaa;
+      border: none; padding: 11px 16px; background: #fafcfa;
+    }
+    .fm-tbl tbody td { padding: 12px 16px; vertical-align: middle; border-color: #f0f4f0; }
+    .fm-tbl tbody tr:hover { background: #f5fbf5; }
+
+    /* ── DISTRICT BADGE in table ── */
+    .fm-dist-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 10px; border-radius: 50px; font-size: 0.72rem; font-weight: 700;
+      background: rgba(0,150,136,.1); color: #00695c;
+    }
+
+    /* ── PLACE CHIP ── */
+    .fm-place-chip {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-weight: 600; font-size: 0.84rem; color: #333;
+    }
+    .fm-place-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--fm-orange); flex-shrink: 0;
+    }
+
+    /* ── ACTION BUTTONS ── */
+    .btn-edit {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 12px; border-radius: 50px; font-size: 0.72rem; font-weight: 600;
+      background: rgba(33,150,243,.1); color: #1565c0;
+      text-decoration: none; transition: all .2s;
+    }
+    .btn-edit:hover { background: #2196f3; color: #fff; }
+    .btn-delete {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 12px; border-radius: 50px; font-size: 0.72rem; font-weight: 600;
+      background: rgba(244,67,54,.1); color: #b71c1c;
+      text-decoration: none; transition: all .2s;
+    }
+    .btn-delete:hover { background: #f44336; color: #fff; }
+
+    /* ── EMPTY STATE ── */
+    .fm-empty { padding: 50px 20px; text-align: center; color: #bbb; }
+    .fm-empty i { font-size: 2.5rem; display: block; margin-bottom: 10px; color: #d0e8d0; }
+    .fm-empty p { font-size: 0.85rem; margin: 0; }
+
+    /* ── FOOTER ── */
+    .fm-footer {
+      text-align: center; font-size: 0.76rem; color: #bbb;
+      padding: 20px; border-top: 1px solid #e8f5e9; margin-top: 8px;
+    }
+    .fm-footer a { color: var(--fm-green); text-decoration: none; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 991px) {
+      .fm-sidebar { transform: translateX(-100%); }
+      .fm-sidebar.open { transform: translateX(0); }
+      .fm-main { margin-left: 0; }
+      .fm-nav-links { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- TOP BAR -->
+  <div class="fm-topbar">
+    <span><i class="fa fa-map-marker-alt me-2"></i>Farmoon Admin Panel</span>
+    <span>
+      Follow us:
+      <a href="#"><i class="fab fa-facebook-f"></i></a>
+      <a href="#"><i class="fab fa-twitter"></i></a>
+      <a href="#"><i class="fab fa-linkedin-in"></i></a>
+      <a href="#"><i class="fab fa-instagram"></i></a>
+    </span>
+  </div>
+
+  <!-- NAVBAR -->
+  <div class="fm-navbar">
+    <button class="btn btn-sm d-xl-none me-1" id="sidebarToggle"
+            style="background:none;border:none;font-size:1.3rem;color:#555;">
+      <i class="bi bi-list"></i>
+    </button>
+    <a href="{% url 'Administrator:HomePage' %}" class="fm-brand">Farm<span>oo</span>n</a>
+    <span class="fm-admin-pill">ADMIN</span>
+    <nav class="fm-nav-links">
+      <a href="{% url 'Guest:index' %}"><i class="fa fa-globe me-1"></i>Guest Site</a>
+      <a href="{% url 'Administrator:HomePage' %}"><i class="fa fa-tachometer-alt me-1"></i>Dashboard</a>
+      <a href="{% url 'Administrator:Userlist' %}"><i class="fa fa-users me-1"></i>Users</a>
+      <a href="{% url 'Administrator:Farmerlist' %}"><i class="fa fa-leaf me-1"></i>Farmers</a>
+      <a href="{% url 'Administrator:ViewComplaint' %}"><i class="fa fa-exclamation-circle me-1"></i>Complaints</a>
+      <a href="{% url 'Administrator:ViewFeedback' %}"><i class="fa fa-comment-dots me-1"></i>Feedback</a>
+    </nav>
+  </div>
+
+  <!-- SIDEBAR -->
+  <aside class="fm-sidebar" id="fmSidebar">
+    <div class="fm-sidebar-cap">Main</div>
+    <a href="{% url 'Administrator:HomePage' %}"><i class="fa fa-tachometer-alt"></i>Dashboard</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <div class="fm-sidebar-cap">User Management</div>
+    <a href="{% url 'Administrator:Userlist' %}"><i class="fa fa-users"></i>User List</a>
+    <a href="{% url 'Administrator:Farmerlist' %}"><i class="fa fa-leaf"></i>Farmer List</a>
+    <a href="{% url 'Administrator:AdminRegistration' %}"><i class="fa fa-user-shield"></i>Admin Accounts</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <div class="fm-sidebar-cap">Location</div>
+    <a href="{% url 'Administrator:District' %}"><i class="fa fa-map"></i>Districts</a>
+    <a href="{% url 'Administrator:Place' %}" class="active"><i class="fa fa-map-marker-alt"></i>Places</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <div class="fm-sidebar-cap">Catalogue</div>
+    <a href="{% url 'Administrator:Category' %}"><i class="fa fa-tags"></i>Categories</a>
+    <a href="{% url 'Administrator:Subcategory' %}"><i class="fa fa-list-ul"></i>Subcategories</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <div class="fm-sidebar-cap">Orders & Payments</div>
+    <a href="{% url 'Administrator:OrderList' %}"><i class="fa fa-shopping-bag"></i>Orders
+      {% if pending_orders %}
+        <span class="fm-pill pill-pending ms-auto">{{ pending_orders }}</span>
+      {% endif %}
+    </a>
+    <a href="{% url 'Administrator:TransactionList' %}"><i class="fa fa-credit-card"></i>Transactions</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <div class="fm-sidebar-cap">Support</div>
+    <a href="{% url 'Administrator:ViewComplaint' %}"><i class="fa fa-exclamation-circle"></i>Complaints</a>
+    <a href="{% url 'Administrator:ViewFeedback' %}"><i class="fa fa-comment-dots"></i>Feedback</a>
+
+    <div class="fm-sidebar-divider"></div>
+    <a href="{% url 'Guest:Login' %}"><i class="fa fa-sign-out-alt"></i>Logout</a>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="fm-main">
+
+    <!-- Page Header -->
+    <div class="mb-4">
+      <h1 class="fm-page-title">
+        <i class="fa fa-map-marker-alt me-2" style="color:var(--fm-green);font-size:1.2rem;"></i>Places
+      </h1>
+      <p class="fm-page-sub">Map specific localities to their parent districts for delivery coverage.</p>
+    </div>
+
+    <div class="row g-4">
+
+      <!-- ── LEFT : Form ── -->
+      <div class="col-xl-4 col-lg-5">
+        <div class="fm-card">
+          <div class="fm-card-hdr">
+            <div>
+              <div class="fm-card-title">
+                <i class="fa fa-{% if data %}pen{% else %}plus-circle{% endif %} me-2"
+                   style="color:var(--fm-green);"></i>
+                {% if data %}Edit Place{% else %}New Place{% endif %}
+              </div>
+              <div class="fm-card-sub">
+                {% if data %}Update the place details below{% else %}Link a locality to a district{% endif %}
+              </div>
+            </div>
+          </div>
+
+          <form method="post">
+            {% csrf_token %}
+            <div class="fm-form-body">
+
+              {% if data %}
+              <div class="fm-edit-banner">
+                <i class="fa fa-pencil-alt"></i>
+                Editing: <strong>{{ data.place_name }}</strong>
+                <span style="opacity:.6;margin-left:4px;">in {{ data.district.district_name }}</span>
+              </div>
+              {% endif %}
+
+              <!-- District Dropdown -->
+              <div class="fm-field">
+                <label class="fm-label" for="sel_district">District <span>*</span></label>
+                <div class="fm-input-wrap">
+                  <i class="fm-input-icon fa fa-map"></i>
+                  <select class="fm-select" id="sel_district" name="sel_district" required>
+                    <option value="">— Select a district —</option>
+                    {% for i in district %}
+                    <option value="{{ i.id }}"
+                      {% if i.id == data.district.id %}selected{% endif %}>
+                      {{ i.district_name }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                  <i class="fm-select-arrow fa fa-chevron-down"></i>
+                </div>
+              </div>
+
+              <!-- Place Name -->
+              <div class="fm-field">
+                <label class="fm-label" for="txt_place">Place Name <span>*</span></label>
+                <div class="fm-input-wrap">
+                  <i class="fm-input-icon fa fa-map-marker-alt"></i>
+                  <input
+                    class="fm-input" id="txt_place" type="text"
+                    name="txt_place" required
+                    placeholder="e.g. Kakkanad, Aluva…"
+                    value="{{ data.place_name }}"
+                  />
+                </div>
+              </div>
+
+              <div class="d-flex gap-2 justify-content-end">
+                {% if data %}
+                <a href="{% url 'Administrator:Place' %}" class="fm-btn-cancel">
+                  <i class="fa fa-times"></i>Cancel
+                </a>
+                {% endif %}
+                <button type="submit" name="btn_Login" class="fm-btn-submit">
+                  <i class="fa fa-{% if data %}save{% else %}plus{% endif %}"></i>
+                  {% if data %}Save Changes{% else %}Add Place{% endif %}
+                </button>
+              </div>
+
+            </div>
+          </form>
+        </div>
+
+        <!-- Tip card -->
+        <div class="fm-card mt-3" style="border-color:#fff8e1;">
+          <div class="fm-form-body" style="padding:16px 20px;">
+            <div class="fm-tip">
+              <i class="fa fa-lightbulb"></i>
+              <span>Each place must belong to a district. Users select their place during registration to set their delivery location.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── RIGHT : Places Table ── -->
+      <div class="col-xl-8 col-lg-7">
+        <div class="fm-card">
+          <div class="fm-card-hdr">
+            <div>
+              <div class="fm-card-title d-flex align-items-center gap-2">
+                All Places
+                <span class="fm-count-badge">{{ place|length }}</span>
+              </div>
+              <div class="fm-card-sub">Filter by district or search below</div>
+            </div>
+            <div class="fm-search">
+              <i class="fa fa-search"></i>
+              <input type="text" id="placeSearch" placeholder="Search places…">
+            </div>
+          </div>
+
+          <!-- District filter pills -->
+          <div class="fm-filter-bar" id="filterBar">
+            <button class="fm-filter-pill active" data-district="all">All</button>
+            {% for i in district %}
+            <button class="fm-filter-pill" data-district="{{ i.district_name }}">
+              {{ i.district_name }}
+            </button>
+            {% endfor %}
+          </div>
+
+          <div class="table-responsive">
+            <table class="table fm-tbl mb-0" id="placeTable">
+              <thead>
+                <tr>
+                  <th style="width:55px;">#</th>
+                  <th>Place</th>
+                  <th>District</th>
+                  <th style="width:160px;">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for i in place %}
+                <tr data-district="{{ i.district.district_name }}">
+                  <td style="color:#bbb;font-size:0.78rem;">{{ forloop.counter }}</td>
+                  <td>
+                    <div class="fm-place-chip">
+                      <span class="fm-place-dot"></span>
+                      {{ i.place_name }}
+                    </div>
+                  </td>
+                  <td>
+                    <span class="fm-dist-badge">
+                      <i class="fa fa-map fa-xs"></i>
+                      {{ i.district.district_name }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="d-flex gap-1">
+                      <a href="{% url 'Administrator:editplace' i.id %}" class="btn-edit">
+                        <i class="fa fa-pen"></i>Edit
+                      </a>
+                      <a href="{% url 'Administrator:placedelete' i.id %}" class="btn-delete"
+                         onclick="return confirm('Delete place \"{{ i.place_name }}\"? Users registered here may be affected.')">
+                        <i class="fa fa-trash"></i>Delete
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="4">
+                    <div class="fm-empty">
+                      <i class="fa fa-map-marker-alt"></i>
+                      <p>No places added yet. Use the form to map your first locality.</p>
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div><!-- /.col -->
+
+    </div><!-- /.row -->
+
+    <!-- Footer -->
+    <div class="fm-footer mt-4">
+      &copy; <a href="#">Farmoon</a> Admin Panel &nbsp;·&nbsp;
+      
+    </div>
+
+  </main>
+
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Sidebar toggle
+    document.getElementById('sidebarToggle').addEventListener('click', function () {
+      document.getElementById('fmSidebar').classList.toggle('open');
+    });
+
+    // Live text search
+    document.getElementById('placeSearch').addEventListener('input', function () {
+      const q = this.value.toLowerCase();
+      document.querySelectorAll('#placeTable tbody tr[data-district]').forEach(function (row) {
+        row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+      });
+    });
+
+    // District filter pills
+    document.getElementById('filterBar').addEventListener('click', function (e) {
+      const pill = e.target.closest('.fm-filter-pill');
+      if (!pill) return;
+
+      // update active state
+      document.querySelectorAll('.fm-filter-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+
+      const selected = pill.dataset.district;
+      document.querySelectorAll('#placeTable tbody tr[data-district]').forEach(function (row) {
+        row.style.display = (selected === 'all' || row.dataset.district === selected) ? '' : 'none';
+      });
+
+      // clear search when filter changes
+      document.getElementById('placeSearch').value = '';
+    });
+  </script>
+
+</body>
+</html>

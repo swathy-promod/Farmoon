@@ -1,0 +1,308 @@
+{% extends 'User/Head.html' %}
+{% block content %}
+
+<style>
+    /* ── Page background ── */
+    .page-wrapper {
+        padding: 110px 0 60px;
+        min-height: 100vh;
+        background: #f8faf6;
+    }
+
+    /* ── Section heading ── */
+    .section-title {
+        font-family: 'Lora', serif;
+        font-size: 1.7rem;
+        font-weight: 700;
+        color: #333;
+        position: relative;
+        padding-bottom: 10px;
+        margin-bottom: 28px;
+    }
+
+    .section-title.centered::after {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 48px;
+        height: 3px;
+        background: var(--bs-primary, #5cb85c);
+        border-radius: 2px;
+    }
+
+    /* ── Search Card ── */
+    .form-card {
+        background: #fff;
+        border-top: 4px solid var(--bs-primary, #5cb85c);
+        box-shadow: 0 6px 32px rgba(0,0,0,0.09);
+        border-radius: 0;
+        padding: 38px 40px;
+        margin-bottom: 36px;
+    }
+
+    .form-label {
+        font-family: 'Open Sans', sans-serif;
+        font-weight: 600;
+        color: #555;
+        font-size: 0.88rem;
+        margin-bottom: 5px;
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 0;
+        border: 1px solid #ddd;
+        padding: 11px 15px;
+        font-family: 'Open Sans', sans-serif;
+        font-size: 0.88rem;
+        transition: border-color 0.3s;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: var(--bs-primary, #5cb85c);
+        box-shadow: 0 0 0 0.2rem rgba(92,184,92,0.15);
+    }
+
+    .input-group-text {
+        border-radius: 0;
+        background: #f8f9fa;
+        border: 1px solid #ddd;
+        color: var(--bs-primary, #5cb85c);
+        min-width: 42px;
+        justify-content: center;
+    }
+
+    .btn-search {
+        border-radius: 50px;
+        padding: 11px 44px;
+        font-family: 'Open Sans', sans-serif;
+        font-weight: 500;
+        font-size: 0.92rem;
+        letter-spacing: 0.4px;
+    }
+
+    /* ── Farmer Grid ── */
+    .farmer-card {
+        background: #fff;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+        border-bottom: 3px solid transparent;
+        transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+        padding: 28px 20px 22px;
+        text-align: center;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .farmer-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 36px rgba(0,0,0,0.12);
+        border-bottom-color: var(--bs-primary, #5cb85c);
+    }
+
+    /* Farmer photo */
+    .farmer-avatar {
+        width: 88px;
+        height: 88px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 3px solid #eaf5ea;
+        margin-bottom: 14px;
+        transition: border-color 0.25s;
+    }
+
+    .farmer-card:hover .farmer-avatar {
+        border-color: var(--bs-primary, #5cb85c);
+    }
+
+    .farmer-name {
+        font-family: 'Lora', serif;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 4px;
+    }
+
+    .farmer-email {
+        font-family: 'Open Sans', sans-serif;
+        font-size: 0.78rem;
+        color: #aaa;
+        margin-bottom: 10px;
+        word-break: break-all;
+    }
+
+    .farmer-location {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: #eaf5ea;
+        color: var(--bs-primary, #5cb85c);
+        font-family: 'Open Sans', sans-serif;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 3px 12px;
+        border-radius: 50px;
+        margin-bottom: 18px;
+    }
+
+    .btn-view {
+        border-radius: 50px;
+        font-size: 0.80rem;
+        font-family: 'Open Sans', sans-serif;
+        padding: 7px 22px;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        margin-top: auto;
+    }
+
+    /* ── Section divider label ── */
+    .results-meta {
+        font-family: 'Open Sans', sans-serif;
+        font-size: 0.82rem;
+        color: #aaa;
+        margin-bottom: 20px;
+    }
+
+    .results-meta span {
+        font-weight: 600;
+        color: var(--bs-primary, #5cb85c);
+    }
+
+    /* ── Empty state ── */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #bbb;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 14px;
+        display: block;
+        color: #ddd;
+    }
+
+    .empty-state p {
+        font-size: 0.9rem;
+    }
+</style>
+
+<div class="page-wrapper">
+    <div class="container">
+
+        <!-- ── Search Card ── -->
+        <div class="row justify-content-center wow fadeInUp" data-wow-delay="0.1s">
+            <div class="col-lg-8">
+
+                <h2 class="section-title centered text-center">Find Farmers</h2>
+
+                <div class="form-card">
+                    <form action="" method="post">
+                        {% csrf_token %}
+
+                        <div class="row g-3 align-items-end">
+
+                            <!-- District -->
+                            <div class="col-md-5">
+                                <label class="form-label">District</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa fa-map-marker-alt"></i></span>
+                                    <select name="sel_district" id="sel_district" class="form-select" required>
+                                        <option value="">— Select District —</option>
+                                        {% for i in districtdata %}
+                                        <option value="{{ i.id }}">{{ i.district_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Place -->
+                            <div class="col-md-5">
+                                <label class="form-label">Place</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa fa-map-pin"></i></span>
+                                    <select name="sel_place" id="sel_place" class="form-select">
+                                        <option value="">— Select Place —</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Search Button -->
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary btn-search w-100">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ── Farmer Grid ── -->
+        {% if farmerdata %}
+        <div class="wow fadeInUp" data-wow-delay="0.15s">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h2 class="section-title mb-0">Farmer List</h2>
+                <div class="results-meta"><span>{{ farmerdata|length }}</span> farmer(s) found</div>
+            </div>
+
+            <div class="row g-4">
+                {% for i in farmerdata %}
+                <div class="col-lg-3 col-md-4 col-sm-6 wow fadeInUp" data-wow-delay="0.{% if forloop.counter <= 4 %}{{ forloop.counter }}{% else %}4{% endif %}s">
+                    <div class="farmer-card">
+                        <img src="{{ i.farmer_photo.url }}"
+                             class="farmer-avatar" alt="{{ i.farmer_name }}">
+                        <div class="farmer-name">{{ i.farmer_name }}</div>
+                        <div class="farmer-email">{{ i.farmer_email }}</div>
+                        <div class="farmer-location">
+                            <i class="fa fa-map-marker-alt"></i>
+                            {{ i.place_id.place_name }}, {{ i.place_id.district.district_name }}
+                        </div>
+                        <a href="{% url 'User:Viewproduct' i.id %}"
+                           class="btn btn-primary btn-view">
+                            <i class="fa fa-leaf me-1"></i>View Products
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% else %}
+        <div class="empty-state wow fadeInUp" data-wow-delay="0.1s">
+            <i class="fa fa-users"></i>
+            <p>No farmers found. Try selecting a different district or place.</p>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+    $("#sel_district").change(function () {
+        var did = $(this).val();
+        var ur = "{% url 'Guest:Ajaxplace' %}";
+        $.ajax({
+            url: ur,
+            data: { did: did },
+            success: function (data) {
+                $("#sel_place").html(data);
+            },
+        });
+    });
+</script>
+
+{% endblock content %}

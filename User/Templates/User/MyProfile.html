@@ -1,0 +1,456 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>My Profile - User Dashboard</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <link href="{% static 'Main/img/icon-1.png' %}" rel="icon">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500&family=Lora:wght@600;700&display=swap" rel="stylesheet">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <link href="{% static 'Main/lib/animate/animate.min.css' %}" rel="stylesheet">
+    <link href="{% static 'Main/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'Main/css/style.css' %}" rel="stylesheet">
+
+    <style>
+        /* ── Page Wrapper ── */
+        .page-wrapper {
+            padding: 110px 0 60px;
+            min-height: 100vh;
+            background: #f8faf6;
+        }
+
+        /* ── Profile Card ── */
+        .profile-card {
+            background: #fff;
+            border-top: 4px solid var(--bs-primary, #5cb85c);
+            box-shadow: 0 6px 32px rgba(0,0,0,0.09);
+            border-radius: 0;
+            overflow: hidden;
+        }
+
+        /* ── Card Header Banner ── */
+        .profile-header {
+            background: linear-gradient(135deg, #eaf5ea 0%, #d4ecd4 100%);
+            padding: 40px 40px 0;
+            text-align: center;
+            position: relative;
+        }
+
+        /* ── Avatar ── */
+        .avatar-wrapper {
+            position: relative;
+            display: inline-block;
+            margin-bottom: -44px;
+        }
+
+        .avatar-wrapper img {
+            width: 110px;
+            height: 110px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 4px solid #fff;
+            box-shadow: 0 4px 18px rgba(92,184,92,0.18);
+            display: block;
+        }
+
+        .avatar-badge {
+            width: 22px;
+            height: 22px;
+            background: var(--bs-primary, #5cb85c);
+            border: 2px solid #fff;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 6px;
+            right: 6px;
+        }
+
+        /* ── Card Body ── */
+        .profile-body {
+            padding: 60px 40px 40px;
+        }
+
+        /* ── User Name & sub ── */
+        .profile-name {
+            font-family: 'Lora', serif;
+            font-size: 1.65rem;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 4px;
+            text-align: center;
+        }
+
+        .profile-email-sub {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.85rem;
+            color: #aaa;
+            text-align: center;
+            margin-bottom: 36px;
+        }
+
+        /* ── Divider ── */
+        .section-divider {
+            border: none;
+            border-top: 1.5px solid #eaf0ea;
+            margin: 0 0 28px;
+        }
+
+        /* ── Info Rows ── */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px 32px;
+            margin-bottom: 36px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .info-label {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #bbb;
+        }
+
+        .info-value {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.95rem;
+            color: #333;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-value i {
+            color: var(--bs-primary, #5cb85c);
+            font-size: 0.85rem;
+            width: 16px;
+            flex-shrink: 0;
+        }
+
+        /* ── Action Buttons ── */
+        .action-row {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding-top: 8px;
+        }
+
+        .btn-action {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.88rem;
+            font-weight: 600;
+            padding: 11px 28px;
+            border-radius: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.25s ease;
+            letter-spacing: 0.02em;
+        }
+
+        .btn-primary-action {
+            background: var(--bs-primary, #5cb85c);
+            color: #fff;
+            border: 2px solid var(--bs-primary, #5cb85c);
+        }
+
+        .btn-primary-action:hover {
+            background: #4aa84a;
+            border-color: #4aa84a;
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(92,184,92,0.25);
+            text-decoration: none;
+        }
+
+        .btn-outline-action {
+            background: transparent;
+            color: #555;
+            border: 2px solid #ddd;
+        }
+
+        .btn-outline-action:hover {
+            border-color: var(--bs-primary, #5cb85c);
+            color: var(--bs-primary, #5cb85c);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(92,184,92,0.1);
+            text-decoration: none;
+        }
+
+        /* ── Back Link ── */
+        .back-link {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.85rem;
+            color: #aaa;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 24px;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--bs-primary, #5cb85c);
+            text-decoration: none;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 640px) {
+            .info-grid { grid-template-columns: 1fr; }
+            .profile-body { padding: 60px 22px 32px; }
+            .profile-header { padding: 32px 22px 0; }
+            .action-row { flex-direction: column; }
+            .btn-action { justify-content: center; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Spinner Start -->
+    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-border text-primary" role="status"></div>
+    </div>
+    <!-- Spinner End -->
+
+    <!-- Navbar Start -->
+    <div class="container-fluid fixed-top px-0 wow fadeIn" data-wow-delay="0.1s">
+        <div class="top-bar row gx-0 align-items-center d-none d-lg-flex">
+            <div class="col-lg-6 px-5 text-start">
+                <small><i class="fa fa-map-marker-alt me-2"></i>Idukki,Kerala</small>
+                <small class="ms-4"><i class="fa fa-envelope me-2"></i>farmoon@gmail.com</small>
+            </div>
+            <div class="col-lg-6 px-5 text-end">
+                <small>Follow us:</small>
+                <a class="text-body ms-3" href=""><i class="fab fa-facebook-f"></i></a>
+                <a class="text-body ms-3" href=""><i class="fab fa-twitter"></i></a>
+                <a class="text-body ms-3" href=""><i class="fab fa-linkedin-in"></i></a>
+                <a class="text-body ms-3" href=""><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
+
+        <nav class="navbar navbar-expand-lg navbar-light py-lg-0 px-lg-5 wow fadeIn" data-wow-delay="0.1s">
+            <a href="{% url 'Guest:index' %}" class="navbar-brand ms-4 ms-lg-0">
+                <h1 class="fw-bold text-primary m-0">Farm<span class="text-secondary">oo</span>n</h1>
+            </a>
+            <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <div class="navbar-nav ms-auto p-4 p-lg-0">
+                    <a href="{% url 'Guest:index' %}" class="nav-item nav-link">Home</a>
+                    <a href="{% url 'Guest:Product' %}" class="nav-item nav-link">Products</a>
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
+                        <div class="dropdown-menu m-0">
+                            <a href="blog.html" class="dropdown-item">Blog Grid</a>
+                            <a href="feature.html" class="dropdown-item">Our Features</a>
+                            <a href="testimonial.html" class="dropdown-item">Testimonial</a>
+                            <a href="Main/404.html" class="dropdown-item">404 Page</a>
+                        </div>
+                    </div>
+                    <a href="{% url 'Guest:ContactUs' %}" class="nav-item nav-link">Contact Us</a>
+                </div>
+                <div class="d-none d-lg-flex ms-2">
+                    <a class="btn-sm-square bg-white rounded-circle ms-3" href="{% url 'Guest:Product' %}">
+                        <small class="fa fa-shopping-bag text-body"></small>
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <!-- Navbar End -->
+
+    <!-- Page Content -->
+    <div class="page-wrapper">
+        <div class="container">
+
+            <div class="row justify-content-center wow fadeInUp" data-wow-delay="0.1s">
+                <div class="col-lg-7 col-md-9">
+
+                    <!-- Back to Dashboard -->
+                    <a href="{% url 'User:HomePage' %}" class="back-link">
+                        <i class="fa fa-arrow-left"></i> Back to Dashboard
+                    </a>
+
+                    <div class="profile-card">
+
+                        <!-- Header with avatar -->
+                        <div class="profile-header">
+                            <div class="avatar-wrapper">
+                                <img src="{{ data.userregistration_photo.url }}" alt="Profile Photo">
+                                <div class="avatar-badge"></div>
+                            </div>
+                        </div>
+
+                        <!-- Body -->
+                        <div class="profile-body">
+
+                            <!-- Name & email -->
+                            <div class="profile-name">{{ data.userregistration_name }}</div>
+                            <div class="profile-email-sub">{{ data.userregistration_email }}</div>
+
+                            <hr class="section-divider">
+
+                            <!-- Info Grid -->
+                            <div class="info-grid">
+
+                                <div class="info-item">
+                                    <span class="info-label">Full Name</span>
+                                    <span class="info-value">
+                                        <i class="fa fa-user"></i>
+                                        {{ data.userregistration_name }}
+                                    </span>
+                                </div>
+
+                                <div class="info-item">
+                                    <span class="info-label">Email Address</span>
+                                    <span class="info-value">
+                                        <i class="fa fa-envelope"></i>
+                                        {{ data.userregistration_email }}
+                                    </span>
+                                </div>
+
+                                <div class="info-item">
+                                    <span class="info-label">Contact Number</span>
+                                    <span class="info-value">
+                                        <i class="fa fa-phone"></i>
+                                        {{ data.userregistration_contact }}
+                                    </span>
+                                </div>
+
+                                <div class="info-item">
+                                    <span class="info-label">District</span>
+                                    <span class="info-value">
+                                        <i class="fa fa-map-marker-alt"></i>
+                                        {{ data.userregistration_place.district.district_name }}
+                                    </span>
+                                </div>
+
+                                <div class="info-item">
+                                    <span class="info-label">Place</span>
+                                    <span class="info-value">
+                                        <i class="fa fa-map-pin"></i>
+                                        {{ data.userregistration_place.place_name }}
+                                    </span>
+                                </div>
+
+                                <div class="info-item">
+                                    <span class="info-label">Address</span>
+                                    <span class="info-value">
+                                        <i class="fa fa-home"></i>
+                                        {{ data.userregistration_address }}
+                                    </span>
+                                </div>
+
+                            </div>
+
+                            <hr class="section-divider">
+
+                            <!-- Action Buttons -->
+                            <div class="action-row">
+                                <a href="{% url 'User:EditProfile' %}" class="btn-action btn-primary-action">
+                                    <i class="fa fa-edit"></i> Edit Profile
+                                </a>
+                                <a href="{% url 'User:ChangePassword' %}" class="btn-action btn-outline-action">
+                                    <i class="fa fa-lock"></i> Change Password
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- Page Content End -->
+
+    <!-- Footer Start -->
+    <div class="container-fluid bg-dark footer mt-5 pt-5 wow fadeIn" data-wow-delay="0.1s">
+        <div class="container py-5">
+            <div class="row g-5">
+                <div class="col-lg-3 col-md-6">
+                    <h1 class="fw-bold text-primary mb-4">Farm<span class="text-secondary">oo</span>n</h1>
+                    <div class="d-flex pt-2">
+                        <a class="btn btn-square btn-outline-light rounded-circle me-1" href=""><i class="fab fa-twitter"></i></a>
+                        <a class="btn btn-square btn-outline-light rounded-circle me-1" href=""><i class="fab fa-facebook-f"></i></a>
+                        <a class="btn btn-square btn-outline-light rounded-circle me-1" href=""><i class="fab fa-youtube"></i></a>
+                        <a class="btn btn-square btn-outline-light rounded-circle me-0" href=""><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h4 class="text-light mb-4">Address</h4>
+                    <p><i class="fa fa-map-marker-alt me-3"></i>Idukki,Kerala</p>
+                    <p><i class="fa fa-phone-alt me-3"></i>+012 345 67890</p>
+                    <p><i class="fa fa-envelope me-3"></i>farmoon@gmail.com</p>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h4 class="text-light mb-4">Quick Links</h4>
+                    <a class="btn btn-link" href="{% url 'Guest:AboutUs' %}">About Us</a>
+                    <a class="btn btn-link" href="{% url 'Guest:ContactUs' %}">Contact Us</a>
+                    <a class="btn btn-link" href="">Our Services</a>
+                    <a class="btn btn-link" href="">Terms & Condition</a>
+                    <a class="btn btn-link" href="">Support</a>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h4 class="text-light mb-4">Newsletter</h4>
+                    <div class="position-relative mx-auto" style="max-width: 400px;">
+                        <input class="form-control bg-transparent w-100 py-3 ps-4 pe-5" type="text" placeholder="Your email">
+                        <button type="button" class="btn btn-primary py-2 position-absolute top-0 end-0 mt-2 me-2">SignUp</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid copyright">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                        &copy; <a href="#">Farmoon</a>, All Right Reserved.
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Footer End -->
+
+    <a href="#" class="btn btn-lg btn-primary btn-lg-square rounded-circle back-to-top"><i class="bi bi-arrow-up"></i></a>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'Main/lib/wow/wow.min.js' %}"></script>
+    <script src="{% static 'Main/lib/easing/easing.min.js' %}"></script>
+    <script src="{% static 'Main/lib/waypoints/waypoints.min.js' %}"></script>
+    <script src="{% static 'Main/js/main.js' %}"></script>
+
+</body>
+</html>
+
+{% if Msg %}
+<script>
+    alert("{{ Msg }}")
+    window.location = "{% url 'User:MyProfile' %}"
+</script>
+{% endif %}

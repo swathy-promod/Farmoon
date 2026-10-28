@@ -1,0 +1,489 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Add Product - Farmer Support System</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <!-- Favicon -->
+    <link href="{% static 'Main/img/icon-1.png' %}" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500&family=Lora:wght@600;700&display=swap" rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="{% static 'Main/lib/animate/animate.min.css' %}" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="{% static 'Main/css/bootstrap.min.css' %}" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="{% static 'Main/css/style.css' %}" rel="stylesheet">
+
+    <style>
+        /* ── Page background ── */
+        .page-wrapper {
+            padding: 110px 0 60px;
+            min-height: 100vh;
+            background: #f8faf6;
+        }
+
+        /* ── Section heading style ── */
+        .section-title {
+            font-family: 'Lora', serif;
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: #333;
+            position: relative;
+            padding-bottom: 10px;
+            margin-bottom: 28px;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 48px;
+            height: 3px;
+            background: var(--bs-primary, #5cb85c);
+            border-radius: 2px;
+        }
+
+        /* ── Add Product Card ── */
+        .form-card {
+            background: #fff;
+            border-top: 4px solid var(--bs-primary, #5cb85c);
+            box-shadow: 0 6px 32px rgba(0,0,0,0.09);
+            border-radius: 0;
+            padding: 38px 40px;
+        }
+
+        .form-label {
+            font-family: 'Open Sans', sans-serif;
+            font-weight: 500;
+            color: #555;
+            font-size: 0.88rem;
+            margin-bottom: 5px;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 0;
+            border: 1px solid #ddd;
+            padding: 11px 15px;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.88rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--bs-primary, #5cb85c);
+            box-shadow: 0 0 0 0.2rem rgba(92,184,92,0.15);
+        }
+
+        .input-group-text {
+            border-radius: 0;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            color: var(--bs-primary, #5cb85c);
+        }
+
+        .form-control[type="file"] {
+            padding: 8px 15px;
+            cursor: pointer;
+        }
+
+        .file-hint {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.78rem;
+            color: #aaa;
+            margin-top: 4px;
+        }
+
+        .btn-add {
+            border-radius: 50px;
+            padding: 11px 40px;
+            font-family: 'Open Sans', sans-serif;
+            font-weight: 500;
+            font-size: 0.92rem;
+            letter-spacing: 0.4px;
+        }
+
+        /* ── Product Table ── */
+        .table-card {
+            background: #fff;
+            box-shadow: 0 6px 32px rgba(0,0,0,0.08);
+            border-radius: 0;
+            overflow: hidden;
+        }
+
+        .table-card table {
+            margin-bottom: 0;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.875rem;
+        }
+
+        .table-card thead th {
+            background: var(--bs-primary, #5cb85c);
+            color: #fff;
+            font-family: 'Lora', serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            border: none;
+            padding: 14px 16px;
+            white-space: nowrap;
+        }
+
+        .table-card tbody tr {
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s;
+        }
+
+        .table-card tbody tr:hover {
+            background: #f5fbf3;
+        }
+
+        .table-card tbody td {
+            padding: 14px 16px;
+            vertical-align: middle;
+            color: #444;
+            border: none;
+        }
+
+        /* Serial number badge */
+        .sl-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            background: #eaf5ea;
+            color: var(--bs-primary, #5cb85c);
+            border-radius: 50%;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        /* Product image in table */
+        .product-thumb {
+            width: 72px;
+            height: 72px;
+            object-fit: cover;
+            border: 2px solid #eee;
+        }
+
+        /* Category badge */
+        .category-badge {
+            display: inline-block;
+            background: #eaf5ea;
+            color: var(--bs-primary, #5cb85c);
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 3px 12px;
+            border-radius: 50px;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        /* Price text */
+        .price-text {
+            font-weight: 600;
+            color: var(--bs-primary, #5cb85c);
+        }
+
+        /* Action buttons */
+        .btn-action {
+            border-radius: 50px;
+            font-size: 0.78rem;
+            font-family: 'Open Sans', sans-serif;
+            padding: 5px 14px;
+            font-weight: 500;
+            border-width: 1.5px;
+            white-space: nowrap;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 48px 20px;
+            color: #bbb;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        .empty-state i {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            display: block;
+            color: #ddd;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Spinner Start -->
+    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-border text-primary" role="status"></div>
+    </div>
+    <!-- Spinner End -->
+
+    <!-- Navbar Start -->
+    <div class="container-fluid fixed-top px-0 wow fadeIn" data-wow-delay="0.1s">
+        <div class="top-bar row gx-0 align-items-center d-none d-lg-flex">
+            <div class="col-lg-6 px-5 text-start">
+                <small><i class="fa fa-map-marker-alt me-2"></i>Idukki,Kerala</small>
+                <small class="ms-4"><i class="fa fa-envelope me-2"></i>farmoon@gmail.com</small>
+            </div>
+            <div class="col-lg-6 px-5 text-end">
+                <small>Follow us:</small>
+                <a class="text-body ms-3" href=""><i class="fab fa-facebook-f"></i></a>
+                <a class="text-body ms-3" href=""><i class="fab fa-twitter"></i></a>
+                <a class="text-body ms-3" href=""><i class="fab fa-linkedin-in"></i></a>
+                <a class="text-body ms-3" href=""><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
+
+        <nav class="navbar navbar-expand-lg navbar-light py-lg-0 px-lg-5 wow fadeIn" data-wow-delay="0.1s">
+            <a href="{% url 'Guest:index' %}" class="navbar-brand ms-4 ms-lg-0">
+                <h1 class="fw-bold text-primary m-0">Farm<span class="text-secondary">oo</span>n</h1>
+            </a>
+            <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <div class="navbar-nav ms-auto p-4 p-lg-0">
+                    <a href="{% url 'Farmer:HomePage' %}" class="nav-item nav-link">Home</a>
+                    <a href="{% url 'Guest:ContactUs' %}" class="nav-item nav-link">Contact Us</a>
+                </div>
+                <div class="d-none d-lg-flex ms-2">
+                    <a class="btn-sm-square bg-white rounded-circle ms-3" href="{% url 'Farmer:MyProfile' %}">
+                        <small class="fa fa-user text-body"></small>
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <!-- Navbar End -->
+
+    <!-- Page Content -->
+    <div class="page-wrapper">
+        <div class="container">
+
+            <!-- ── Add Product Form ── -->
+            <div class="row justify-content-center mb-5 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="col-lg-8">
+                    <div class="section-title">Add New Product</div>
+
+                    <div class="form-card">
+                        <form method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+
+                            <div class="row g-3">
+
+                                <!-- Product Name -->
+                                <div class="col-md-6">
+                                    <label class="form-label">Product Name</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fa fa-box"></i></span>
+                                        <input type="text" class="form-control" name="txt_name"
+                                               placeholder="Enter product name" required>
+                                    </div>
+                                </div>
+
+                                <!-- Category -->
+                                <div class="col-md-6">
+                                    <label class="form-label">Category</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fa fa-tags"></i></span>
+                                        <select class="form-select" name="sel_category" required>
+                                            <option value="">...Select...</option>
+                                            {% for i in category %}
+                                            <option
+                                                {% if i.id == i.category_id.id %}selected{% endif %}
+                                                value="{{ i.id }}">{{ i.category_name }}
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Price -->
+                                <div class="col-md-6">
+                                    <label class="form-label">Price (₹)</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fa fa-rupee-sign"></i></span>
+                                        <input type="number" class="form-control" name="num_price"
+                                               placeholder="Enter the price" required>
+                                    </div>
+                                </div>
+
+                                <!-- Photo -->
+                                <div class="col-md-6">
+                                    <label class="form-label">Product Photo</label>
+                                    <input type="file" class="form-control" name="file_photo" accept="image/*">
+                                    <div class="file-hint"><i class="fa fa-info-circle me-1"></i>JPG, PNG accepted</div>
+                                </div>
+
+                                <!-- Details (full width) -->
+                                <div class="col-12">
+                                    <label class="form-label">Product Details</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fa fa-align-left"></i></span>
+                                        <input type="text" class="form-control" name="txt_details"
+                                               placeholder="Enter product details" required>
+                                    </div>
+                                </div>
+
+                                <!-- Submit -->
+                                <div class="col-12 mt-2">
+                                    <button type="submit" name="btn_add" class="btn btn-primary btn-add">
+                                        <i class="fa fa-plus me-2"></i>Add Product
+                                    </button>
+                                </div>
+
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Product Details Table ── -->
+            <div class="wow fadeInUp" data-wow-delay="0.2s">
+                <div class="section-title">Product Details</div>
+
+                <div class="table-card">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Details</th>
+                                    <th>Price</th>
+                                    <th>Photo</th>
+                                    <th>Category</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for i in addproduct %}
+                                <tr>
+                                    <td><span class="sl-badge">{{ forloop.counter }}</span></td>
+                                    <td><strong>{{ i.product_name }}</strong></td>
+                                    <td>{{ i.product_details }}</td>
+                                    <td><span class="price-text">₹{{ i.product_price }}</span></td>
+                                    <td>
+                                        <img src="{{ i.product_photo.url }}"
+                                             class="product-thumb" alt="{{ i.product_name }}">
+                                    </td>
+                                    <td>
+                                        <span class="category-badge">{{ i.category_id.category_name }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex gap-2">
+                                            <a href="{% url 'Farmer:productdelete' i.id %}"
+                                               class="btn btn-outline-danger btn-action"
+                                               onclick="return confirm('Delete this product?')">
+                                                <i class="fa fa-trash me-1"></i>Delete
+                                            </a>
+                                            <a href="{% url 'Farmer:Stock' i.id %}"
+                                               class="btn btn-outline-primary btn-action">
+                                                <i class="fa fa-warehouse me-1"></i>Stock
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7">
+                                        <div class="empty-state">
+                                            <i class="fa fa-box-open"></i>
+                                            No products added yet. Use the form above to add your first product.
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- Page Content End -->
+
+    <!-- Footer Start -->
+    <div class="container-fluid bg-dark footer mt-5 pt-5 wow fadeIn" data-wow-delay="0.1s">
+        <div class="container py-5">
+            <div class="row g-5">
+                <div class="col-lg-3 col-md-6">
+                    <h1 class="fw-bold text-primary mb-4">Farm<span class="text-secondary">oo</span>n</h1>
+                    <div class="d-flex pt-2">
+                        <a class="btn btn-square btn-outline-light rounded-circle me-1" href=""><i class="fab fa-twitter"></i></a>
+                        <a class="btn btn-square btn-outline-light rounded-circle me-1" href=""><i class="fab fa-facebook-f"></i></a>
+                        <a class="btn btn-square btn-outline-light rounded-circle me-1" href=""><i class="fab fa-youtube"></i></a>
+                        <a class="btn btn-square btn-outline-light rounded-circle me-0" href=""><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h4 class="text-light mb-4">Address</h4>
+                    <p><i class="fa fa-map-marker-alt me-3"></i>Idukki,Kerala</p>
+                    <p><i class="fa fa-phone-alt me-3"></i>+012 345 67890</p>
+                    <p><i class="fa fa-envelope me-3"></i>farmoon@gmail.com</p>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h4 class="text-light mb-4">Quick Links</h4>
+                    <a class="btn btn-link" href="{% url 'Guest:AboutUs' %}">About Us</a>
+                    <a class="btn btn-link" href="{% url 'Guest:ContactUs' %}">Contact Us</a>
+                    <a class="btn btn-link" href="">Our Services</a>
+                    <a class="btn btn-link" href="">Terms & Condition</a>
+                    <a class="btn btn-link" href="">Support</a>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h4 class="text-light mb-4">Newsletter</h4>
+                    <div class="position-relative mx-auto" style="max-width: 400px;">
+                        <input class="form-control bg-transparent w-100 py-3 ps-4 pe-5" type="text" placeholder="Your email">
+                        <button type="button" class="btn btn-primary py-2 position-absolute top-0 end-0 mt-2 me-2">SignUp</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid copyright">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                        &copy; <a href="#">Farmoon</a>, All Right Reserved.
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Footer End -->
+
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-lg btn-primary btn-lg-square rounded-circle back-to-top"><i class="bi bi-arrow-up"></i></a>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'Main/lib/wow/wow.min.js' %}"></script>
+    <script src="{% static 'Main/lib/easing/easing.min.js' %}"></script>
+    <script src="{% static 'Main/lib/waypoints/waypoints.min.js' %}"></script>
+    <script src="{% static 'Main/js/main.js' %}"></script>
+
+</body>
+</html>
